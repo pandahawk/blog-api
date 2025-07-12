@@ -20,7 +20,7 @@
 *.swp
 
 # IDE settings (GoLand)
-.idea/
+/.idea/
 *.iml
 
 # OS files
@@ -42,3 +42,4 @@ coverage.out
 # Environment files (optional)
 .env
 .env.*
+
