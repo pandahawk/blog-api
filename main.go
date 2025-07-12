@@ -7,6 +7,8 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	r := gin.Default()
 	router.SetupRoutes(r)
 	err := r.Run(":8080")
