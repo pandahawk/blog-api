@@ -9,13 +9,19 @@ import (
 	"testing"
 )
 
+func setupTestRouter() *gin.Engine {
+	gin.SetMode(gin.TestMode)
+	router := gin.Default()
+	service := NewSimpleService()
+	handler := NewHandler(service)
+	userGroup := router.Group("/users")
+	handler.RegisterRoutes(userGroup)
+	return router
+}
+
 func Test_getAllUsers(t *testing.T) {
 
-	gin.SetMode(gin.TestMode)
-
-	router := gin.Default()
-	userGroup := router.Group("/users")
-	RegisterRoutes(userGroup)
+	router := setupTestRouter()
 
 	req, _ := http.NewRequest(http.MethodGet, "/users", nil)
 	w := httptest.NewRecorder()
@@ -27,10 +33,7 @@ func Test_getAllUsers(t *testing.T) {
 }
 
 func Test_getUserById(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	router := gin.Default()
-	userGroup := router.Group("/users")
-	RegisterRoutes(userGroup)
+	router := setupTestRouter()
 
 	id := "101"
 	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/users/%s", id), nil)
@@ -44,10 +47,7 @@ func Test_getUserById(t *testing.T) {
 }
 
 func Test_createUser(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	router := gin.Default()
-	userGroup := router.Group("/users")
-	RegisterRoutes(userGroup)
+	router := setupTestRouter()
 	req, _ := http.NewRequest(http.MethodPost, "/users", nil)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
@@ -58,11 +58,7 @@ func Test_createUser(t *testing.T) {
 }
 
 func Test_UpdateUserById(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	router := gin.Default()
-	userGroup := router.Group("/users")
-	RegisterRoutes(userGroup)
-
+	router := setupTestRouter()
 	id := "101"
 	req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/users/%s", id), nil)
 	w := httptest.NewRecorder()
@@ -75,11 +71,7 @@ func Test_UpdateUserById(t *testing.T) {
 }
 
 func Test_deleteUserById(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	router := gin.Default()
-	userGroup := router.Group("/users")
-	RegisterRoutes(userGroup)
-
+	router := setupTestRouter()
 	id := "101"
 	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/users/%s", id), nil)
 	w := httptest.NewRecorder()

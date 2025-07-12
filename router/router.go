@@ -11,6 +11,9 @@ func SetupRoutes(r *gin.Engine) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
+	userService := user.NewSimpleService()
+	userHandler := user.NewHandler(userService)
+
 	userGroup := r.Group("/users")
-	user.RegisterRoutes(userGroup)
+	userHandler.RegisterRoutes(userGroup)
 }

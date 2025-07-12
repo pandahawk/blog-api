@@ -11,3 +11,6 @@ GET http://localhost:8080/users/123
 
 ### update user by id
 PATCH http://localhost:8080/users/234
+
+### delete user by id
+DELETE http://localhost:8080/users/345

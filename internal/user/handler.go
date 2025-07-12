@@ -1,41 +1,50 @@
 package user
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func RegisterRoutes(r *gin.RouterGroup) {
-	r.GET("", getAllUsers)
-	r.GET("/:id", getUserById)
-	r.POST("", createUser)
-	r.PATCH("/:id", updateUserById)
-	r.DELETE("/:id", deleteUserById)
+type UserHandler struct {
+	Service UserService
 }
 
-func getAllUsers(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "get all users"})
+func NewHandler(service UserService) *UserHandler {
+	return &UserHandler{Service: service}
 }
 
-func getUserById(c *gin.Context) {
-	id := c.Param("id")
-	msg := fmt.Sprintf("get user %s", id)
+func (h *UserHandler) RegisterRoutes(r *gin.RouterGroup) {
+	r.GET("", h.getAllUsers)
+	r.GET("/:id", h.getUserById)
+	r.POST("", h.createUser)
+	r.PATCH("/:id", h.updateUserById)
+	r.DELETE("/:id", h.deleteUserById)
+}
+
+func (h *UserHandler) getAllUsers(c *gin.Context) {
+	msg := h.Service.GetAllUsers()
 	c.JSON(http.StatusOK, gin.H{"message": msg})
 }
 
-func updateUserById(c *gin.Context) {
+func (h *UserHandler) getUserById(c *gin.Context) {
 	id := c.Param("id")
-	msg := fmt.Sprintf("update user %s", id)
+	msg := h.Service.GetUser(id)
 	c.JSON(http.StatusOK, gin.H{"message": msg})
 }
 
-func createUser(c *gin.Context) {
-	c.JSON(http.StatusCreated, gin.H{"message": "create new user"})
+func (h *UserHandler) updateUserById(c *gin.Context) {
+	id := c.Param("id")
+	msg := h.Service.UpdateUser(id)
+	c.JSON(http.StatusOK, gin.H{"message": msg})
 }
 
-func deleteUserById(c *gin.Context) {
+func (h *UserHandler) createUser(c *gin.Context) {
+	msg := h.Service.CreateUser()
+	c.JSON(http.StatusCreated, gin.H{"message": msg})
+}
+
+func (h *UserHandler) deleteUserById(c *gin.Context) {
 	id := c.Param("id")
-	msg := fmt.Sprintf("delete user %s", id)
+	msg := h.Service.DeleteUser(id)
 	c.JSON(http.StatusOK, gin.H{"message": msg})
 }
