@@ -10,8 +10,8 @@ func SetupRoutes(r *gin.Engine) {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
-
-	userService := user.NewSimpleService()
+	userRepository := user.NewDevRepository()
+	userService := user.NewService(userRepository)
 	userHandler := user.NewHandler(userService)
 
 	userGroup := r.Group("/users")
