@@ -37,7 +37,6 @@ coverage.out
 *.bak
 *.orig
 *.swo
-*.swp
 
 # Environment files (optional)
 .env
