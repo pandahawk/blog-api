@@ -13,26 +13,26 @@ type UserService interface {
 type simpleService struct {
 }
 
-func (s *simpleService) GetUser(id string) string {
-	return fmt.Sprintf("get user %s", id)
-}
-
-func (s *simpleService) CreateUser() string {
-	return "create new user"
-}
-
-func (s *simpleService) UpdateUser(id string) string {
-	return fmt.Sprintf("update user %s", id)
-}
-
-func (s *simpleService) DeleteUser(id string) string {
-	return fmt.Sprintf("delete user %s", id)
+func (s *simpleService) GetAllUsers() string {
+	return "Get All users"
 }
 
 func NewSimpleService() UserService {
 	return &simpleService{}
 }
 
-func (s *simpleService) GetAllUsers() string {
-	return "get all users"
+func (s *simpleService) GetUser(id string) string {
+	return fmt.Sprintf("Get user %s", id)
+}
+
+func (s *simpleService) CreateUser() string {
+	return "Create new user"
+}
+
+func (s *simpleService) UpdateUser(id string) string {
+	return fmt.Sprintf("Update user %s", id)
+}
+
+func (s *simpleService) DeleteUser(id string) string {
+	return fmt.Sprintf("Delete user %s", id)
 }
