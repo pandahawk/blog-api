@@ -2,6 +2,11 @@
 POST http://localhost:8080/users
 Content-Type: application/json
 
+{
+  "username": "alice",
+  "email":"alice@example.com"
+}
+
 ### GET Users
 GET http://localhost:8080/users
 
