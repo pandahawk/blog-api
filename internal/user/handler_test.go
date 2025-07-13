@@ -1,7 +1,9 @@
 package user
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -107,4 +109,74 @@ func Test_getUser_InvalidID(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	assert.Contains(t, w.Body.String(), `"error":"invalid ID"`)
+}
+
+func Test_createUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockService := NewMockService(ctrl)
+	user := User{
+		ID:       1,
+		Username: "testuser1",
+		Email:    "testuser1@example.com",
+	}
+
+	mockService.EXPECT().CreateUser(gomock.Any()).Return(user, nil)
+	bodyBytes, _ := json.Marshal(user)
+	w := httptest.NewRecorder()
+
+	router := setupTestRouter(mockService)
+	req, _ := http.NewRequest(http.MethodPost, "/users", bytes.NewReader(bodyBytes))
+	router.ServeHTTP(w, req)
+
+	var got User
+	err := json.NewDecoder(w.Body).Decode(&got)
+	assert.NoError(t, err)
+	assert.Equal(t, user, got)
+}
+
+func Test_createUser_invalidJson(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockService := NewMockService(ctrl)
+	invalidJSON := `{
+	ID:       "1",
+	Username: "testuser1",
+	Email:    "testuser1@example.com"
+	},`
+
+	w := httptest.NewRecorder()
+
+	router := setupTestRouter(mockService)
+	req, _ := http.NewRequest(http.MethodPost, "/users", bytes.NewBufferString(invalidJSON))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Invalid status code: %d but expected 400", w.Code)
+	}
+}
+
+func Test_createUserWithoutEmail(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockService := NewMockService(ctrl)
+	user := User{
+		ID:       1,
+		Username: "testuser1",
+		Email:    "",
+	}
+
+	mockService.EXPECT().CreateUser(gomock.Any()).Return(User{},
+		errors.New("missing required fields"))
+	bodyBytes, _ := json.Marshal(user)
+	w := httptest.NewRecorder()
+
+	router := setupTestRouter(mockService)
+	req, _ := http.NewRequest(http.MethodPost, "/users", bytes.NewReader(bodyBytes))
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("Invalid status code: %d but expected 500", w.Code)
+	}
 }
