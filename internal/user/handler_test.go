@@ -26,8 +26,8 @@ func Test_getAllUsers(t *testing.T) {
 	mockService := NewMockService(ctrl)
 
 	want := []User{
-		{ID: "1", Username: "testuser1", Email: "testuser1@example.com"},
-		{ID: "2", Username: "testuser2", Email: "testuser1@example.com"},
+		{ID: 1, Username: "testuser1", Email: "testuser1@example.com"},
+		{ID: 2, Username: "testuser2", Email: "testuser1@example.com"},
 	}
 	mockService.EXPECT().
 		GetAllUsers().
@@ -52,15 +52,15 @@ func Test_getUser(t *testing.T) {
 	defer ctrl.Finish()
 	mockService := NewMockService(ctrl)
 
-	want := User{ID: "1", Username: "testuser1"}
+	id := 1
+	want := User{ID: id, Username: "testuser1"}
 
 	mockService.EXPECT().
 		GetUser(gomock.Any()).
 		Return(want, nil)
 	router := setupTestRouter(mockService)
 
-	id := "101"
-	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/users/%s", id), nil)
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/users/%v", id), nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -73,58 +73,38 @@ func Test_getUser(t *testing.T) {
 	assert.Equal(t, want, got)
 }
 
-//
-//func Test_createUser(t *testing.T) {
-//	ctrl := gomock.NewController(t)
-//	defer ctrl.Finish()
-//	mockService := NewMockUserService(ctrl)
-//	mockService.EXPECT().
-//		CreateUser().Return("Create new user")
-//
-//	router := setupTestRouter(mockService)
-//	req, _ := http.NewRequest(http.MethodPost, "/users", nil)
-//	req.Header.Set("Content-Type", "application/json")
-//	w := httptest.NewRecorder()
-//
-//	router.ServeHTTP(w, req)
-//	assert.Equal(t, http.StatusCreated, w.Code)
-//	assert.Contains(t, w.Body.String(), "Create new user")
-//}
-//
-//func Test_UpdateUserById(t *testing.T) {
-//	ctrl := gomock.NewController(t)
-//	defer ctrl.Finish()
-//	mockService := NewMockUserService(ctrl)
-//	mockService.EXPECT().
-//		UpdateUser(gomock.Any()).Return("Update user 101")
-//
-//	router := setupTestRouter(mockService)
-//	id := "101"
-//	req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/users/%s", id), nil)
-//	w := httptest.NewRecorder()
-//
-//	router.ServeHTTP(w, req)
-//
-//	assert.Equal(t, http.StatusOK, w.Code)
-//	assert.Contains(t, w.Body.String(), "Update user")
-//	assert.Contains(t, w.Body.String(), id)
-//}
-//
-//func Test_deleteUserById(t *testing.T) {
-//	ctrl := gomock.NewController(t)
-//	defer ctrl.Finish()
-//	mockService := NewMockUserService(ctrl)
-//	mockService.EXPECT().
-//		DeleteUser(gomock.Any()).Return("Delete user 101")
-//	router := setupTestRouter(mockService)
-//	id := "101"
-//	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/users/%s", id), nil)
-//	w := httptest.NewRecorder()
-//
-//	router.ServeHTTP(w, req)
-//
-//	expected := `{"message": "Delete user 101"}`
-//	assert.Equal(t, http.StatusOK, w.Code)
-//	assert.JSONEq(t, expected, w.Body.String())
-//
-//}
+func Test_getUser_NotFound(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockService := NewMockService(ctrl)
+
+	id := 100
+
+	mockService.EXPECT().
+		GetUser(gomock.Any()).
+		Return(User{}, fmt.Errorf("user %d not found", id))
+	router := setupTestRouter(mockService)
+
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/users/%d", id), nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Contains(t, w.Body.String(), fmt.Sprintf("user %d not found", id))
+}
+
+func Test_getUser_InvalidID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockService := NewMockService(ctrl)
+
+	id := "abc"
+	router := setupTestRouter(mockService)
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/users/%v", id), nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, w.Body.String(), `"error":"invalid ID"`)
+}
