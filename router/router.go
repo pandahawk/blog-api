@@ -5,15 +5,20 @@ import (
 	"github.com/pandahawk/blog-api/internal/user"
 )
 
-func SetupRoutes(r *gin.Engine) {
-
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok"})
-	})
+func setupUserRoutes(r *gin.Engine) {
 	userRepository := user.NewDevRepository()
 	userService := user.NewService(userRepository)
 	userHandler := user.NewHandler(userService)
 
 	userGroup := r.Group("/users")
 	userHandler.RegisterRoutes(userGroup)
+}
+
+func SetupRoutes(r *gin.Engine) {
+
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "ok"})
+	})
+	setupUserRoutes(r)
+
 }

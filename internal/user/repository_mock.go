@@ -48,17 +48,32 @@ func (mr *MockRepositoryMockRecorder) GetAllUsers() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllUsers", reflect.TypeOf((*MockRepository)(nil).GetAllUsers))
 }
 
-// GetUserById mocks base method.
-func (m *MockRepository) GetUserById(id string) (User, bool) {
+// GetUserByID mocks base method.
+func (m *MockRepository) GetUserByID(id int) (User, bool) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserById", id)
+	ret := m.ctrl.Call(m, "GetUserByID", id)
 	ret0, _ := ret[0].(User)
 	ret1, _ := ret[1].(bool)
 	return ret0, ret1
 }
 
-// GetUserById indicates an expected call of GetUserById.
-func (mr *MockRepositoryMockRecorder) GetUserById(id interface{}) *gomock.Call {
+// GetUserByID indicates an expected call of GetUserByID.
+func (mr *MockRepositoryMockRecorder) GetUserByID(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserById", reflect.TypeOf((*MockRepository)(nil).GetUserById), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockRepository)(nil).GetUserByID), id)
+}
+
+// SaveUser mocks base method.
+func (m *MockRepository) SaveUser(user User) (User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveUser", user)
+	ret0, _ := ret[0].(User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SaveUser indicates an expected call of SaveUser.
+func (mr *MockRepositoryMockRecorder) SaveUser(user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveUser", reflect.TypeOf((*MockRepository)(nil).SaveUser), user)
 }

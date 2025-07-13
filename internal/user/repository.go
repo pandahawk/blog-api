@@ -8,15 +8,22 @@ import (
 //go:generate mockgen -source=repository.go -destination=repository_mock.go -package=user
 type Repository interface {
 	GetAllUsers() ([]User, error)
-	GetUserById(id string) (User, bool)
+	GetUserByID(id int) (User, bool)
+	SaveUser(user User) (User, error)
 }
 
 type repository struct {
-	users map[string]User
-	mu    sync.RWMutex
+	users     map[int]User
+	mu        sync.RWMutex
+	idCounter int
 }
 
-func (r *repository) GetUserById(id string) (User, bool) {
+func (r *repository) SaveUser(user User) (User, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (r *repository) GetUserByID(id int) (User, bool) {
 	user, ok := r.users[id]
 	return user, ok
 }
@@ -32,25 +39,36 @@ func (r *repository) GetAllUsers() ([]User, error) {
 	return users, nil
 }
 
+/*
+todo: write a save method and call this instead of manually reassigning
+idCounter
+*/
 func (r *repository) InitSampleData() {
+	r.Save(User{Username: "alice", Email: "alice@example.com"})
+	r.Save(User{Username: "bob", Email: "bob@example.com"})
+	r.Save(User{Username: "charlie", Email: "charlie@example.com"})
+	log.Println("Sample Data initialized")
+}
+
+func (r *repository) Save(u User) User {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	r.users = map[string]User{
-		"1": {ID: "1", Username: "alice", Email: "alice@example.com"},
-		"2": {ID: "2", Username: "bob", Email: "bob@example.com"},
-		"3": {ID: "3", Username: "charlie", Email: "charlie@example.com"},
-	}
-	log.Println("Sample Data initialized")
-
+	r.idCounter++
+	u.ID = r.idCounter
+	r.users[u.ID] = u
+	return u
 }
 
 func NewRepository() Repository {
-	return &repository{users: make(map[string]User)}
+	return &repository{
+		users:     make(map[int]User),
+		idCounter: 100}
 }
 
 func NewDevRepository() Repository {
 	repo := &repository{
-		users: make(map[string]User),
+		users:     make(map[int]User),
+		idCounter: 100,
 	}
 	repo.InitSampleData()
 	return repo

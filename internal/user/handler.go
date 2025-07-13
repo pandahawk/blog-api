@@ -4,15 +4,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type Handler struct {
 	Service Service
 }
 
-//	func NewHandler(service Service) *Handler {
-//		return &Handler{Service: service}
-//	}
 func NewHandler(service Service) *Handler {
 	return &Handler{Service: service}
 }
@@ -20,9 +18,7 @@ func NewHandler(service Service) *Handler {
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	r.GET("", h.getAllUsers)
 	r.GET("/:id", h.getUser)
-	//r.POST("", h.createUser)
-	//r.PATCH("/:id", h.updateUserById)
-	//r.DELETE("/:id", h.deleteUserById)
+	r.POST("", h.createUser)
 }
 
 func (h *Handler) getAllUsers(c *gin.Context) {
@@ -31,30 +27,30 @@ func (h *Handler) getAllUsers(c *gin.Context) {
 }
 
 func (h *Handler) getUser(c *gin.Context) {
-	id := c.Param("id")
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID"})
+		return
+	}
 	user, err := h.Service.GetUser(id)
 	if err != nil {
-		log.Printf("failed to get user by ID %s: %v", id, err)
+		log.Printf("failed to get user by ID %v: %v", id, err)
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 	c.IndentedJSON(http.StatusOK, user)
 }
 
-//
-//func (h *Handler) updateUserById(c *gin.Context) {
-//	id := c.Param("id")
-//	msg := h.Service.UpdateUser(id)
-//	c.JSON(http.StatusOK, gin.H{"message": msg})
-//}
-//
-//func (h *Handler) createUser(c *gin.Context) {
-//	msg := h.Service.CreateUser()
-//	c.JSON(http.StatusCreated, gin.H{"message": msg})
-//}
-//
-//func (h *Handler) deleteUserById(c *gin.Context) {
-//	id := c.Param("id")
-//	msg := h.Service.DeleteUser(id)
-//	c.JSON(http.StatusOK, gin.H{"message": msg})
-//}
+func (h *Handler) createUser(c *gin.Context) {
+	var newUser User
+	if err := c.BindJSON(&newUser); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	savedUser, err := h.Service.CreateUser(newUser)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+	c.IndentedJSON(http.StatusCreated, savedUser)
+}
