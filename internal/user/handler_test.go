@@ -277,3 +277,52 @@ func TestUpdateUser_UpdateFails(t *testing.T) {
 	}
 	assert.Contains(t, w.Body.String(), `"error":"update failed"`)
 }
+
+func TestDeleteUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockService := NewMockService(ctrl)
+	id := 1
+	mockService.EXPECT().DeleteUser(gomock.Any()).Return(nil)
+	router := setupTestRouter(mockService)
+
+	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/users/%d", id), nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusNoContent, w.Code)
+}
+
+func TestDeleteUser_InvalidID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockService := NewMockService(ctrl)
+	id := "abc"
+	router := setupTestRouter(mockService)
+
+	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/users/%s",
+		id), nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, w.Body.String(), `"invalid ID"`)
+}
+
+func TestDeleteUser_IDNotFound(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockService := NewMockService(ctrl)
+	id := 1
+	mockService.EXPECT().DeleteUser(gomock.Any()).Return(fmt.Errorf(
+		"user %d not found", id))
+	router := setupTestRouter(mockService)
+
+	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/users/%d", id), nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Contains(t, w.Body.String(), fmt.Sprintf(
+		"user %d not found", id))
+}

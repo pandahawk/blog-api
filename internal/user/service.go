@@ -13,10 +13,16 @@ type Service interface {
 	CreateUser(user User) (User, error)
 	GetAllUsers() []User
 	UpdateUser(id int, user User) (User, error)
+	DeleteUser(id int) error
 }
 
 type service struct {
 	repo Repository
+}
+
+func (s *service) DeleteUser(id int) error {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (s *service) UpdateUser(id int, user User) (User, error) {
