@@ -47,12 +47,12 @@ func (h *Handler) getUser(c *gin.Context) {
 }
 
 func (h *Handler) createUser(c *gin.Context) {
-	var newUser User
-	if err := c.BindJSON(&newUser); err != nil {
-		respondWithError(c, http.StatusBadRequest, err.Error())
+	var req CreateUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		respondWithError(c, http.StatusBadRequest, "missing username or email")
 		return
 	}
-	savedUser, err := h.Service.CreateUser(newUser)
+	savedUser, err := h.Service.CreateUser(req)
 	if err != nil {
 		respondWithError(c, http.StatusBadRequest, err.Error())
 		return
@@ -67,12 +67,12 @@ func (h *Handler) updateUser(c *gin.Context) {
 		respondWithError(c, http.StatusBadRequest, "invalid ID")
 		return
 	}
-	var newUser User
-	if err := c.BindJSON(&newUser); err != nil {
+	var req UpdateUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		respondWithError(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	updatedUser, err := h.Service.UpdateUser(id, newUser)
+	updatedUser, err := h.Service.UpdateUser(id, req)
 	if err != nil {
 		respondWithError(c, http.StatusInternalServerError, err.Error())
 		return

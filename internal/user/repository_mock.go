@@ -48,6 +48,21 @@ func (mr *MockRepositoryMockRecorder) FindAll() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockRepository)(nil).FindAll))
 }
 
+// FindByEmail mocks base method.
+func (m *MockRepository) FindByEmail(email string) (User, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByEmail", email)
+	ret0, _ := ret[0].(User)
+	ret1, _ := ret[1].(bool)
+	return ret0, ret1
+}
+
+// FindByEmail indicates an expected call of FindByEmail.
+func (mr *MockRepositoryMockRecorder) FindByEmail(email interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByEmail", reflect.TypeOf((*MockRepository)(nil).FindByEmail), email)
+}
+
 // FindByID mocks base method.
 func (m *MockRepository) FindByID(id int) (User, bool) {
 	m.ctrl.T.Helper()
@@ -63,6 +78,21 @@ func (mr *MockRepositoryMockRecorder) FindByID(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockRepository)(nil).FindByID), id)
 }
 
+// FindByUsername mocks base method.
+func (m *MockRepository) FindByUsername(username string) (User, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByUsername", username)
+	ret0, _ := ret[0].(User)
+	ret1, _ := ret[1].(bool)
+	return ret0, ret1
+}
+
+// FindByUsername indicates an expected call of FindByUsername.
+func (mr *MockRepositoryMockRecorder) FindByUsername(username interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByUsername", reflect.TypeOf((*MockRepository)(nil).FindByUsername), username)
+}
+
 // Save mocks base method.
 func (m *MockRepository) Save(user User) (User, error) {
 	m.ctrl.T.Helper()
@@ -76,4 +106,19 @@ func (m *MockRepository) Save(user User) (User, error) {
 func (mr *MockRepositoryMockRecorder) Save(user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockRepository)(nil).Save), user)
+}
+
+// Update mocks base method.
+func (m *MockRepository) Update(user User) (User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", user)
+	ret0, _ := ret[0].(User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockRepositoryMockRecorder) Update(user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), user)
 }
