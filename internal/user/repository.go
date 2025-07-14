@@ -7,9 +7,9 @@ import (
 
 //go:generate mockgen -source=repository.go -destination=repository_mock.go -package=user
 type Repository interface {
-	GetAllUsers() ([]User, error)
-	GetUserByID(id int) (User, bool)
-	SaveUser(user User) (User, error)
+	FindAll() ([]User, error)
+	FindByID(id int) (User, bool)
+	Save(user User) (User, error)
 }
 
 type repository struct {
@@ -18,17 +18,12 @@ type repository struct {
 	idCounter int
 }
 
-func (r *repository) SaveUser(user User) (User, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *repository) GetUserByID(id int) (User, bool) {
+func (r *repository) FindByID(id int) (User, bool) {
 	user, ok := r.users[id]
 	return user, ok
 }
 
-func (r *repository) GetAllUsers() ([]User, error) {
+func (r *repository) FindAll() ([]User, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -50,13 +45,13 @@ func (r *repository) InitSampleData() {
 	log.Println("Sample Data initialized")
 }
 
-func (r *repository) Save(u User) User {
+func (r *repository) Save(u User) (User, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.idCounter++
 	u.ID = r.idCounter
 	r.users[u.ID] = u
-	return u
+	return u, nil
 }
 
 func NewRepository() Repository {
