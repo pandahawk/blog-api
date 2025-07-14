@@ -177,8 +177,8 @@ func TestCreateUser_WithoutEmail(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodPost, "/users", bytes.NewReader(bodyBytes))
 	router.ServeHTTP(w, req)
 
-	if w.Code != http.StatusInternalServerError {
-		t.Errorf("Invalid status code: %d but expected 500", w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Invalid status code: %d but expected 400", w.Code)
 	}
 }
 

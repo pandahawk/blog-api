@@ -2,6 +2,7 @@ package user
 
 import (
 	"log"
+	"sort"
 	"sync"
 )
 
@@ -31,17 +32,21 @@ func (r *repository) FindAll() ([]User, error) {
 	for _, user := range r.users {
 		users = append(users, user)
 	}
+
+	sort.Slice(users, func(i, j int) bool {
+		return users[i].ID < users[j].ID
+	})
+
 	return users, nil
 }
 
-/*
-todo: write a save method and call this instead of manually reassigning
-idCounter
-*/
 func (r *repository) InitSampleData() {
-	r.Save(User{Username: "alice", Email: "alice@example.com"})
-	r.Save(User{Username: "bob", Email: "bob@example.com"})
-	r.Save(User{Username: "charlie", Email: "charlie@example.com"})
+	r.users = map[int]User{
+		101: {ID: 101, Username: "alice", Email: "alice@example.com"},
+		102: {ID: 102, Username: "bob", Email: "bob@example.com"},
+		103: {ID: 103, Username: "charlie", Email: "charlie@example.com"},
+	}
+	r.idCounter = 100 + len(r.users)
 	log.Println("Sample Data initialized")
 }
 

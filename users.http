@@ -3,18 +3,24 @@ POST http://localhost:8080/users
 Content-Type: application/json
 
 {
-  "username": "",
-  "email":"alice4@example.com"
+  "username": "elena",
+  "email":"elena@example.com"
 }
 
 ### GET Users
 GET http://localhost:8080/users
 
 ### GET User By ID
-GET http://localhost:8080/users/101
+GET http://localhost:8080/users/201
 
 ### UPDATE User By ID
-PATCH http://localhost:8080/users/234
+PATCH http://localhost:8080/users/101
+Content-Type: application/json
+
+{
+  "username": "",
+  "email":"alice4@example.com"
+}
 
 ### DELETE User By ID
 DELETE http://localhost:8080/users/345
