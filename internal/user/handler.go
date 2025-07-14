@@ -23,6 +23,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	r.GET("/:id", h.getUser)
 	r.POST("", h.createUser)
 	r.PATCH("/:id", h.updateUser)
+	r.DELETE("/:id", h.deleteUser)
 }
 
 func (h *Handler) getAllUsers(c *gin.Context) {
@@ -77,4 +78,19 @@ func (h *Handler) updateUser(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, updatedUser)
+}
+
+func (h *Handler) deleteUser(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		respondWithError(c, http.StatusBadRequest, "invalid ID")
+		return
+	}
+	err = h.Service.DeleteUser(id)
+	if err != nil {
+		respondWithError(c, http.StatusNotFound, err.Error())
+		return
+	}
+	c.JSON(http.StatusNoContent, nil)
 }
