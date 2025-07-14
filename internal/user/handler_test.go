@@ -157,12 +157,30 @@ func TestCreateUser_WithoutEmail(t *testing.T) {
 		"username": "testuser1",
 		"email":    ""
 	}`
-
-	mockService.EXPECT().CreateUser(gomock.Any()).Return(User{},
-		errors.New("missing username or email"))
 	body := strings.NewReader(rawJSON)
 	w := httptest.NewRecorder()
 
+	router := setupTestRouter(mockService)
+	req, _ := http.NewRequest(http.MethodPost, "/users", body)
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Invalid status code: %d but expected 400", w.Code)
+	}
+}
+
+func TestCreateUser_DuplicateUsername(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockService := NewMockService(ctrl)
+	rawJSON := `{
+		"username": "testuser",
+		"email":    "testuser@example.com"
+	}`
+	body := strings.NewReader(rawJSON)
+	mockService.EXPECT().CreateUser(gomock.Any()).Return(User{}, errors.New("username already exists"))
+
+	w := httptest.NewRecorder()
 	router := setupTestRouter(mockService)
 	req, _ := http.NewRequest(http.MethodPost, "/users", body)
 	router.ServeHTTP(w, req)
@@ -178,14 +196,13 @@ func TestUpdateUser(t *testing.T) {
 	mockService := NewMockService(ctrl)
 	id := 1
 	rawJSON := `{
-					"username": "updatedtestuser", 
-					"email": "testuser@example.com"
+					"email": "testuserupdate@example.com"
 				}`
 	body := strings.NewReader(rawJSON)
 	user := User{
 		ID:       1,
-		Username: "updatedtestuser",
-		Email:    "testuser@example.com",
+		Username: "testuser",
+		Email:    "testuserupdate@example.com",
 	}
 	mockService.EXPECT().UpdateUser(gomock.Any(), gomock.Any()).Return(user, nil)
 	router := setupTestRouter(mockService)

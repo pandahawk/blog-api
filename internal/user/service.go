@@ -4,15 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 )
 
 //go:generate mockgen -source=service.go -destination=service_mock.go -package=user
 
 type Service interface {
 	GetUser(id int) (User, error)
-	CreateUser(user User) (User, error)
+	CreateUser(req CreateUserRequest) (User, error)
 	GetAllUsers() []User
-	UpdateUser(id int, user User) (User, error)
+	UpdateUser(id int, req UpdateUserRequest) (User, error)
 	DeleteUser(id int) error
 }
 
@@ -20,36 +21,51 @@ type service struct {
 	repo Repository
 }
 
+func (s *service) CreateUser(req CreateUserRequest) (User, error) {
+	_, found := s.repo.FindByUsername(req.Username)
+	if found {
+		return User{}, errors.New("username already exists")
+	}
+	_, found = s.repo.FindByEmail(req.Email)
+	if found {
+		return User{}, errors.New("email already exists")
+	}
+
+	user := User{
+		Username: req.Username,
+		Email:    req.Email,
+	}
+	return s.repo.Save(user)
+}
+
+func (s *service) UpdateUser(id int, req UpdateUserRequest) (User, error) {
+	user, found := s.repo.FindByID(id)
+	if !found {
+		return User{}, fmt.Errorf("user %d not found", id)
+	}
+
+	// Only update provided fields
+	if req.Username != nil && strings.TrimSpace(*req.Username) == "" {
+		return User{}, errors.New("username cannot be empty")
+	}
+
+	if req.Email != nil && strings.TrimSpace(*req.Email) == "" {
+		return User{}, errors.New("email cannot be empty")
+	}
+
+	if req.Username != nil {
+		user.Username = *req.Username
+	}
+	if req.Email != nil {
+		user.Email = *req.Email
+	}
+
+	return s.repo.Update(user)
+}
+
 func (s *service) DeleteUser(id int) error {
 	//TODO implement me
 	panic("implement me")
-}
-
-func (s *service) UpdateUser(id int, user User) (User, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *service) CreateUser(user User) (User, error) {
-
-	if user.Username == "" || user.Email == "" {
-		return User{}, errors.New("username or email is empty")
-	}
-
-	users, err := s.repo.FindAll()
-	if err != nil {
-		return User{}, err
-	}
-
-	for _, u := range users {
-		if u.Username == user.Username {
-			return User{}, errors.New("username already exists")
-		}
-		if u.Email == user.Email {
-			return User{}, errors.New("email already exists")
-		}
-	}
-	return s.repo.Save(user)
 }
 
 func (s *service) GetUser(id int) (User, error) {
