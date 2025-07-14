@@ -2,7 +2,6 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -15,42 +14,67 @@ func NewHandler(service Service) *Handler {
 	return &Handler{Service: service}
 }
 
+func respondWithError(c *gin.Context, code int, message string) {
+	c.JSON(code, gin.H{"error": message})
+}
+
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	r.GET("", h.getAllUsers)
 	r.GET("/:id", h.getUser)
 	r.POST("", h.createUser)
+	r.PATCH("/:id", h.updateUser)
 }
 
 func (h *Handler) getAllUsers(c *gin.Context) {
 	users := h.Service.GetAllUsers()
-	c.IndentedJSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, users)
 }
 
 func (h *Handler) getUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID"})
+		respondWithError(c, http.StatusBadRequest, "invalid ID")
 		return
 	}
 	user, err := h.Service.GetUser(id)
 	if err != nil {
-		log.Printf("failed to get user by ID %v: %v", id, err)
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		respondWithError(c, http.StatusNotFound, err.Error())
 		return
 	}
-	c.IndentedJSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, user)
 }
 
 func (h *Handler) createUser(c *gin.Context) {
 	var newUser User
 	if err := c.BindJSON(&newUser); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		respondWithError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	savedUser, err := h.Service.CreateUser(newUser)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondWithError(c, http.StatusBadRequest, err.Error())
+		return
 	}
-	c.IndentedJSON(http.StatusCreated, savedUser)
+	c.JSON(http.StatusCreated, savedUser)
+}
+
+func (h *Handler) updateUser(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		respondWithError(c, http.StatusBadRequest, "invalid ID")
+		return
+	}
+	var newUser User
+	if err := c.BindJSON(&newUser); err != nil {
+		respondWithError(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	updatedUser, err := h.Service.UpdateUser(id, newUser)
+	if err != nil {
+		respondWithError(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, updatedUser)
 }

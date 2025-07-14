@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -22,7 +23,7 @@ func setupTestRouter(service Service) *gin.Engine {
 	return router
 }
 
-func Test_getAllUsers(t *testing.T) {
+func TestGetAllUsers(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockService := NewMockService(ctrl)
@@ -49,7 +50,7 @@ func Test_getAllUsers(t *testing.T) {
 	assert.ElementsMatch(t, want, got)
 }
 
-func Test_getUser(t *testing.T) {
+func TestGetUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockService := NewMockService(ctrl)
@@ -75,7 +76,7 @@ func Test_getUser(t *testing.T) {
 	assert.Equal(t, want, got)
 }
 
-func Test_getUser_NotFound(t *testing.T) {
+func TestGetUser_NotFound(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockService := NewMockService(ctrl)
@@ -96,7 +97,7 @@ func Test_getUser_NotFound(t *testing.T) {
 	assert.Contains(t, w.Body.String(), fmt.Sprintf("user %d not found", id))
 }
 
-func Test_getUser_InvalidID(t *testing.T) {
+func TestGetUser_InvalidID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockService := NewMockService(ctrl)
@@ -111,7 +112,7 @@ func Test_getUser_InvalidID(t *testing.T) {
 	assert.Contains(t, w.Body.String(), `"error":"invalid ID"`)
 }
 
-func Test_createUser(t *testing.T) {
+func TestCreateUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockService := NewMockService(ctrl)
@@ -135,7 +136,7 @@ func Test_createUser(t *testing.T) {
 	assert.Equal(t, user, got)
 }
 
-func Test_createUser_invalidJson(t *testing.T) {
+func TestCreateUser_InvalidJson(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockService := NewMockService(ctrl)
@@ -157,7 +158,7 @@ func Test_createUser_invalidJson(t *testing.T) {
 	}
 }
 
-func Test_createUserWithoutEmail(t *testing.T) {
+func TestCreateUser_WithoutEmail(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mockService := NewMockService(ctrl)
@@ -179,4 +180,100 @@ func Test_createUserWithoutEmail(t *testing.T) {
 	if w.Code != http.StatusInternalServerError {
 		t.Errorf("Invalid status code: %d but expected 500", w.Code)
 	}
+}
+
+func TestUpdateUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockService := NewMockService(ctrl)
+	id := 1
+	rawJSON := `{
+					"username": "updatedtestuser", 
+					"email": "testuser@example.com"
+				}`
+	body := strings.NewReader(rawJSON)
+	user := User{
+		ID:       1,
+		Username: "updatedtestuser",
+		Email:    "testuser@example.com",
+	}
+	mockService.EXPECT().UpdateUser(gomock.Any(), gomock.Any()).Return(user, nil)
+	router := setupTestRouter(mockService)
+	req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/users/%d", id), body)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	var got User
+	err := json.NewDecoder(w.Body).Decode(&got)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, user, got)
+}
+
+func TestUpdateUser_InvalidID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockService := NewMockService(ctrl)
+	id := "abc"
+	rawJSON := `{
+					"username": "updatedtestuser", 
+					"email": "testuser@example.com"
+				}`
+	body := strings.NewReader(rawJSON)
+	router := setupTestRouter(mockService)
+	req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/users/%s", id),
+		body)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Invalid status code: %d but expected 400", w.Code)
+	}
+	assert.Contains(t, w.Body.String(), `"error":"invalid ID"`)
+}
+
+func TestUpdateUser_BadJson(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockService := NewMockService(ctrl)
+	id := 1
+	rawJSON := `{
+					"username": "updatedtestuser, 
+					"email": "testuser@example.com"
+				}`
+	body := strings.NewReader(rawJSON)
+	router := setupTestRouter(mockService)
+	req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/users/%d", id),
+		body)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Invalid status code: %d but expected 400", w.Code)
+	}
+	assert.Contains(t, w.Body.String(), `"error"`)
+}
+
+func TestUpdateUser_UpdateFails(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockService := NewMockService(ctrl)
+	id := 1
+	rawJSON := `{
+					"username": "", 
+					"email": ""
+				}`
+	body := strings.NewReader(rawJSON)
+
+	mockService.EXPECT().UpdateUser(gomock.Any(), gomock.Any()).Return(User{},
+		errors.New("update failed"))
+	router := setupTestRouter(mockService)
+	req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/users/%d", id), body)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("Invalid status code: %d but expected 500", w.Code)
+	}
+	assert.Contains(t, w.Body.String(), `"error":"update failed"`)
 }

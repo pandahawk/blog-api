@@ -33,47 +33,47 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// GetAllUsers mocks base method.
-func (m *MockRepository) GetAllUsers() ([]User, error) {
+// FindAll mocks base method.
+func (m *MockRepository) FindAll() ([]User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllUsers")
+	ret := m.ctrl.Call(m, "FindAll")
 	ret0, _ := ret[0].([]User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetAllUsers indicates an expected call of GetAllUsers.
-func (mr *MockRepositoryMockRecorder) GetAllUsers() *gomock.Call {
+// FindAll indicates an expected call of FindAll.
+func (mr *MockRepositoryMockRecorder) FindAll() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllUsers", reflect.TypeOf((*MockRepository)(nil).GetAllUsers))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockRepository)(nil).FindAll))
 }
 
-// GetUserByID mocks base method.
-func (m *MockRepository) GetUserByID(id int) (User, bool) {
+// FindByID mocks base method.
+func (m *MockRepository) FindByID(id int) (User, bool) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserByID", id)
+	ret := m.ctrl.Call(m, "FindByID", id)
 	ret0, _ := ret[0].(User)
 	ret1, _ := ret[1].(bool)
 	return ret0, ret1
 }
 
-// GetUserByID indicates an expected call of GetUserByID.
-func (mr *MockRepositoryMockRecorder) GetUserByID(id interface{}) *gomock.Call {
+// FindByID indicates an expected call of FindByID.
+func (mr *MockRepositoryMockRecorder) FindByID(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockRepository)(nil).GetUserByID), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockRepository)(nil).FindByID), id)
 }
 
-// SaveUser mocks base method.
-func (m *MockRepository) SaveUser(user User) (User, error) {
+// Save mocks base method.
+func (m *MockRepository) Save(user User) (User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveUser", user)
+	ret := m.ctrl.Call(m, "Save", user)
 	ret0, _ := ret[0].(User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// SaveUser indicates an expected call of SaveUser.
-func (mr *MockRepositoryMockRecorder) SaveUser(user interface{}) *gomock.Call {
+// Save indicates an expected call of Save.
+func (mr *MockRepositoryMockRecorder) Save(user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveUser", reflect.TypeOf((*MockRepository)(nil).SaveUser), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockRepository)(nil).Save), user)
 }
