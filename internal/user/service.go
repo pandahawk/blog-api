@@ -45,7 +45,7 @@ func (s *service) UpdateUser(id int, req UpdateUserRequest) (User, error) {
 
 	var validationErrors []string
 	if req.Username != nil && strings.TrimSpace(*req.Username) == "" {
-		validationErrors = append(validationErrors, "username cannot be empty")
+		validationErrors = append(validationErrors, "username can not be empty")
 	}
 
 	if req.Email != nil && strings.TrimSpace(*req.Email) == "" {
@@ -88,8 +88,8 @@ func (s *service) GetUser(id int) (User, error) {
 
 func (s *service) GetAllUsers() ([]User, error) {
 
-	users, err := s.repo.FindAll()
-	if err != nil {
+	users, ok := s.repo.FindAll()
+	if !ok {
 		return []User{}, errors.New("failed to get all users")
 	}
 	return users, nil

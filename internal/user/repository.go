@@ -8,12 +8,12 @@ import (
 
 //go:generate mockgen -source=repository.go -destination=repository_mock.go -package=user
 type Repository interface {
-	FindAll() ([]User, error)
+	FindAll() ([]User, bool)
 	FindByID(id int) (User, bool)
 	FindByUsername(username string) (User, bool)
 	FindByEmail(email string) (User, bool)
-	Save(user User) (User, error)
-	Update(user User) (User, error)
+	Save(user User) (User, bool)
+	Update(user User) (User, bool)
 	Delete(user User) bool
 }
 
@@ -24,15 +24,17 @@ type repository struct {
 }
 
 func (r *repository) Delete(user User) bool {
-	//TODO implement me
-	panic("implement me")
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	delete(r.users, user.ID)
+	return true
 }
 
-func (r *repository) Update(user User) (User, error) {
+func (r *repository) Update(user User) (User, bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.users[user.ID] = user
-	return user, nil
+	return user, true
 }
 
 func (r *repository) FindByUsername(username string) (User, bool) {
@@ -58,7 +60,7 @@ func (r *repository) FindByID(id int) (User, bool) {
 	return user, ok
 }
 
-func (r *repository) FindAll() ([]User, error) {
+func (r *repository) FindAll() ([]User, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -71,7 +73,7 @@ func (r *repository) FindAll() ([]User, error) {
 		return users[i].ID < users[j].ID
 	})
 
-	return users, nil
+	return users, true
 }
 
 func (r *repository) InitSampleData() {
@@ -101,13 +103,13 @@ func (r *repository) InitSampleData() {
 	log.Println("Sample Data initialized")
 }
 
-func (r *repository) Save(u User) (User, error) {
+func (r *repository) Save(u User) (User, bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.idCounter++
 	u.ID = r.idCounter
 	r.users[u.ID] = u
-	return u, nil
+	return u, true
 }
 
 func NewRepository() Repository {

@@ -19,7 +19,7 @@ func (v ValidationError) Error() string {
 }
 
 func (n NotFoundError) Error() string {
-	return fmt.Sprintf("%s %d not found", n.Resource, n.ID)
+	return fmt.Sprintf("%s with ID %d not found", n.Resource, n.ID)
 }
 
 func NewNotFoundError(resource string, id int) error {
