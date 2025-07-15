@@ -15,7 +15,7 @@ type ValidationError struct {
 }
 
 func (v ValidationError) Error() string {
-	return "invalid input:" + strings.Join(v.Messages, ", ")
+	return "invalid input: " + strings.Join(v.Messages, ", ")
 }
 
 func (n NotFoundError) Error() string {

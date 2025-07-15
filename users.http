@@ -1,3 +1,11 @@
+
+
+### GET Users
+GET http://localhost:8080/users
+
+### GET User By ID
+GET http://localhost:8080/users/1004
+
 ### POST Users
 POST http://localhost:8080/users
 Content-Type: application/json
@@ -7,20 +15,13 @@ Content-Type: application/json
   "email":"elena@example.com"
 }
 
-### GET Users
-GET http://localhost:8080/users
-
-### GET User By ID
-GET http://localhost:8080/users/abc
-
 ### UPDATE User By ID
-PATCH http://localhost:8080/users/101
+PATCH http://localhost:8080/users/1021
 Content-Type: application/json
 
 {
-  "username": "",
-  "email":"alice4@example.com"
+  "email": "bloguser01@example.com"
 }
 
 ### DELETE User By ID
-DELETE http://localhost:8080/users/345
+DELETE http://localhost:8080/users/1021
