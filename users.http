@@ -1,16 +1,27 @@
-### create users
 
+
+### GET Users
+GET http://localhost:8080/users
+
+### GET User By ID
+GET http://localhost:8080/users/1004
+
+### POST Users
 POST http://localhost:8080/users
 Content-Type: application/json
 
-### get users
-GET http://localhost:8080/users
+{
+  "username": "elena",
+  "email":"elena@example.com"
+}
 
-### get user by id
-GET http://localhost:8080/users/123
+### UPDATE User By ID
+PATCH http://localhost:8080/users/1021
+Content-Type: application/json
 
-### update user by id
-PATCH http://localhost:8080/users/234
+{
+  "email": "bloguser01@example.com"
+}
 
-### delete user by id
-DELETE http://localhost:8080/users/345
+### DELETE User By ID
+DELETE http://localhost:8080/users/1021

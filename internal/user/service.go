@@ -1,38 +1,101 @@
 package user
 
-import "fmt"
+import (
+	"errors"
+	"github.com/pandahawk/blog-api/internal/apperrors"
+	"strings"
+)
 
-type UserService interface {
-	GetAllUsers() string
-	GetUser(id string) string
-	CreateUser() string
-	UpdateUser(id string) string
-	DeleteUser(id string) string
+//go:generate mockgen -source=service.go -destination=service_mock.go -package=user
+
+type Service interface {
+	GetUser(id int) (User, error)
+	CreateUser(req CreateUserRequest) (User, error)
+	GetAllUsers() ([]User, error)
+	UpdateUser(id int, req UpdateUserRequest) (User, error)
+	DeleteUser(id int) error
 }
 
-type simpleService struct {
+type service struct {
+	repo Repository
 }
 
-func (s *simpleService) GetAllUsers() string {
-	return "Get All users"
+func (s *service) CreateUser(req CreateUserRequest) (User, error) {
+	_, err := s.repo.FindByUsername(req.Username)
+	if err == nil {
+		return User{}, apperrors.NewValidationError("username already exists")
+	}
+	_, err = s.repo.FindByEmail(req.Email)
+	if err == nil {
+		return User{}, apperrors.NewValidationError("email already exists")
+	}
+
+	user := User{
+		Username: req.Username,
+		Email:    req.Email,
+	}
+
+	return s.repo.Save(user)
 }
 
-func NewSimpleService() UserService {
-	return &simpleService{}
+func (s *service) UpdateUser(id int, req UpdateUserRequest) (User, error) {
+	user, err := s.repo.FindByID(id)
+	if err != nil {
+		return User{}, apperrors.NewNotFoundError("user", id)
+	}
+
+	var validationErrors []string
+	if req.Username != nil && strings.TrimSpace(*req.Username) == "" {
+		validationErrors = append(validationErrors, "username can not be empty")
+	}
+
+	if req.Email != nil && strings.TrimSpace(*req.Email) == "" {
+		validationErrors = append(validationErrors, "email can not be empty")
+	}
+	if len(validationErrors) > 0 {
+		return User{}, apperrors.NewValidationError(validationErrors...)
+	}
+
+	if req.Username != nil {
+		user.Username = *req.Username
+	}
+	if req.Email != nil {
+		user.Email = *req.Email
+	}
+
+	return s.repo.Update(user)
 }
 
-func (s *simpleService) GetUser(id string) string {
-	return fmt.Sprintf("Get user %s", id)
+func (s *service) DeleteUser(id int) error {
+	user, err := s.repo.FindByID(id)
+	if err != nil {
+		return apperrors.NewNotFoundError("user", id)
+	}
+
+	err = s.repo.Delete(user)
+	if err != nil {
+		return errors.New("failed to delete user")
+	}
+	return nil
 }
 
-func (s *simpleService) CreateUser() string {
-	return "Create new user"
+func (s *service) GetUser(id int) (User, error) {
+	user, err := s.repo.FindByID(id)
+	if err != nil {
+		return User{}, apperrors.NewNotFoundError("user", id)
+	}
+	return user, nil
 }
 
-func (s *simpleService) UpdateUser(id string) string {
-	return fmt.Sprintf("Update user %s", id)
+func (s *service) GetAllUsers() ([]User, error) {
+
+	users, err := s.repo.FindAll()
+	if err != nil {
+		return []User{}, errors.New("failed to get all users")
+	}
+	return users, nil
 }
 
-func (s *simpleService) DeleteUser(id string) string {
-	return fmt.Sprintf("Delete user %s", id)
+func NewService(r Repository) Service {
+	return &service{repo: r}
 }
