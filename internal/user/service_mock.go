@@ -63,11 +63,12 @@ func (mr *MockServiceMockRecorder) DeleteUser(id interface{}) *gomock.Call {
 }
 
 // GetAllUsers mocks base method.
-func (m *MockService) GetAllUsers() []User {
+func (m *MockService) GetAllUsers() ([]User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllUsers")
 	ret0, _ := ret[0].([]User)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // GetAllUsers indicates an expected call of GetAllUsers.

@@ -2,8 +2,7 @@ package user
 
 import (
 	"errors"
-	"fmt"
-	"log"
+	"github.com/pandahawk/blog-api/internal/apperrors"
 	"strings"
 )
 
@@ -12,7 +11,7 @@ import (
 type Service interface {
 	GetUser(id int) (User, error)
 	CreateUser(req CreateUserRequest) (User, error)
-	GetAllUsers() []User
+	GetAllUsers() ([]User, error)
 	UpdateUser(id int, req UpdateUserRequest) (User, error)
 	DeleteUser(id int) error
 }
@@ -24,11 +23,11 @@ type service struct {
 func (s *service) CreateUser(req CreateUserRequest) (User, error) {
 	_, found := s.repo.FindByUsername(req.Username)
 	if found {
-		return User{}, errors.New("username already exists")
+		return User{}, apperrors.NewValidationError("username already exists")
 	}
 	_, found = s.repo.FindByEmail(req.Email)
 	if found {
-		return User{}, errors.New("email already exists")
+		return User{}, apperrors.NewValidationError("email already exists")
 	}
 
 	user := User{
@@ -41,16 +40,19 @@ func (s *service) CreateUser(req CreateUserRequest) (User, error) {
 func (s *service) UpdateUser(id int, req UpdateUserRequest) (User, error) {
 	user, found := s.repo.FindByID(id)
 	if !found {
-		return User{}, fmt.Errorf("user %d not found", id)
+		return User{}, apperrors.NewNotFoundError("user", id)
 	}
 
-	// Only update provided fields
+	var validationErrors []string
 	if req.Username != nil && strings.TrimSpace(*req.Username) == "" {
-		return User{}, errors.New("username cannot be empty")
+		validationErrors = append(validationErrors, "username cannot be empty")
 	}
 
 	if req.Email != nil && strings.TrimSpace(*req.Email) == "" {
-		return User{}, errors.New("email cannot be empty")
+		validationErrors = append(validationErrors, "email cannot be empty")
+	}
+	if len(validationErrors) > 0 {
+		return User{}, apperrors.NewValidationError(validationErrors...)
 	}
 
 	if req.Username != nil {
@@ -64,25 +66,33 @@ func (s *service) UpdateUser(id int, req UpdateUserRequest) (User, error) {
 }
 
 func (s *service) DeleteUser(id int) error {
-	//TODO implement me
-	panic("implement me")
+	user, found := s.repo.FindByID(id)
+	if !found {
+		return apperrors.NewNotFoundError("user", id)
+	}
+
+	ok := s.repo.Delete(user)
+	if !ok {
+		return errors.New("failed to delete user")
+	}
+	return nil
 }
 
 func (s *service) GetUser(id int) (User, error) {
 	user, ok := s.repo.FindByID(id)
 	if !ok {
-		return User{}, fmt.Errorf("user with ID %v not found", id)
+		return User{}, apperrors.NewNotFoundError("user", id)
 	}
 	return user, nil
 }
 
-func (s *service) GetAllUsers() []User {
+func (s *service) GetAllUsers() ([]User, error) {
 
 	users, err := s.repo.FindAll()
 	if err != nil {
-		log.Fatal(err)
+		return []User{}, errors.New("failed to get all users")
 	}
-	return users
+	return users, nil
 }
 
 func NewService(r Repository) Service {

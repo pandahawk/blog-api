@@ -14,12 +14,18 @@ type Repository interface {
 	FindByEmail(email string) (User, bool)
 	Save(user User) (User, error)
 	Update(user User) (User, error)
+	Delete(user User) bool
 }
 
 type repository struct {
 	users     map[int]User
 	mu        sync.RWMutex
 	idCounter int
+}
+
+func (r *repository) Delete(user User) bool {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (r *repository) Update(user User) (User, error) {
