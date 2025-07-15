@@ -1,7 +1,9 @@
 package user
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/pandahawk/blog-api/internal/apperrors"
 	"net/http"
 	"strconv"
 )
@@ -15,7 +17,7 @@ func NewHandler(service Service) *Handler {
 }
 
 func respondWithError(c *gin.Context, code int, message string) {
-	c.JSON(code, gin.H{"error": message})
+	c.JSON(code, gin.H{"errors": message})
 }
 
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
@@ -27,7 +29,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 }
 
 func (h *Handler) getAllUsers(c *gin.Context) {
-	users := h.Service.GetAllUsers()
+	users, _ := h.Service.GetAllUsers()
 	c.JSON(http.StatusOK, users)
 }
 
@@ -35,12 +37,13 @@ func (h *Handler) getUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		respondWithError(c, http.StatusBadRequest, "invalid ID")
+		respondWithError(c, http.StatusBadRequest, "ID must be an integer")
 		return
 	}
 	user, err := h.Service.GetUser(id)
-	if err != nil {
-		respondWithError(c, http.StatusNotFound, err.Error())
+	var ne *apperrors.NotFoundError
+	if errors.As(err, &ne) {
+		respondWithError(c, http.StatusNotFound, ne.Error())
 		return
 	}
 	c.JSON(http.StatusOK, user)
@@ -53,18 +56,20 @@ func (h *Handler) createUser(c *gin.Context) {
 		return
 	}
 	savedUser, err := h.Service.CreateUser(req)
-	if err != nil {
-		respondWithError(c, http.StatusBadRequest, err.Error())
+	var ve *apperrors.ValidationError
+	if errors.As(err, &ve) {
+		respondWithError(c, http.StatusConflict, err.Error())
 		return
 	}
 	c.JSON(http.StatusCreated, savedUser)
 }
 
+// todo: properly test the errors
 func (h *Handler) updateUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		respondWithError(c, http.StatusBadRequest, "invalid ID")
+		respondWithError(c, http.StatusBadRequest, "ID must be an integer")
 		return
 	}
 	var req UpdateUserRequest
@@ -73,8 +78,16 @@ func (h *Handler) updateUser(c *gin.Context) {
 		return
 	}
 	updatedUser, err := h.Service.UpdateUser(id, req)
-	if err != nil {
-		respondWithError(c, http.StatusInternalServerError, err.Error())
+
+	var ve *apperrors.ValidationError
+	if errors.As(err, &ve) {
+		respondWithError(c, http.StatusBadRequest, ve.Error())
+		return
+	}
+
+	var ne *apperrors.NotFoundError
+	if errors.As(err, &ne) {
+		respondWithError(c, http.StatusNotFound, ne.Error())
 		return
 	}
 	c.JSON(http.StatusOK, updatedUser)
@@ -84,9 +97,10 @@ func (h *Handler) deleteUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		respondWithError(c, http.StatusBadRequest, "invalid ID")
+		respondWithError(c, http.StatusBadRequest, "ID must be an integer")
 		return
 	}
+
 	err = h.Service.DeleteUser(id)
 	if err != nil {
 		respondWithError(c, http.StatusNotFound, err.Error())
