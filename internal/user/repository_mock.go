@@ -34,10 +34,10 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // Delete mocks base method.
-func (m *MockRepository) Delete(user User) bool {
+func (m *MockRepository) Delete(user User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", user)
-	ret0, _ := ret[0].(bool)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
@@ -48,11 +48,11 @@ func (mr *MockRepositoryMockRecorder) Delete(user interface{}) *gomock.Call {
 }
 
 // FindAll mocks base method.
-func (m *MockRepository) FindAll() ([]User, bool) {
+func (m *MockRepository) FindAll() ([]User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindAll")
 	ret0, _ := ret[0].([]User)
-	ret1, _ := ret[1].(bool)
+	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
@@ -63,11 +63,11 @@ func (mr *MockRepositoryMockRecorder) FindAll() *gomock.Call {
 }
 
 // FindByEmail mocks base method.
-func (m *MockRepository) FindByEmail(email string) (User, bool) {
+func (m *MockRepository) FindByEmail(email string) (User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByEmail", email)
 	ret0, _ := ret[0].(User)
-	ret1, _ := ret[1].(bool)
+	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
@@ -78,11 +78,11 @@ func (mr *MockRepositoryMockRecorder) FindByEmail(email interface{}) *gomock.Cal
 }
 
 // FindByID mocks base method.
-func (m *MockRepository) FindByID(id int) (User, bool) {
+func (m *MockRepository) FindByID(id int) (User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByID", id)
 	ret0, _ := ret[0].(User)
-	ret1, _ := ret[1].(bool)
+	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
@@ -93,11 +93,11 @@ func (mr *MockRepositoryMockRecorder) FindByID(id interface{}) *gomock.Call {
 }
 
 // FindByUsername mocks base method.
-func (m *MockRepository) FindByUsername(username string) (User, bool) {
+func (m *MockRepository) FindByUsername(username string) (User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByUsername", username)
 	ret0, _ := ret[0].(User)
-	ret1, _ := ret[1].(bool)
+	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
@@ -108,11 +108,11 @@ func (mr *MockRepositoryMockRecorder) FindByUsername(username interface{}) *gomo
 }
 
 // Save mocks base method.
-func (m *MockRepository) Save(user User) (User, bool) {
+func (m *MockRepository) Save(user User) (User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Save", user)
 	ret0, _ := ret[0].(User)
-	ret1, _ := ret[1].(bool)
+	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
@@ -123,11 +123,11 @@ func (mr *MockRepositoryMockRecorder) Save(user interface{}) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockRepository) Update(user User) (User, bool) {
+func (m *MockRepository) Update(user User) (User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", user)
 	ret0, _ := ret[0].(User)
-	ret1, _ := ret[1].(bool)
+	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 

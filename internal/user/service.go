@@ -21,12 +21,12 @@ type service struct {
 }
 
 func (s *service) CreateUser(req CreateUserRequest) (User, error) {
-	_, found := s.repo.FindByUsername(req.Username)
-	if found {
+	_, err := s.repo.FindByUsername(req.Username)
+	if err == nil {
 		return User{}, apperrors.NewValidationError("username already exists")
 	}
-	_, found = s.repo.FindByEmail(req.Email)
-	if found {
+	_, err = s.repo.FindByEmail(req.Email)
+	if err == nil {
 		return User{}, apperrors.NewValidationError("email already exists")
 	}
 
@@ -34,12 +34,13 @@ func (s *service) CreateUser(req CreateUserRequest) (User, error) {
 		Username: req.Username,
 		Email:    req.Email,
 	}
+
 	return s.repo.Save(user)
 }
 
 func (s *service) UpdateUser(id int, req UpdateUserRequest) (User, error) {
-	user, found := s.repo.FindByID(id)
-	if !found {
+	user, err := s.repo.FindByID(id)
+	if err != nil {
 		return User{}, apperrors.NewNotFoundError("user", id)
 	}
 
@@ -49,7 +50,7 @@ func (s *service) UpdateUser(id int, req UpdateUserRequest) (User, error) {
 	}
 
 	if req.Email != nil && strings.TrimSpace(*req.Email) == "" {
-		validationErrors = append(validationErrors, "email cannot be empty")
+		validationErrors = append(validationErrors, "email can not be empty")
 	}
 	if len(validationErrors) > 0 {
 		return User{}, apperrors.NewValidationError(validationErrors...)
@@ -66,21 +67,21 @@ func (s *service) UpdateUser(id int, req UpdateUserRequest) (User, error) {
 }
 
 func (s *service) DeleteUser(id int) error {
-	user, found := s.repo.FindByID(id)
-	if !found {
+	user, err := s.repo.FindByID(id)
+	if err != nil {
 		return apperrors.NewNotFoundError("user", id)
 	}
 
-	ok := s.repo.Delete(user)
-	if !ok {
+	err = s.repo.Delete(user)
+	if err != nil {
 		return errors.New("failed to delete user")
 	}
 	return nil
 }
 
 func (s *service) GetUser(id int) (User, error) {
-	user, ok := s.repo.FindByID(id)
-	if !ok {
+	user, err := s.repo.FindByID(id)
+	if err != nil {
 		return User{}, apperrors.NewNotFoundError("user", id)
 	}
 	return user, nil
@@ -88,8 +89,8 @@ func (s *service) GetUser(id int) (User, error) {
 
 func (s *service) GetAllUsers() ([]User, error) {
 
-	users, ok := s.repo.FindAll()
-	if !ok {
+	users, err := s.repo.FindAll()
+	if err != nil {
 		return []User{}, errors.New("failed to get all users")
 	}
 	return users, nil
