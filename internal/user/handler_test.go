@@ -134,7 +134,7 @@ func TestHandler_CreateUser(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
-	t.Run("without email", func(t *testing.T) {
+	t.Run("missing required field", func(t *testing.T) {
 		rawJSON := `{
 		"id":       1,
 		"username": "testuser1",
@@ -148,8 +148,6 @@ func TestHandler_CreateUser(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
-	//todo: check why this is not covered and write test for missing username
-	t.Run("without username", func(t *testing.T) {})
 
 	t.Run("username taken", func(t *testing.T) {
 		router, mockService := setupTestRouterWithMockService(t)

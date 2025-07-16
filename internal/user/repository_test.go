@@ -34,7 +34,6 @@ func TestGormRepository_FindAll(t *testing.T) {
 
 }
 
-// todo: fix bug: this test fails when all are run. leakage?
 func TestGormRepository_FindByID(t *testing.T) {
 	db := setupTestDB(t)
 	repo := NewGormRepository(db)
