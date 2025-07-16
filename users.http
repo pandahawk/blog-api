@@ -4,15 +4,15 @@
 GET http://localhost:8080/users
 
 ### GET User By ID
-GET http://localhost:8080/users/0
+GET http://localhost:8080/users/112
 
 ### POST Users
 POST http://localhost:8080/users
 Content-Type: application/json
 
 {
-  "username": "elena",
-  "email":"elena@example.com"
+  "username": "bloggertest",
+  "email": "bloggertest@example.com"
 }
 
 ### UPDATE User By ID
