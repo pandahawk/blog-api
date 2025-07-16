@@ -3,10 +3,11 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/pandahawk/blog-api/internal/user"
+	"gorm.io/gorm"
 )
 
-func setupUserRoutes(r *gin.Engine) {
-	userRepository := user.NewDevRepository()
+func setupUserRoutes(r *gin.Engine, db *gorm.DB) {
+	userRepository := user.NewDevGormRepository(db)
 	userService := user.NewService(userRepository)
 	userHandler := user.NewHandler(userService)
 
@@ -14,11 +15,13 @@ func setupUserRoutes(r *gin.Engine) {
 	userHandler.RegisterRoutes(userGroup)
 }
 
-func SetupRoutes(r *gin.Engine) {
+func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
-	setupUserRoutes(r)
+	if db != nil {
+		setupUserRoutes(r, db)
+	}
 
 }

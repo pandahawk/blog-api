@@ -4,7 +4,7 @@
 GET http://localhost:8080/users
 
 ### GET User By ID
-GET http://localhost:8080/users/1004
+GET http://localhost:8080/users/0
 
 ### POST Users
 POST http://localhost:8080/users
@@ -16,7 +16,7 @@ Content-Type: application/json
 }
 
 ### UPDATE User By ID
-PATCH http://localhost:8080/users/1021
+PATCH http://localhost:8080/users/2
 Content-Type: application/json
 
 {
@@ -24,4 +24,4 @@ Content-Type: application/json
 }
 
 ### DELETE User By ID
-DELETE http://localhost:8080/users/1021
+DELETE http://localhost:8080/users/1

@@ -101,8 +101,7 @@ func (h *Handler) deleteUser(c *gin.Context) {
 		return
 	}
 
-	err = h.Service.DeleteUser(id)
-	if err != nil {
+	if err = h.Service.DeleteUser(id); err != nil {
 		respondWithError(c, http.StatusNotFound, err.Error())
 		return
 	}
