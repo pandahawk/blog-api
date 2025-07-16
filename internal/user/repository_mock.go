@@ -33,6 +33,21 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// Create mocks base method.
+func (m *MockRepository) Create(user User) (User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", user)
+	ret0, _ := ret[0].(User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockRepositoryMockRecorder) Create(user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), user)
+}
+
 // Delete mocks base method.
 func (m *MockRepository) Delete(user User) error {
 	m.ctrl.T.Helper()
@@ -105,21 +120,6 @@ func (m *MockRepository) FindByUsername(username string) (User, error) {
 func (mr *MockRepositoryMockRecorder) FindByUsername(username interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByUsername", reflect.TypeOf((*MockRepository)(nil).FindByUsername), username)
-}
-
-// Save mocks base method.
-func (m *MockRepository) Save(user User) (User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Save", user)
-	ret0, _ := ret[0].(User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Save indicates an expected call of Save.
-func (mr *MockRepositoryMockRecorder) Save(user interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockRepository)(nil).Save), user)
 }
 
 // Update mocks base method.

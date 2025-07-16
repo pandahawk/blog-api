@@ -8,13 +8,13 @@ import (
 	"testing"
 )
 
-func TestHealth(t *testing.T) {
+func TestHealthEndpoint(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	SetupRoutes(router)
 
-	req, _ := http.NewRequest(http.MethodGet, "/health", nil)
+	SetupRoutes(router, nil)
 	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "/health", nil)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)

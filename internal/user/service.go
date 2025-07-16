@@ -21,21 +21,20 @@ type service struct {
 }
 
 func (s *service) CreateUser(req CreateUserRequest) (User, error) {
-	_, err := s.repo.FindByUsername(req.Username)
-	if err == nil {
+	if _, err := s.repo.FindByUsername(req.Username); err == nil {
 		return User{}, apperrors.NewValidationError("username already exists")
 	}
-	_, err = s.repo.FindByEmail(req.Email)
-	if err == nil {
+
+	if _, err := s.repo.FindByEmail(req.Email); err == nil {
 		return User{}, apperrors.NewValidationError("email already exists")
 	}
 
-	user := User{
-		Username: req.Username,
-		Email:    req.Email,
+	user, err := s.repo.Create(User{Username: req.Username, Email: req.Email})
+	if err != nil {
+		return User{}, err
 	}
 
-	return s.repo.Save(user)
+	return user, nil
 }
 
 func (s *service) UpdateUser(id int, req UpdateUserRequest) (User, error) {
@@ -72,8 +71,7 @@ func (s *service) DeleteUser(id int) error {
 		return apperrors.NewNotFoundError("user", id)
 	}
 
-	err = s.repo.Delete(user)
-	if err != nil {
+	if err := s.repo.Delete(user); err != nil {
 		return errors.New("failed to delete user")
 	}
 	return nil

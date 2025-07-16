@@ -30,19 +30,33 @@ func TestService_CreateUser(t *testing.T) {
 			Email:    "testuser01@example.com",
 		}
 		wantUser := User{
-			ID:       1001,
+			ID:       0,
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
 		mockRepo, service := setupMockRepoAndService(t)
 		mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(User{}, errors.New(""))
 		mockRepo.EXPECT().FindByEmail(gomock.Any()).Return(User{}, errors.New(""))
-		mockRepo.EXPECT().Save(gomock.Any()).Return(wantUser, nil)
+		mockRepo.EXPECT().Create(gomock.Any()).Return(wantUser, nil)
 
 		gotUser, err := service.CreateUser(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, wantUser, gotUser)
+	})
+	t.Run("db error", func(t *testing.T) {
+		req := CreateUserRequest{
+			Username: "testuser01",
+			Email:    "testuser01@example.com",
+		}
+		mockRepo, service := setupMockRepoAndService(t)
+		mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(User{}, errors.New(""))
+		mockRepo.EXPECT().FindByEmail(gomock.Any()).Return(User{}, errors.New(""))
+		mockRepo.EXPECT().Create(gomock.Any()).Return(User{}, errors.New(""))
+
+		_, err := service.CreateUser(req)
+
+		assert.Error(t, err)
 	})
 
 	t.Run("username taken", func(t *testing.T) {
