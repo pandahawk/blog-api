@@ -64,7 +64,6 @@ func (h *Handler) createUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, savedUser)
 }
 
-// todo: properly test the errors
 func (h *Handler) updateUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)

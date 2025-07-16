@@ -21,8 +21,6 @@ func setupMockRepoAndService(t *testing.T) (*MockRepository, Service) {
 	return mockRepo, service
 }
 
-//todo: replace error asserts with errorcontains
-
 func TestService_CreateUser(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		req := CreateUserRequest{
@@ -236,7 +234,6 @@ func TestService_DeleteUser(t *testing.T) {
 
 		err := service.DeleteUser(id)
 
-		//todo: check why this error string is fine although err has a different message
 		assert.ErrorContains(t, err, "failed to delete user")
 	})
 }
