@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -28,7 +29,7 @@ func TestService_CreateUser(t *testing.T) {
 			Email:    "testuser01@example.com",
 		}
 		wantUser := User{
-			ID:       0,
+			ID:       uuid.New(),
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
@@ -63,7 +64,7 @@ func TestService_CreateUser(t *testing.T) {
 			Email:    "testuser01@example.com",
 		}
 		wantUser := User{
-			ID:       1001,
+			ID:       uuid.New(),
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
@@ -81,7 +82,7 @@ func TestService_CreateUser(t *testing.T) {
 			Email:    "testuser01@example.com",
 		}
 		wantUser := User{
-			ID:       1001,
+			ID:       uuid.New(),
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
@@ -97,18 +98,17 @@ func TestService_CreateUser(t *testing.T) {
 
 func TestService_UpdateUser(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		id := 1001
 		req := UpdateUserRequest{
 			Username: ptr("updatedtestuser01"),
 			Email:    ptr("updatedtestuser01@example.com"),
 		}
 		oldUser := User{
-			ID:       1001,
+			ID:       uuid.New(),
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
 		wantUser := User{
-			ID:       1001,
+			ID:       oldUser.ID,
 			Username: "updatedtestuser01",
 			Email:    "updatedtestuser01@example.com",
 		}
@@ -116,14 +116,14 @@ func TestService_UpdateUser(t *testing.T) {
 		mockRepo.EXPECT().Update(gomock.Any()).Return(wantUser, nil)
 		mockRepo.EXPECT().FindByID(gomock.Any()).Return(oldUser, nil)
 
-		gotUser, err := service.UpdateUser(id, req)
+		gotUser, err := service.UpdateUser(oldUser.ID, req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, wantUser, gotUser)
 	})
 
 	t.Run("user not found", func(t *testing.T) {
-		id := 1001
+		id := uuid.New()
 		req := UpdateUserRequest{
 			Username: ptr("updatedtestuser01"),
 			Email:    ptr("updatedtestuser01@example.com"),
@@ -137,39 +137,37 @@ func TestService_UpdateUser(t *testing.T) {
 	})
 
 	t.Run("email not found", func(t *testing.T) {
-		id := 1001
 		req := UpdateUserRequest{
 			Username: ptr("  "),
 			Email:    ptr("updatedtestuser01@example.com"),
 		}
 		oldUser := User{
-			ID:       1001,
+			ID:       uuid.New(),
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
 		mockRepo, service := setupMockRepoAndService(t)
 		mockRepo.EXPECT().FindByID(gomock.Any()).Return(oldUser, nil)
 
-		_, err := service.UpdateUser(id, req)
+		_, err := service.UpdateUser(oldUser.ID, req)
 
 		assert.ErrorContains(t, err, "username can not be empty")
 	})
 
 	t.Run("email empty", func(t *testing.T) {
-		id := 1001
 		req := UpdateUserRequest{
 			Username: ptr("updatedtestuser01"),
 			Email:    ptr(" "),
 		}
 		oldUser := User{
-			ID:       1001,
+			ID:       uuid.New(),
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
 		mockRepo, service := setupMockRepoAndService(t)
 		mockRepo.EXPECT().FindByID(gomock.Any()).Return(oldUser, nil)
 
-		_, err := service.UpdateUser(id, req)
+		_, err := service.UpdateUser(oldUser.ID, req)
 
 		assert.ErrorContains(t, err, "email can not be empty")
 	})
@@ -178,23 +176,22 @@ func TestService_UpdateUser(t *testing.T) {
 func TestService_GetUser(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
-		id := 1001
 		wantUser := User{
-			ID:       1001,
+			ID:       uuid.New(),
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
 		mockRepo, service := setupMockRepoAndService(t)
 		mockRepo.EXPECT().FindByID(gomock.Any()).Return(wantUser, nil)
 
-		gotUser, err := service.GetUser(id)
+		gotUser, err := service.GetUser(wantUser.ID)
 
 		assert.NoError(t, err)
 		assert.Equal(t, wantUser, gotUser)
 	})
 
 	t.Run("user not found", func(t *testing.T) {
-		id := 1001
+		id := uuid.New()
 		mockRepo, service := setupMockRepoAndService(t)
 		mockRepo.EXPECT().FindByID(gomock.Any()).Return(User{}, errors.New("user not found"))
 
@@ -208,17 +205,17 @@ func TestService_GetUser(t *testing.T) {
 func TestService_DeleteUser(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
-		id := 1001
+
 		mockRepo, service := setupMockRepoAndService(t)
 		mockRepo.EXPECT().Delete(gomock.Any()).Return(nil)
 		mockRepo.EXPECT().FindByID(gomock.Any()).Return(User{}, nil)
 
-		err := service.DeleteUser(id)
+		err := service.DeleteUser(uuid.New())
 
 		assert.NoError(t, err)
 	})
 	t.Run("user not found", func(t *testing.T) {
-		id := 1001
+		id := uuid.New()
 		mockRepo, service := setupMockRepoAndService(t)
 		mockRepo.EXPECT().FindByID(gomock.Any()).Return(User{}, errors.New("user not found"))
 
@@ -227,12 +224,11 @@ func TestService_DeleteUser(t *testing.T) {
 		assert.ErrorContains(t, err, apperrors.NewNotFoundError("user", id).Error())
 	})
 	t.Run("deletion failed", func(t *testing.T) {
-		id := 1001
 		mockRepo, service := setupMockRepoAndService(t)
 		mockRepo.EXPECT().Delete(gomock.Any()).Return(errors.New("user not found"))
 		mockRepo.EXPECT().FindByID(gomock.Any()).Return(User{}, nil)
 
-		err := service.DeleteUser(id)
+		err := service.DeleteUser(uuid.New())
 
 		assert.ErrorContains(t, err, "failed to delete user")
 	})

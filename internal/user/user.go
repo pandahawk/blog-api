@@ -1,9 +1,13 @@
 package user
 
+import (
+	"github.com/google/uuid"
+)
+
 type User struct {
-	ID       int    `json:"id" gorm:"primaryKey;autoIncrement"`
-	Username string `json:"username" gorm:"unique;not null"`
-	Email    string `json:"email" gorm:"unique;not null"`
+	ID       uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	Username string    `json:"username" gorm:"unique;not null"`
+	Email    string    `json:"email" gorm:"unique;not null"`
 	//todo: add Post as a slice for GORM
 }
 

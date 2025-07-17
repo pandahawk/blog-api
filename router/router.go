@@ -11,7 +11,8 @@ func setupUserRoutes(r *gin.Engine, db *gorm.DB) {
 	userService := user.NewService(userRepository)
 	userHandler := user.NewHandler(userService)
 
-	userGroup := r.Group("/users")
+	v1 := r.Group("/api/v1")
+	userGroup := v1.Group("/users")
 	userHandler.RegisterRoutes(userGroup)
 }
 

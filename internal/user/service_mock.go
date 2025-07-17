@@ -8,6 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 )
 
 // MockService is a mock of Service interface.
@@ -49,7 +50,7 @@ func (mr *MockServiceMockRecorder) CreateUser(req interface{}) *gomock.Call {
 }
 
 // DeleteUser mocks base method.
-func (m *MockService) DeleteUser(id int) error {
+func (m *MockService) DeleteUser(id uuid.UUID) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteUser", id)
 	ret0, _ := ret[0].(error)
@@ -78,7 +79,7 @@ func (mr *MockServiceMockRecorder) GetAllUsers() *gomock.Call {
 }
 
 // GetUser mocks base method.
-func (m *MockService) GetUser(id int) (User, error) {
+func (m *MockService) GetUser(id uuid.UUID) (User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUser", id)
 	ret0, _ := ret[0].(User)
@@ -93,7 +94,7 @@ func (mr *MockServiceMockRecorder) GetUser(id interface{}) *gomock.Call {
 }
 
 // UpdateUser mocks base method.
-func (m *MockService) UpdateUser(id int, req UpdateUserRequest) (User, error) {
+func (m *MockService) UpdateUser(id uuid.UUID, req UpdateUserRequest) (User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateUser", id, req)
 	ret0, _ := ret[0].(User)

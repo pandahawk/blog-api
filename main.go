@@ -1,14 +1,29 @@
 package main
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
+	_ "github.com/pandahawk/blog-api/docs"
 	"github.com/pandahawk/blog-api/internal/database"
 	"github.com/pandahawk/blog-api/internal/user"
 	"github.com/pandahawk/blog-api/router"
-	"gorm.io/gorm"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"
 )
+
+//todo: make tests work -> need to exchange sqlite for a postgres to make it
+//work with uuids
+
+// @title       Blog API
+// @version     1.0
+// @description This is a simple blog API built with Go and Gin
+
+// @contact.name   Michael Obeng
+// @contact.url    https://github.com/pandahawk
+// @contact.email  michael@example.com
+
+// @host      localhost:8080
+// @BasePath  /api/v1
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -19,14 +34,10 @@ func main() {
 		log.Fatal("failed to create db tables")
 	}
 
-	if err := db.First(&user.User{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		if err := db.Exec("ALTER SEQUENCE users_id_seq RESTART WITH 101;").
-			Error; err != nil {
-			log.Fatal("failed to alter sequence:", err)
-		}
-	}
-
 	r := gin.Default()
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	router.SetupRoutes(r, db)
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal(err)

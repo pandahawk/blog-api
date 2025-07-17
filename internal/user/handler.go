@@ -3,9 +3,9 @@ package user
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
 	"net/http"
-	"strconv"
 )
 
 type Handler struct {
@@ -17,7 +17,7 @@ func NewHandler(service Service) *Handler {
 }
 
 func respondWithError(c *gin.Context, code int, message string) {
-	c.JSON(code, gin.H{"errors": message})
+	c.JSON(code, gin.H{"error": message})
 }
 
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
@@ -28,14 +28,28 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	r.DELETE("/:id", h.deleteUser)
 }
 
+// @Summary Get all users
+// @Description Get all users in the system
+// @Tags users
+// @Produce json
+// @Success 200 {array} User
+// @Router /users [get]
 func (h *Handler) getAllUsers(c *gin.Context) {
 	users, _ := h.Service.GetAllUsers()
 	c.JSON(http.StatusOK, users)
 }
 
+// @Summary Get user by ID
+// @Description Get the user with the specified ID
+// @Tags users
+// @Produce json
+// @Param id path uuid.UUID true "User ID"
+// @Success 200 {object} user.User
+// @Failure 404 {object} apperrors.NotFoundError
+// @Router /users/{id} [get]
 func (h *Handler) getUser(c *gin.Context) {
 	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := uuid.Parse(idStr)
 	if err != nil {
 		respondWithError(c, http.StatusBadRequest, "ID must be an integer")
 		return
@@ -49,6 +63,16 @@ func (h *Handler) getUser(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+// @Summary Create a new user
+// @Description Creates a new user and returns the created resource
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param user body user.CreateUserRequest true "User data"
+// @Success 201 {object} user.User
+// @Failure 400 {object} error
+// @Failure 409 {object} apperrors.ValidationError
+// @Router /users [post]
 func (h *Handler) createUser(c *gin.Context) {
 	var req CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -66,7 +90,7 @@ func (h *Handler) createUser(c *gin.Context) {
 
 func (h *Handler) updateUser(c *gin.Context) {
 	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := uuid.Parse(idStr)
 	if err != nil {
 		respondWithError(c, http.StatusBadRequest, "ID must be an integer")
 		return
@@ -94,7 +118,7 @@ func (h *Handler) updateUser(c *gin.Context) {
 
 func (h *Handler) deleteUser(c *gin.Context) {
 	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := uuid.Parse(idStr)
 	if err != nil {
 		respondWithError(c, http.StatusBadRequest, "ID must be an integer")
 		return

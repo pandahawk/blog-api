@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"log"
 )
@@ -9,19 +10,13 @@ import (
 //go:generate mockgen -source=repository.go -destination=repository_mock.go -package=user
 type Repository interface {
 	FindAll() ([]User, error)
-	FindByID(id int) (User, error)
+	FindByID(id uuid.UUID) (User, error)
 	FindByUsername(username string) (User, error)
 	FindByEmail(email string) (User, error)
 	Create(user User) (User, error)
 	Delete(user User) error
 	Update(user User) (User, error)
 }
-
-//type repository struct {
-//	users     map[int]User
-//	mu        sync.RWMutex
-//	idCounter int
-//}
 
 type gormRepository struct {
 	db *gorm.DB
@@ -33,7 +28,7 @@ func (r *gormRepository) FindAll() ([]User, error) {
 	return users, err
 }
 
-func (r *gormRepository) FindByID(id int) (User, error) {
+func (r *gormRepository) FindByID(id uuid.UUID) (User, error) {
 	var user User
 	err := r.db.First(&user, id).Error
 	return user, err
