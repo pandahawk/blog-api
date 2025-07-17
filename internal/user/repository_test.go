@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/sqlite"
@@ -37,7 +38,7 @@ func TestGormRepository_FindAll(t *testing.T) {
 func TestGormRepository_FindByID(t *testing.T) {
 	db := setupTestDB(t)
 	repo := NewGormRepository(db)
-	id := 1
+	id := uuid.New()
 
 	got, err := repo.FindByID(id)
 
@@ -96,7 +97,7 @@ func TestGormRepository_Delete(t *testing.T) {
 	db := setupTestDB(t)
 	repo := NewGormRepository(db)
 	user := User{
-		ID:       1,
+		ID:       uuid.New(),
 		Username: "testuser1",
 		Email:    "t1@example.com",
 	}

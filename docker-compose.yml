@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: blogadmin
       POSTGRES_PASSWORD: blogadmin
     volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - pgdata:/var/lib/postgresql/data
-
 volumes:
   pgdata:

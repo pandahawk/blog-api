@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
+	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -27,12 +28,12 @@ func setupTestRouterWithMockService(t *testing.T) (*gin.Engine, *MockService) {
 }
 
 func TestHandler_GetAllUsers(t *testing.T) {
-	router, mockService := setupTestRouterWithMockService(t)
-	t.Run("success", func(t *testing.T) {
 
+	t.Run("success", func(t *testing.T) {
+		router, mockService := setupTestRouterWithMockService(t)
 		wantUser := []User{
-			{ID: 1, Username: "testuser1", Email: "testuser1@example.com"},
-			{ID: 2, Username: "testuser2", Email: "testuser1@example.com"},
+			{ID: uuid.New(), Username: "testuser1", Email: "testuser1@example.com"},
+			{ID: uuid.New(), Username: "testuser2", Email: "testuser1@example.com"},
 		}
 		mockService.EXPECT().
 			GetAllUsers().
@@ -51,16 +52,15 @@ func TestHandler_GetAllUsers(t *testing.T) {
 }
 
 func TestHandler_GetUser(t *testing.T) {
-	router, mockService := setupTestRouterWithMockService(t)
 	t.Run("success", func(t *testing.T) {
-
-		id := 1
-		wantUser := User{ID: id, Username: "testuser1"}
+		router, mockService := setupTestRouterWithMockService(t)
+		wantUser := User{ID: uuid.New(), Username: "testuser1"}
 		mockService.EXPECT().
 			GetUser(gomock.Any()).
 			Return(wantUser, nil)
 
-		req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/users/%v", id), nil)
+		req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/users/%v",
+			wantUser.ID), nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -72,12 +72,14 @@ func TestHandler_GetUser(t *testing.T) {
 	})
 
 	t.Run("not found", func(t *testing.T) {
-		id := 100
+		router, mockService := setupTestRouterWithMockService(t)
+		id := uuid.New()
 		mockService.EXPECT().
 			GetUser(gomock.Any()).
 			Return(User{}, apperrors.NewNotFoundError("user", id))
 
-		req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/users/%d", id), nil)
+		req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/users/%v",
+			id), nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -85,6 +87,7 @@ func TestHandler_GetUser(t *testing.T) {
 	})
 
 	t.Run("invalid id", func(t *testing.T) {
+		router, _ := setupTestRouterWithMockService(t)
 		id := "abc"
 
 		req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/users/%v", id), nil)
@@ -96,14 +99,14 @@ func TestHandler_GetUser(t *testing.T) {
 }
 
 func TestHandler_CreateUser(t *testing.T) {
-	router, mockService := setupTestRouterWithMockService(t)
 	t.Run("success", func(t *testing.T) {
-		user := User{
-			ID:       1,
+		router, mockService := setupTestRouterWithMockService(t)
+		wantUser := User{
+			ID:       uuid.New(),
 			Username: "testuser1",
 			Email:    "testuser1@example.com",
 		}
-		mockService.EXPECT().CreateUser(gomock.Any()).Return(user, nil)
+		mockService.EXPECT().CreateUser(gomock.Any()).Return(wantUser, nil)
 		rawJSON := `{"username": "testuser1","email": "testuser1@example.com"}`
 		body := strings.NewReader(rawJSON)
 
@@ -115,10 +118,11 @@ func TestHandler_CreateUser(t *testing.T) {
 		var gotUser User
 		err := json.NewDecoder(w.Body).Decode(&gotUser)
 		assert.NoError(t, err)
-		assert.Equal(t, user, gotUser)
+		assert.Equal(t, wantUser, gotUser)
 	})
 
 	t.Run("invalid json", func(t *testing.T) {
+		router, _ := setupTestRouterWithMockService(t)
 		invalidJSON := `{
 	ID:       "1",
 	Username: "testuser1",
@@ -135,6 +139,7 @@ func TestHandler_CreateUser(t *testing.T) {
 	})
 
 	t.Run("missing required field", func(t *testing.T) {
+		router, _ := setupTestRouterWithMockService(t)
 		rawJSON := `{
 		"id":       1,
 		"username": "testuser1",
@@ -168,21 +173,23 @@ func TestHandler_CreateUser(t *testing.T) {
 }
 
 func TestHandler_UpdateUser(t *testing.T) {
-	router, mockService := setupTestRouterWithMockService(t)
+
 	t.Run("success", func(t *testing.T) {
-		id := 1
+		router, mockService := setupTestRouterWithMockService(t)
+		id := uuid.New()
 		rawJSON := `{
 					"email": "testuserupdate@example.com"
 				}`
 		body := strings.NewReader(rawJSON)
 		user := User{
-			ID:       1,
+			ID:       id,
 			Username: "testuser",
 			Email:    "testuserupdate@example.com",
 		}
 		mockService.EXPECT().UpdateUser(gomock.Any(), gomock.Any()).Return(user, nil)
 
-		req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/users/%d", id), body)
+		req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/users/%v",
+			id.String()), body)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -193,6 +200,7 @@ func TestHandler_UpdateUser(t *testing.T) {
 		assert.Equal(t, user, gotUser)
 	})
 	t.Run("invalid id", func(t *testing.T) {
+		router, _ := setupTestRouterWithMockService(t)
 		id := "abc"
 		rawJSON := `{
 					"username": "updatedtestuser", 
@@ -208,6 +216,7 @@ func TestHandler_UpdateUser(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 	t.Run("bad json", func(t *testing.T) {
+		router, _ := setupTestRouterWithMockService(t)
 		id := 1
 		rawJSON := `{
 					"username": "updatedtestuser, 
@@ -223,14 +232,15 @@ func TestHandler_UpdateUser(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 	t.Run("empty fields", func(t *testing.T) {
+		router, _ := setupTestRouterWithMockService(t)
 		id := 1
 		rawJSON := `{
 					"username": "", 
 					"email": ""
 				}`
 		body := strings.NewReader(rawJSON)
-		mockService.EXPECT().UpdateUser(gomock.Any(), gomock.Any()).Return(User{},
-			apperrors.NewValidationError(""))
+		//mockService.EXPECT().UpdateUser(gomock.Any(), gomock.Any()).Return(User{},
+		//	apperrors.NewValidationError(""))
 
 		req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/users/%d", id), body)
 		w := httptest.NewRecorder()
@@ -239,14 +249,16 @@ func TestHandler_UpdateUser(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 	t.Run("not found", func(t *testing.T) {
-		id := 1
+		router, mockService := setupTestRouterWithMockService(t)
+		id := uuid.New()
 		rawJSON := `{
 					"email": "testuserupdate@example.com"
 				}`
 		body := strings.NewReader(rawJSON)
 		mockService.EXPECT().UpdateUser(gomock.Any(), gomock.Any()).Return(User{}, apperrors.NewNotFoundError("user", id))
 
-		req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/users/%d", id), body)
+		req, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("/users/%v",
+			id.String()), body)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -255,12 +267,14 @@ func TestHandler_UpdateUser(t *testing.T) {
 }
 
 func TestHandler_DeleteUser(t *testing.T) {
-	router, mockService := setupTestRouterWithMockService(t)
+
 	t.Run("success", func(t *testing.T) {
-		id := 1
+		router, mockService := setupTestRouterWithMockService(t)
+		id := uuid.New()
 		mockService.EXPECT().DeleteUser(gomock.Any()).Return(nil)
 
-		req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/users/%d", id), nil)
+		req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/users/%s",
+			id.String()), nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -268,7 +282,8 @@ func TestHandler_DeleteUser(t *testing.T) {
 	})
 
 	t.Run("invalid id", func(t *testing.T) {
-		id := "abc"
+		router, _ := setupTestRouterWithMockService(t)
+		id := "not a uuid"
 
 		req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/users/%s",
 			id), nil)
@@ -278,16 +293,20 @@ func TestHandler_DeleteUser(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
-	t.Run("invalid json", func(t *testing.T) {})
-	id := 1
-	mockService.EXPECT().DeleteUser(gomock.Any()).Return(fmt.Errorf(
-		"user %d not found", id))
+	t.Run("not found", func(t *testing.T) {
+		router, mockService := setupTestRouterWithMockService(t)
+		id := uuid.New()
+		mockService.EXPECT().DeleteUser(gomock.Any()).Return(fmt.Errorf(
+			"user %v not found", id))
 
-	req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/users/%d", id), nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
+		req, _ := http.NewRequest(http.MethodDelete, fmt.Sprintf("/users/%v",
+			id.String()), nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusNotFound, w.Code)
-	assert.Contains(t, w.Body.String(), fmt.Sprintf(
-		"user %d not found", id))
+		assert.Equal(t, http.StatusNotFound, w.Code)
+		assert.Contains(t, w.Body.String(), fmt.Sprintf(
+			"user %v not found", id.String()))
+	})
+
 }

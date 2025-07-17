@@ -1,13 +1,13 @@
 
 
 ### GET Users
-GET http://localhost:8080/users
+GET http://localhost:8080/api/v1/users
 
 ### GET User By ID
-GET http://localhost:8080/users/112
+GET http://localhost:8080/api/v1/users/112
 
 ### POST Users
-POST http://localhost:8080/users
+POST http://localhost:8080/api/v1/users
 Content-Type: application/json
 
 {
@@ -16,7 +16,7 @@ Content-Type: application/json
 }
 
 ### UPDATE User By ID
-PATCH http://localhost:8080/users/2
+PATCH http://localhost:8080/api/v1/users/2
 Content-Type: application/json
 
 {
@@ -24,4 +24,4 @@ Content-Type: application/json
 }
 
 ### DELETE User By ID
-DELETE http://localhost:8080/users/101
+DELETE http://localhost:8080/api/v1/users/101

@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
 	"strings"
 )
@@ -9,11 +10,11 @@ import (
 //go:generate mockgen -source=service.go -destination=service_mock.go -package=user
 
 type Service interface {
-	GetUser(id int) (User, error)
+	GetUser(id uuid.UUID) (User, error)
 	CreateUser(req CreateUserRequest) (User, error)
 	GetAllUsers() ([]User, error)
-	UpdateUser(id int, req UpdateUserRequest) (User, error)
-	DeleteUser(id int) error
+	UpdateUser(id uuid.UUID, req UpdateUserRequest) (User, error)
+	DeleteUser(id uuid.UUID) error
 }
 
 type service struct {
@@ -21,12 +22,17 @@ type service struct {
 }
 
 func (s *service) CreateUser(req CreateUserRequest) (User, error) {
+	var validationErrors []string
 	if _, err := s.repo.FindByUsername(req.Username); err == nil {
-		return User{}, apperrors.NewValidationError("username already exists")
+		validationErrors = append(validationErrors, "username already exists")
 	}
 
 	if _, err := s.repo.FindByEmail(req.Email); err == nil {
-		return User{}, apperrors.NewValidationError("email already exists")
+		validationErrors = append(validationErrors, "email already exists")
+	}
+
+	if len(validationErrors) > 0 {
+		return User{}, apperrors.NewValidationError(validationErrors...)
 	}
 
 	user, err := s.repo.Create(User{Username: req.Username, Email: req.Email})
@@ -37,7 +43,7 @@ func (s *service) CreateUser(req CreateUserRequest) (User, error) {
 	return user, nil
 }
 
-func (s *service) UpdateUser(id int, req UpdateUserRequest) (User, error) {
+func (s *service) UpdateUser(id uuid.UUID, req UpdateUserRequest) (User, error) {
 	user, err := s.repo.FindByID(id)
 	if err != nil {
 		return User{}, apperrors.NewNotFoundError("user", id)
@@ -65,7 +71,7 @@ func (s *service) UpdateUser(id int, req UpdateUserRequest) (User, error) {
 	return s.repo.Update(user)
 }
 
-func (s *service) DeleteUser(id int) error {
+func (s *service) DeleteUser(id uuid.UUID) error {
 	user, err := s.repo.FindByID(id)
 	if err != nil {
 		return apperrors.NewNotFoundError("user", id)
@@ -77,7 +83,7 @@ func (s *service) DeleteUser(id int) error {
 	return nil
 }
 
-func (s *service) GetUser(id int) (User, error) {
+func (s *service) GetUser(id uuid.UUID) (User, error) {
 	user, err := s.repo.FindByID(id)
 	if err != nil {
 		return User{}, apperrors.NewNotFoundError("user", id)

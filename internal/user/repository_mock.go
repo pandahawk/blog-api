@@ -8,6 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	uuid "github.com/google/uuid"
 )
 
 // MockRepository is a mock of Repository interface.
@@ -93,7 +94,7 @@ func (mr *MockRepositoryMockRecorder) FindByEmail(email interface{}) *gomock.Cal
 }
 
 // FindByID mocks base method.
-func (m *MockRepository) FindByID(id int) (User, error) {
+func (m *MockRepository) FindByID(id uuid.UUID) (User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByID", id)
 	ret0, _ := ret[0].(User)
