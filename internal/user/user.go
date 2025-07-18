@@ -10,17 +10,7 @@ type User struct {
 	ID       uuid.UUID   `gorm:"type:char(36);primaryKey"` // @swagger:strfmt uuid
 	Username string      `json:"username" gorm:"unique;not null"`
 	Email    string      `json:"email" gorm:"unique;not null"`
-	Posts    []post.Post `gorm:"foreignKey:PostID"`
-}
-
-type CreateUserRequest struct {
-	Username string `json:"username" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-}
-
-type UpdateUserRequest struct {
-	Username *string `json:"username"`
-	Email    *string `json:"email" binding:"email"`
+	Posts    []post.Post `gorm:"foreignKey:UserID"`
 }
 
 //goland:noinspection GoUnusedParameter
