@@ -2,13 +2,15 @@ package user
 
 import (
 	"github.com/google/uuid"
+	"github.com/pandahawk/blog-api/internal/post"
 	"gorm.io/gorm"
 )
 
 type User struct {
-	ID       uuid.UUID `gorm:"type:char(36);primaryKey"` // @swagger:strfmt uuid
-	Username string    `json:"username" gorm:"unique;not null"`
-	Email    string    `json:"email" gorm:"unique;not null"`
+	ID       uuid.UUID   `gorm:"type:char(36);primaryKey"` // @swagger:strfmt uuid
+	Username string      `json:"username" gorm:"unique;not null"`
+	Email    string      `json:"email" gorm:"unique;not null"`
+	Posts    []post.Post `gorm:"foreignKey:PostID"`
 }
 
 type CreateUserRequest struct {
