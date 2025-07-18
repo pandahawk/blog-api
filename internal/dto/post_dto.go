@@ -6,12 +6,12 @@ import (
 )
 
 type Response struct {
-	PostID    uuid.UUID    `json:"post_id"`
-	Title     string       `json:"title"`
-	Content   string       `json:"content"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt time.Time    `json:"updated_at"`
-	Author    UserResponse `json:"author"`
+	PostID    uuid.UUID      `json:"post_id"`
+	Title     string         `json:"title"`
+	Content   string         `json:"content"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	Author    InPostResponse `json:"author"`
 }
 
 type InUserResponse struct {
