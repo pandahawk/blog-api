@@ -11,9 +11,6 @@ import (
 	"log"
 )
 
-//todo: make tests work -> need to exchange sqlite for a postgres to make it
-//work with uuids
-
 // @title       Blog API
 // @version     1.0
 // @description This is a simple blog API built with Go and Gin

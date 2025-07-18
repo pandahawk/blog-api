@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"log"
 	"testing"
 )
 
@@ -14,7 +15,9 @@ func setupTestDB(t *testing.T) *gorm.DB {
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&User{}))
 	sampleUsers := []User{
-		{Username: "testuser1", Email: "t1@example.com"},
+		{ID: uuid.MustParse("0ef05522-38ce-4008-a57b-cae75c7681e6"),
+			Username: "testuser1",
+			Email:    "t1@example.com"},
 		{Username: "testuser2", Email: "t2@example.com"},
 		{Username: "testuser3", Email: "t3@example.com"},
 	}
@@ -38,8 +41,8 @@ func TestGormRepository_FindAll(t *testing.T) {
 func TestGormRepository_FindByID(t *testing.T) {
 	db := setupTestDB(t)
 	repo := NewGormRepository(db)
-	id := uuid.New()
-
+	id := uuid.MustParse("0ef05522-38ce-4008-a57b-cae75c7681e6")
+	log.Println(id)
 	got, err := repo.FindByID(id)
 
 	require.NoError(t, err)

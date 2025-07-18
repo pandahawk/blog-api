@@ -22,17 +22,17 @@ type service struct {
 }
 
 func (s *service) CreateUser(req CreateUserRequest) (User, error) {
-	var validationErrors []string
+	var errorMessages []string
 	if _, err := s.repo.FindByUsername(req.Username); err == nil {
-		validationErrors = append(validationErrors, "username already exists")
+		errorMessages = append(errorMessages, "username already exists")
 	}
 
 	if _, err := s.repo.FindByEmail(req.Email); err == nil {
-		validationErrors = append(validationErrors, "email already exists")
+		errorMessages = append(errorMessages, "email already exists")
 	}
 
-	if len(validationErrors) > 0 {
-		return User{}, apperrors.NewValidationError(validationErrors...)
+	if len(errorMessages) > 0 {
+		return User{}, apperrors.NewValidationError(errorMessages...)
 	}
 
 	user, err := s.repo.Create(User{Username: req.Username, Email: req.Email})

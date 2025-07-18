@@ -70,6 +70,7 @@ func TestService_CreateUser(t *testing.T) {
 		}
 		mockRepo, service := setupMockRepoAndService(t)
 		mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(wantUser, nil)
+		mockRepo.EXPECT().FindByEmail(gomock.Any()).Return(User{}, nil)
 
 		_, err := service.CreateUser(req)
 
@@ -133,7 +134,8 @@ func TestService_UpdateUser(t *testing.T) {
 
 		_, err := service.UpdateUser(id, req)
 
-		assert.ErrorContains(t, err, fmt.Sprintf("user with ID %d not found", id))
+		assert.ErrorContains(t, err, fmt.Sprintf("user with ID %s not found",
+			id.String()))
 	})
 
 	t.Run("email not found", func(t *testing.T) {
