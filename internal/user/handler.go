@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
+	"log"
 	"net/http"
 )
 
@@ -39,11 +40,12 @@ func (h *Handler) getAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
+// List all users
 // @Summary Get user by ID
 // @Description Get the user with the specified ID
 // @Tags users
 // @Produce json
-// @Param id path uuid.UUID true "User ID"
+// @Param id path string true "User ID" Format(uuid)
 // @Success 200 {object} user.User
 // @Failure 404 {object} apperrors.NotFoundError
 // @Router /users/{id} [get]
@@ -70,13 +72,15 @@ func (h *Handler) getUser(c *gin.Context) {
 // @Produce json
 // @Param user body user.CreateUserRequest true "User data"
 // @Success 201 {object} user.User
-// @Failure 400 {object} error
+// @Failure 400 {object} apperrors.ValidationError
 // @Failure 409 {object} apperrors.ValidationError
 // @Router /users [post]
 func (h *Handler) createUser(c *gin.Context) {
 	var req CreateUserRequest
+	c.Header("Content-Type", "application/json")
 	if err := c.ShouldBindJSON(&req); err != nil {
-		respondWithError(c, http.StatusBadRequest, "missing username or email")
+		log.Println(err.Error())
+		respondWithError(c, http.StatusBadRequest, "uername and email are required")
 		return
 	}
 	savedUser, err := h.Service.CreateUser(req)
@@ -88,6 +92,18 @@ func (h *Handler) createUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, savedUser)
 }
 
+// @Summary Update user by ID
+// @Description Updates an existing user and returns the updated resource
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID" Format(uuid)
+// @Param user body user.UpdateUserRequest true "User update data"
+// @Success 201 {object} user.User
+// @Failure 400 {object} apperrors.ValidationError
+// @Failure 409 {object} apperrors.ValidationError
+// @Failure 404 {object} apperrors.NotFoundError
+// @Router /users/{id} [patch]
 func (h *Handler) updateUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -116,6 +132,16 @@ func (h *Handler) updateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, updatedUser)
 }
 
+// @Summary Delete user by ID
+// @Description Deletes an existing user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID" Format(uuid)
+// @Success 204
+// @Failure 400 {object} apperrors.ValidationError
+// @Failure 404 {object} apperrors.NotFoundError
+// @Router /users/{id} [delete]
 func (h *Handler) deleteUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
