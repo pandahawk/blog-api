@@ -14,14 +14,14 @@ type UpdateUserRequest struct {
 	Email    *string `json:"email" binding:"email"`
 }
 
-type AuthorResponse struct {
+type UserResponse struct {
 	ID       uuid.UUID        `json:"author_id"`
 	Username string           `json:"username"`
 	Email    string           `json:"email"`
 	Posts    []InUserResponse `json:"posts"`
 }
 
-type UserResponse struct {
+type InPostResponse struct {
 	UserID   uuid.UUID `json:"user_id"`
 	Username string    `json:"username"`
 	Email    string    `json:"email"`

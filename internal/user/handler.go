@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
+	"github.com/pandahawk/blog-api/internal/dto"
 	"log"
 	"net/http"
 )
@@ -37,6 +38,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 // @Router /users [get]
 func (h *Handler) getAllUsers(c *gin.Context) {
 	users, _ := h.Service.GetAllUsers()
+
 	c.JSON(http.StatusOK, users)
 }
 
@@ -62,7 +64,13 @@ func (h *Handler) getUser(c *gin.Context) {
 		respondWithError(c, http.StatusNotFound, ne.Error())
 		return
 	}
-	c.JSON(http.StatusOK, user)
+	resp := dto.UserResponse{
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+		Posts:    nil,
+	}
+	c.JSON(http.StatusOK, resp)
 }
 
 // @Summary Create a new user
@@ -76,7 +84,7 @@ func (h *Handler) getUser(c *gin.Context) {
 // @Failure 409 {object} apperrors.ValidationError
 // @Router /users [post]
 func (h *Handler) createUser(c *gin.Context) {
-	var req CreateUserRequest
+	var req dto.CreateUserRequest
 	c.Header("Content-Type", "application/json")
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Println(err.Error())
@@ -111,7 +119,7 @@ func (h *Handler) updateUser(c *gin.Context) {
 		respondWithError(c, http.StatusBadRequest, "ID must be an integer")
 		return
 	}
-	var req UpdateUserRequest
+	var req dto.UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		respondWithError(c, http.StatusBadRequest, err.Error())
 		return
