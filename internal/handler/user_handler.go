@@ -1,4 +1,4 @@
-package user
+package handler
 
 import (
 	"errors"
@@ -6,40 +6,46 @@ import (
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
 	"github.com/pandahawk/blog-api/internal/dto"
+	"github.com/pandahawk/blog-api/internal/mapper"
+	"github.com/pandahawk/blog-api/internal/user"
 	"log"
 	"net/http"
 )
 
-type Handler struct {
-	Service Service
+type UserHandler struct {
+	Service user.Service
 }
 
-func NewHandler(service Service) *Handler {
-	return &Handler{Service: service}
+func NewHandler(service user.Service) *UserHandler {
+	return &UserHandler{Service: service}
 }
 
 func respondWithError(c *gin.Context, code int, message string) {
 	c.JSON(code, gin.H{"error": message})
 }
 
-func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
-	r.GET("", h.getAllUsers)
-	r.GET("/:id", h.getUser)
-	r.POST("", h.createUser)
-	r.PATCH("/:id", h.updateUser)
-	r.DELETE("/:id", h.deleteUser)
+func (uh *UserHandler) RegisterRoutes(r *gin.RouterGroup) {
+	r.GET("", uh.getAllUsers)
+	r.GET("/:id", uh.getUser)
+	r.POST("", uh.createUser)
+	r.PATCH("/:id", uh.updateUser)
+	r.DELETE("/:id", uh.deleteUser)
 }
 
 // @Summary Get all users
 // @Description Get all users in the system
 // @Tags users
 // @Produce json
-// @Success 200 {array} User
+// @Success 200 {array} user.User
 // @Router /users [get]
-func (h *Handler) getAllUsers(c *gin.Context) {
-	users, _ := h.Service.GetAllUsers()
+func (uh *UserHandler) getAllUsers(c *gin.Context) {
+	users, _ := uh.Service.GetAllUsers()
 
-	c.JSON(http.StatusOK, users)
+	resp := make([]dto.UserResponse, len(users))
+	for i, u := range users {
+		resp[i] = mapper.FromUser(u)
+	}
+	c.JSON(http.StatusOK, resp)
 }
 
 // List all users
@@ -51,25 +57,21 @@ func (h *Handler) getAllUsers(c *gin.Context) {
 // @Success 200 {object} user.User
 // @Failure 404 {object} apperrors.NotFoundError
 // @Router /users/{id} [get]
-func (h *Handler) getUser(c *gin.Context) {
+func (uh *UserHandler) getUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
 		respondWithError(c, http.StatusBadRequest, "ID must be an integer")
 		return
 	}
-	user, err := h.Service.GetUser(id)
+	u, err := uh.Service.GetUser(id)
 	var ne *apperrors.NotFoundError
 	if errors.As(err, &ne) {
 		respondWithError(c, http.StatusNotFound, ne.Error())
 		return
 	}
-	resp := dto.UserResponse{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-		Posts:    nil,
-	}
+
+	resp := mapper.FromUser(u)
 	c.JSON(http.StatusOK, resp)
 }
 
@@ -78,12 +80,12 @@ func (h *Handler) getUser(c *gin.Context) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param user body user.CreateUserRequest true "User data"
-// @Success 201 {object} user.User
+// @Param user body dto.CreateUserRequest true "User data"
+// @Success 201 {object} dto.UserResponse
 // @Failure 400 {object} apperrors.ValidationError
 // @Failure 409 {object} apperrors.ValidationError
 // @Router /users [post]
-func (h *Handler) createUser(c *gin.Context) {
+func (uh *UserHandler) createUser(c *gin.Context) {
 	var req dto.CreateUserRequest
 	c.Header("Content-Type", "application/json")
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -91,13 +93,14 @@ func (h *Handler) createUser(c *gin.Context) {
 		respondWithError(c, http.StatusBadRequest, "uername and email are required")
 		return
 	}
-	savedUser, err := h.Service.CreateUser(req)
+	u, err := uh.Service.CreateUser(req)
 	var ve *apperrors.ValidationError
 	if errors.As(err, &ve) {
 		respondWithError(c, http.StatusConflict, err.Error())
 		return
 	}
-	c.JSON(http.StatusCreated, savedUser)
+	resp := mapper.FromUser(u)
+	c.JSON(http.StatusCreated, resp)
 }
 
 // @Summary Update user by ID
@@ -106,13 +109,13 @@ func (h *Handler) createUser(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID" Format(uuid)
-// @Param user body user.UpdateUserRequest true "User update data"
+// @Param user body dto.UpdateUserRequest true "User update data"
 // @Success 201 {object} user.User
 // @Failure 400 {object} apperrors.ValidationError
 // @Failure 409 {object} apperrors.ValidationError
 // @Failure 404 {object} apperrors.NotFoundError
 // @Router /users/{id} [patch]
-func (h *Handler) updateUser(c *gin.Context) {
+func (uh *UserHandler) updateUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
@@ -124,7 +127,7 @@ func (h *Handler) updateUser(c *gin.Context) {
 		respondWithError(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	updatedUser, err := h.Service.UpdateUser(id, req)
+	u, err := uh.Service.UpdateUser(id, req)
 
 	var ve *apperrors.ValidationError
 	if errors.As(err, &ve) {
@@ -137,7 +140,8 @@ func (h *Handler) updateUser(c *gin.Context) {
 		respondWithError(c, http.StatusNotFound, ne.Error())
 		return
 	}
-	c.JSON(http.StatusOK, updatedUser)
+	resp := mapper.FromUser(u)
+	c.JSON(http.StatusOK, resp)
 }
 
 // @Summary Delete user by ID
@@ -150,7 +154,7 @@ func (h *Handler) updateUser(c *gin.Context) {
 // @Failure 400 {object} apperrors.ValidationError
 // @Failure 404 {object} apperrors.NotFoundError
 // @Router /users/{id} [delete]
-func (h *Handler) deleteUser(c *gin.Context) {
+func (uh *UserHandler) deleteUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
@@ -158,7 +162,7 @@ func (h *Handler) deleteUser(c *gin.Context) {
 		return
 	}
 
-	if err = h.Service.DeleteUser(id); err != nil {
+	if err = uh.Service.DeleteUser(id); err != nil {
 		respondWithError(c, http.StatusNotFound, err.Error())
 		return
 	}

@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/google/uuid"
+	"github.com/pandahawk/blog-api/internal/post"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/sqlite"
@@ -13,7 +14,7 @@ import (
 func setupTestDB(t *testing.T) *gorm.DB {
 	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
 	require.NoError(t, err)
-	require.NoError(t, db.AutoMigrate(&User{}))
+	require.NoError(t, db.AutoMigrate(&User{}, &post.Post{}))
 	sampleUsers := []User{
 		{ID: uuid.MustParse("0ef05522-38ce-4008-a57b-cae75c7681e6"),
 			Username: "testuser1",
@@ -35,7 +36,6 @@ func TestGormRepository_FindAll(t *testing.T) {
 	require.Len(t, users, 3)
 	assert.Equal(t, "testuser1", users[0].Username)
 	assert.Equal(t, "t1@example.com", users[0].Email)
-
 }
 
 func TestGormRepository_FindByID(t *testing.T) {

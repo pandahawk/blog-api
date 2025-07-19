@@ -6,6 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
+	"github.com/pandahawk/blog-api/internal/dto"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -24,7 +25,7 @@ func setupMockRepoAndService(t *testing.T) (*MockRepository, Service) {
 
 func TestService_CreateUser(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		req := CreateUserRequest{
+		req := dto.CreateUserRequest{
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
@@ -44,7 +45,7 @@ func TestService_CreateUser(t *testing.T) {
 		assert.Equal(t, wantUser, gotUser)
 	})
 	t.Run("db error", func(t *testing.T) {
-		req := CreateUserRequest{
+		req := dto.CreateUserRequest{
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
@@ -59,7 +60,7 @@ func TestService_CreateUser(t *testing.T) {
 	})
 
 	t.Run("username taken", func(t *testing.T) {
-		req := CreateUserRequest{
+		req := dto.CreateUserRequest{
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
@@ -78,7 +79,7 @@ func TestService_CreateUser(t *testing.T) {
 	})
 
 	t.Run("email taken", func(t *testing.T) {
-		req := CreateUserRequest{
+		req := dto.CreateUserRequest{
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
@@ -99,7 +100,7 @@ func TestService_CreateUser(t *testing.T) {
 
 func TestService_UpdateUser(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		req := UpdateUserRequest{
+		req := dto.UpdateUserRequest{
 			Username: ptr("updatedtestuser01"),
 			Email:    ptr("updatedtestuser01@example.com"),
 		}
@@ -125,7 +126,7 @@ func TestService_UpdateUser(t *testing.T) {
 
 	t.Run("user not found", func(t *testing.T) {
 		id := uuid.New()
-		req := UpdateUserRequest{
+		req := dto.UpdateUserRequest{
 			Username: ptr("updatedtestuser01"),
 			Email:    ptr("updatedtestuser01@example.com"),
 		}
@@ -139,7 +140,7 @@ func TestService_UpdateUser(t *testing.T) {
 	})
 
 	t.Run("email not found", func(t *testing.T) {
-		req := UpdateUserRequest{
+		req := dto.UpdateUserRequest{
 			Username: ptr("  "),
 			Email:    ptr("updatedtestuser01@example.com"),
 		}
@@ -157,7 +158,7 @@ func TestService_UpdateUser(t *testing.T) {
 	})
 
 	t.Run("email empty", func(t *testing.T) {
-		req := UpdateUserRequest{
+		req := dto.UpdateUserRequest{
 			Username: ptr("updatedtestuser01"),
 			Email:    ptr(" "),
 		}
