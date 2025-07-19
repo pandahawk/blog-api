@@ -5,16 +5,34 @@ import (
 	"time"
 )
 
-type Response struct {
-	PostID    uuid.UUID      `json:"post_id"`
-	Title     string         `json:"title"`
-	Content   string         `json:"content"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	Author    InPostResponse `json:"author"`
+type PostResponse struct {
+	PostID    uuid.UUID           `json:"post_id"`
+	Title     string              `json:"title"`
+	Content   string              `json:"content"`
+	CreatedAt time.Time           `json:"created_at"`
+	UpdatedAt time.Time           `json:"updated_at"`
+	Author    UserSummaryResponse `json:"author"`
 }
 
-type InUserResponse struct {
-	PostID uuid.UUID `json:"post_id"`
-	Title  string    `json:"title"`
+type PostSummaryResponse struct {
+	//PostID uuid.UUID `json:"post_id"`
+	//Title  string    `json:"title"`
+	PostID uuid.UUID `json:"post_id" example:"4e76b320-d5b7-4a0a-bb0f-2049fe6a91a7" swaggertype:"string" format:"uuid"`
+	Title  string    `json:"title" example:"My First Post"`
+}
+
+type CreatePostRequest struct {
+	Title    string    `json:"title" binding:"required"`
+	Content  string    `json:"content" binding:"required"`
+	AuthorID uuid.UUID `json:"author_id" binding:"required"`
+}
+
+type CreatePostInUserRequest struct {
+	Title   string `json:"title" binding:"required"`
+	Content string `json:"content" binding:"required"`
+}
+
+type UpdatePostRequest struct {
+	Title   *string `json:"title"`
+	Content *string `json:"content"`
 }

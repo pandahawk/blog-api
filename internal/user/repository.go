@@ -24,13 +24,13 @@ type gormRepository struct {
 
 func (r *gormRepository) FindAll() ([]User, error) {
 	var users []User
-	err := r.db.Find(&users).Error
+	err := r.db.Preload("Posts").Find(&users).Error
 	return users, err
 }
 
 func (r *gormRepository) FindByID(id uuid.UUID) (User, error) {
 	var user User
-	err := r.db.First(&user, id).Error
+	err := r.db.Preload("Posts").First(&user, id).Error
 	return user, err
 }
 
@@ -47,12 +47,12 @@ func (r *gormRepository) FindByEmail(email string) (User, error) {
 }
 
 func (r *gormRepository) Create(user User) (User, error) {
-	err := r.db.Create(&user).Error
+	err := r.db.Preload("Posts").Create(&user).Error
 	return user, err
 }
 
 func (r *gormRepository) Update(user User) (User, error) {
-	err := r.db.Save(&user).Error
+	err := r.db.Preload("Posts").Save(&user).Error
 	return user, err
 }
 

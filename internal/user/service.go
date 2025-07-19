@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
+	"github.com/pandahawk/blog-api/internal/dto"
 	"strings"
 )
 
@@ -11,9 +12,9 @@ import (
 
 type Service interface {
 	GetUser(id uuid.UUID) (User, error)
-	CreateUser(req CreateUserRequest) (User, error)
+	CreateUser(req dto.CreateUserRequest) (User, error)
 	GetAllUsers() ([]User, error)
-	UpdateUser(id uuid.UUID, req UpdateUserRequest) (User, error)
+	UpdateUser(id uuid.UUID, req dto.UpdateUserRequest) (User, error)
 	DeleteUser(id uuid.UUID) error
 }
 
@@ -21,7 +22,7 @@ type service struct {
 	repo Repository
 }
 
-func (s *service) CreateUser(req CreateUserRequest) (User, error) {
+func (s *service) CreateUser(req dto.CreateUserRequest) (User, error) {
 	var errorMessages []string
 	if _, err := s.repo.FindByUsername(req.Username); err == nil {
 		errorMessages = append(errorMessages, "username already exists")
@@ -43,7 +44,7 @@ func (s *service) CreateUser(req CreateUserRequest) (User, error) {
 	return user, nil
 }
 
-func (s *service) UpdateUser(id uuid.UUID, req UpdateUserRequest) (User, error) {
+func (s *service) UpdateUser(id uuid.UUID, req dto.UpdateUserRequest) (User, error) {
 	user, err := s.repo.FindByID(id)
 	if err != nil {
 		return User{}, apperrors.NewNotFoundError("user", id)

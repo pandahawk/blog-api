@@ -60,7 +60,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.CreateUserRequest"
+                            "$ref": "#/definitions/dto.CreateUserRequest"
                         }
                     }
                 ],
@@ -68,7 +68,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/user.User"
+                            "$ref": "#/definitions/dto.UserResponse"
                         }
                     },
                     "400": {
@@ -188,7 +188,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.UpdateUserRequest"
+                            "$ref": "#/definitions/dto.UpdateUserRequest"
                         }
                     }
                 ],
@@ -244,7 +244,7 @@ const docTemplate = `{
                 }
             }
         },
-        "user.CreateUserRequest": {
+        "dto.CreateUserRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -259,7 +259,22 @@ const docTemplate = `{
                 }
             }
         },
-        "user.UpdateUserRequest": {
+        "dto.PostSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "post_id": {
+                    "description": "PostID uuid.UUID ` + "`" + `json:\"post_id\"` + "`" + `\nTitle  string    ` + "`" + `json:\"title\"` + "`" + `",
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "4e76b320-d5b7-4a0a-bb0f-2049fe6a91a7"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "My First Post"
+                }
+            }
+        },
+        "dto.UpdateUserRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -270,15 +285,80 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.UserResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "mike@example.com"
+                },
+                "joined_at": {
+                    "type": "string",
+                    "example": "2025-07-18T15:04:05Z"
+                },
+                "posts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.PostSummaryResponse"
+                    }
+                },
+                "user_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "b9e69a63-4f4b-4ea7-8c71-3b73fe62e6d7"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "mike"
+                }
+            }
+        },
+        "post.Post": {
+            "type": "object",
+            "required": [
+                "content",
+                "title"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "description": "@swagger:strfmt uuid",
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
         "user.User": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
                 "id": {
                     "description": "@swagger:strfmt uuid",
                     "type": "string"
+                },
+                "posts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/post.Post"
+                    }
                 },
                 "username": {
                     "type": "string"
