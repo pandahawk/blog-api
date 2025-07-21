@@ -5,7 +5,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
 	"github.com/pandahawk/blog-api/internal/dto"
+	"strconv"
 	"strings"
+	"unicode"
 )
 
 //go:generate mockgen -source=service.go -destination=service_mock.go -package=user
@@ -20,6 +22,33 @@ type Service interface {
 
 type service struct {
 	repo Repository
+}
+
+func isBlank(s string) bool {
+	return strings.TrimSpace(s) == ""
+}
+
+func isNumeric(s string) bool {
+	_, err := strconv.ParseFloat(strings.TrimSpace(s), 64)
+	return err == nil
+}
+
+func isValidUsername(s string) bool {
+	if len(s) < 3 {
+		return false
+	}
+	letterCount := 0
+	for _, r := range s {
+		if unicode.IsLetter(r) {
+			letterCount++
+		}
+	}
+	return letterCount >= 2
+}
+
+func (s *service) usernameExists(username string) bool {
+	_, err := s.repo.FindByUsername(username)
+	return err != nil
 }
 
 func (s *service) CreateUser(req dto.CreateUserRequest) (User, error) {
@@ -45,44 +74,32 @@ func (s *service) UpdateUser(id uuid.UUID, req dto.UpdateUserRequest) (User, err
 	}
 
 	if req.Username != nil {
-		if strings.TrimSpace(*req.Username) == "" {
+		if isBlank(*req.Username) {
 			return User{}, apperrors.NewInvalidInputError(
 				"username cannot be blank")
 		}
-		if _, err := s.repo.FindByUsername(*req.Username); err != nil {
+		if _, err := s.repo.FindByUsername(*req.Username); err == nil {
 			return User{}, apperrors.NewDuplicateError("username")
+		}
+
+		if !isValidUsername(*req.Username) {
+			return User{}, apperrors.NewInvalidInputError("username must be at least 3 characters long and must have at least 2 letters")
 		}
 		user.Username = *req.Username
 	}
 
 	if req.Email != nil {
-		if strings.TrimSpace(*req.Email) == "" {
+		if isBlank(*req.Email) {
 			return User{}, apperrors.NewInvalidInputError(
-				"email cannot be blank and must be a valid")
+				"email cannot be blank and must be valid")
 		}
-		if _, err := s.repo.FindByEmail(*req.Email); err != nil {
+		if _, err := s.repo.FindByEmail(*req.Email); err == nil {
 			return User{}, apperrors.NewDuplicateError("email")
 		}
 		user.Email = *req.Email
 	}
 
 	return s.repo.Update(user)
-
-	//if req.Username != nil && strings.TrimSpace(*req.Username) == "" {
-	//	return User{}, apperrors.NewInvalidInputError("username")
-	//}
-	//
-	//if req.Email != nil && strings.TrimSpace(*req.Email) == "" {
-	//	return User{}, apperrors.NewInvalidInputError("email")
-	//}
-	//
-	//if req.Username != nil {
-	//	user.Username = *req.Username
-	//}
-	//if req.Email != nil {
-	//	user.Email = *req.Email
-	//}
-
 }
 
 func (s *service) DeleteUser(id uuid.UUID) error {

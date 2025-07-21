@@ -16,6 +16,7 @@ type Repository interface {
 	Create(user User) (User, error)
 	Delete(user User) error
 	Update(user User) (User, error)
+	//EmailExists(email string) bool
 }
 
 type gormRepository struct {
@@ -46,6 +47,13 @@ func (r *gormRepository) FindByEmail(email string) (User, error) {
 	return user, err
 }
 
+//func (r *gormRepository) EmailExists(email string) bool {
+//	var user *User
+//	err := r.db.Where("email = ?", email).First(&user).Error
+//	log.Println(err.Error())
+//	return err != nil
+//}
+
 func (r *gormRepository) Create(user User) (User, error) {
 	err := r.db.Preload("Posts").Create(&user).Error
 	return user, err
@@ -63,7 +71,7 @@ func (r *gormRepository) Delete(user User) error {
 
 func NewDevGormRepository(db *gorm.DB) Repository {
 
-	var user User
+	var user *User
 	if err := db.First(&user).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		log.Println("no users found... initializing sample data")
 		sampleUsers := []User{
