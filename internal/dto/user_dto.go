@@ -6,8 +6,8 @@ import (
 )
 
 type CreateUserRequest struct {
-	Username string `json:"username" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
+	Username string `json:"username" binding:"required" example:"mike"`
+	Email    string `json:"email" binding:"required,email" example:"mike@example.com"`
 }
 
 type UpdateUserRequest struct {

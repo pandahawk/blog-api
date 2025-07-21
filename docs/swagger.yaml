@@ -1,5 +1,10 @@
 basePath: /api/v1
 definitions:
+  apperrors.DuplicateError:
+    properties:
+      resource:
+        type: string
+    type: object
   apperrors.NotFoundError:
     properties:
       id:
@@ -10,6 +15,9 @@ definitions:
   apperrors.ValidationError:
     properties:
       messages:
+        example:
+          - username already exists
+          - ' email already exists'
         items:
           type: string
         type: array
@@ -17,8 +25,10 @@ definitions:
   dto.CreateUserRequest:
     properties:
       email:
+        example: mike@example.com
         type: string
       username:
+        example: mike
         type: string
     required:
       - email
@@ -149,7 +159,7 @@ paths:
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/apperrors.ValidationError'
+            $ref: '#/definitions/apperrors.DuplicateError'
       summary: Create a new user
       tags:
         - users

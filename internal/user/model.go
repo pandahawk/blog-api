@@ -8,7 +8,7 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID   `gorm:"type:char(36);primaryKey"` // @swagger:strfmt uuid
+	ID        uuid.UUID   `gorm:"type:char(36);primaryKey"`
 	Username  string      `json:"username" gorm:"unique;not null"`
 	Email     string      `json:"email" gorm:"unique;not null"`
 	CreatedAt time.Time   `json:"created_at"`
