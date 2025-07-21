@@ -3,7 +3,6 @@ package apperrors
 import (
 	"fmt"
 	"github.com/google/uuid"
-	"strings"
 )
 
 type NotFoundError struct {
@@ -11,15 +10,23 @@ type NotFoundError struct {
 	ID       uuid.UUID
 }
 
-type ValidationError struct {
-	Messages []string
+type DuplicateError struct {
+	Resource string
 }
 
-func (v ValidationError) Error() string {
-	return "invalid input: " + strings.Join(v.Messages, ", ")
+type InvalidInputError struct {
+	Message string
 }
 
-func (n NotFoundError) Error() string {
+func (ie *InvalidInputError) Error() string {
+	return ie.Message
+}
+
+func (de *DuplicateError) Error() string {
+	return fmt.Sprintf("%s already exists", de.Resource)
+}
+
+func (n *NotFoundError) Error() string {
 	return fmt.Sprintf("%s with ID %s not found", n.Resource, n.ID.String())
 }
 
@@ -27,6 +34,10 @@ func NewNotFoundError(resource string, id uuid.UUID) error {
 	return &NotFoundError{Resource: resource, ID: id}
 }
 
-func NewValidationError(messages ...string) error {
-	return &ValidationError{Messages: messages}
+func NewDuplicateError(resource string) error {
+	return &DuplicateError{Resource: resource}
+}
+
+func NewInvalidInputError(msg string) error {
+	return &InvalidInputError{Message: msg}
 }

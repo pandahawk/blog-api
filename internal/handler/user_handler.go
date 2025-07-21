@@ -61,7 +61,7 @@ func (uh *UserHandler) getUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		respondWithError(c, http.StatusBadRequest, "ID must be an integer")
+		respondWithError(c, http.StatusBadRequest, "ID must be a uuid")
 		return
 	}
 	u, err := uh.Service.GetUser(id)
@@ -83,19 +83,19 @@ func (uh *UserHandler) getUser(c *gin.Context) {
 // @Param user body dto.CreateUserRequest true "User data"
 // @Success 201 {object} dto.UserResponse
 // @Failure 400 {object} apperrors.ValidationError
-// @Failure 409 {object} apperrors.ValidationError
+// @Failure 409 {object} apperrors.DuplicateError
 // @Router /users [post]
 func (uh *UserHandler) createUser(c *gin.Context) {
 	var req dto.CreateUserRequest
 	c.Header("Content-Type", "application/json")
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Println(err.Error())
-		respondWithError(c, http.StatusBadRequest, "uername and email are required")
+		respondWithError(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
 	u, err := uh.Service.CreateUser(req)
-	var ve *apperrors.ValidationError
-	if errors.As(err, &ve) {
+	var de *apperrors.DuplicateError
+	if errors.As(err, &de) {
 		respondWithError(c, http.StatusConflict, err.Error())
 		return
 	}
@@ -108,18 +108,17 @@ func (uh *UserHandler) createUser(c *gin.Context) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param id path string true "User ID" Format(uuid)
+// @Param id path string true "User ID" format(uuid)
 // @Param user body dto.UpdateUserRequest true "User update data"
 // @Success 201 {object} user.User
-// @Failure 400 {object} apperrors.ValidationError
-// @Failure 409 {object} apperrors.ValidationError
+// @Failure 400 {object} apperrors.InvalidInputError
 // @Failure 404 {object} apperrors.NotFoundError
 // @Router /users/{id} [patch]
 func (uh *UserHandler) updateUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		respondWithError(c, http.StatusBadRequest, "ID must be an integer")
+		respondWithError(c, http.StatusBadRequest, "ID must be a uuid")
 		return
 	}
 	var req dto.UpdateUserRequest
@@ -129,9 +128,9 @@ func (uh *UserHandler) updateUser(c *gin.Context) {
 	}
 	u, err := uh.Service.UpdateUser(id, req)
 
-	var ve *apperrors.ValidationError
-	if errors.As(err, &ve) {
-		respondWithError(c, http.StatusBadRequest, ve.Error())
+	var de *apperrors.DuplicateError
+	if errors.As(err, &de) {
+		respondWithError(c, http.StatusConflict, de.Error())
 		return
 	}
 
@@ -140,6 +139,12 @@ func (uh *UserHandler) updateUser(c *gin.Context) {
 		respondWithError(c, http.StatusNotFound, ne.Error())
 		return
 	}
+
+	var ie *apperrors.InvalidInputError
+	if errors.As(err, &ie) {
+		respondWithError(c, http.StatusBadRequest, ie.Error())
+	}
+
 	resp := mapper.FromUser(u)
 	c.JSON(http.StatusOK, resp)
 }
@@ -158,7 +163,7 @@ func (uh *UserHandler) deleteUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		respondWithError(c, http.StatusBadRequest, "ID must be an integer")
+		respondWithError(c, http.StatusBadRequest, "ID must be a uuid")
 		return
 	}
 

@@ -80,7 +80,7 @@ const docTemplate = `{
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/apperrors.ValidationError"
+                            "$ref": "#/definitions/apperrors.DuplicateError"
                         }
                     }
                 }
@@ -222,6 +222,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "apperrors.DuplicateError": {
+            "type": "object",
+            "properties": {
+                "resource": {
+                    "type": "string"
+                }
+            }
+        },
         "apperrors.NotFoundError": {
             "type": "object",
             "properties": {
@@ -240,7 +248,11 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "username already exists",
+                        " email already exists"
+                    ]
                 }
             }
         },
@@ -252,10 +264,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "mike@example.com"
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "mike"
                 }
             }
         },

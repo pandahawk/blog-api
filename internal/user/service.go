@@ -23,24 +23,18 @@ type service struct {
 }
 
 func (s *service) CreateUser(req dto.CreateUserRequest) (User, error) {
-	var errorMessages []string
-	if _, err := s.repo.FindByUsername(req.Username); err == nil {
-		errorMessages = append(errorMessages, "username already exists")
-	}
-
-	if _, err := s.repo.FindByEmail(req.Email); err == nil {
-		errorMessages = append(errorMessages, "email already exists")
-	}
-
-	if len(errorMessages) > 0 {
-		return User{}, apperrors.NewValidationError(errorMessages...)
-	}
-
 	user, err := s.repo.Create(User{Username: req.Username, Email: req.Email})
 	if err != nil {
-		return User{}, err
-	}
+		if strings.Contains(err.Error(),
+			`violates unique constraint "uni_users_username"`) {
+			return User{}, apperrors.NewDuplicateError("username")
+		}
+		if strings.Contains(err.Error(),
+			`violates unique constraint "uni_users_email"`) {
+			return User{}, apperrors.NewDuplicateError("email")
+		}
 
+	}
 	return user, nil
 }
 
@@ -50,26 +44,45 @@ func (s *service) UpdateUser(id uuid.UUID, req dto.UpdateUserRequest) (User, err
 		return User{}, apperrors.NewNotFoundError("user", id)
 	}
 
-	var validationErrors []string
-	if req.Username != nil && strings.TrimSpace(*req.Username) == "" {
-		validationErrors = append(validationErrors, "username can not be empty")
-	}
-
-	if req.Email != nil && strings.TrimSpace(*req.Email) == "" {
-		validationErrors = append(validationErrors, "email can not be empty")
-	}
-	if len(validationErrors) > 0 {
-		return User{}, apperrors.NewValidationError(validationErrors...)
-	}
-
 	if req.Username != nil {
+		if strings.TrimSpace(*req.Username) == "" {
+			return User{}, apperrors.NewInvalidInputError(
+				"username cannot be blank")
+		}
+		if _, err := s.repo.FindByUsername(*req.Username); err != nil {
+			return User{}, apperrors.NewDuplicateError("username")
+		}
 		user.Username = *req.Username
 	}
+
 	if req.Email != nil {
+		if strings.TrimSpace(*req.Email) == "" {
+			return User{}, apperrors.NewInvalidInputError(
+				"email cannot be blank and must be a valid")
+		}
+		if _, err := s.repo.FindByEmail(*req.Email); err != nil {
+			return User{}, apperrors.NewDuplicateError("email")
+		}
 		user.Email = *req.Email
 	}
 
 	return s.repo.Update(user)
+
+	//if req.Username != nil && strings.TrimSpace(*req.Username) == "" {
+	//	return User{}, apperrors.NewInvalidInputError("username")
+	//}
+	//
+	//if req.Email != nil && strings.TrimSpace(*req.Email) == "" {
+	//	return User{}, apperrors.NewInvalidInputError("email")
+	//}
+	//
+	//if req.Username != nil {
+	//	user.Username = *req.Username
+	//}
+	//if req.Email != nil {
+	//	user.Email = *req.Email
+	//}
+
 }
 
 func (s *service) DeleteUser(id uuid.UUID) error {
