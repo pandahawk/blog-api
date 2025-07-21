@@ -63,6 +63,20 @@ func (mr *MockRepositoryMockRecorder) Delete(user interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepository)(nil).Delete), user)
 }
 
+// EmailExist mocks base method.
+func (m *MockRepository) EmailExist(email string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EmailExist", email)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// EmailExist indicates an expected call of EmailExist.
+func (mr *MockRepositoryMockRecorder) EmailExist(email interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EmailExist", reflect.TypeOf((*MockRepository)(nil).EmailExist), email)
+}
+
 // FindAll mocks base method.
 func (m *MockRepository) FindAll() ([]User, error) {
 	m.ctrl.T.Helper()
