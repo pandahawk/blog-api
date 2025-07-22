@@ -99,7 +99,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
@@ -153,6 +152,12 @@ const docTemplate = `{
                     "204": {
                         "description": "No Content"
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/apperrors.InvalidInputError"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -202,7 +207,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/apperrors.InvalidInputError"
+                            "$ref": "#/definitions/apperrors.DuplicateError"
                         }
                     },
                     "404": {
@@ -219,7 +224,7 @@ const docTemplate = `{
         "apperrors.DuplicateError": {
             "type": "object",
             "properties": {
-                "resource": {
+                "field": {
                     "type": "string"
                 }
             }
@@ -251,12 +256,10 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string",
-                    "example": "mike@example.com"
+                    "type": "string"
                 },
                 "username": {
-                    "type": "string",
-                    "example": "mike"
+                    "type": "string"
                 }
             }
         },
@@ -266,8 +269,7 @@ const docTemplate = `{
                 "post_id": {
                     "description": "PostID uuid.UUID ` + "`" + `json:\"post_id\"` + "`" + `\nTitle  string    ` + "`" + `json:\"title\"` + "`" + `",
                     "type": "string",
-                    "format": "uuid",
-                    "example": "4e76b320-d5b7-4a0a-bb0f-2049fe6a91a7"
+                    "format": "uuid"
                 },
                 "title": {
                     "type": "string",
@@ -290,12 +292,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string",
-                    "example": "mike@example.com"
+                    "type": "string"
                 },
                 "joined_at": {
-                    "type": "string",
-                    "example": "2025-07-18T15:04:05Z"
+                    "type": "string"
                 },
                 "posts": {
                     "type": "array",
@@ -304,13 +304,10 @@ const docTemplate = `{
                     }
                 },
                 "user_id": {
-                    "type": "string",
-                    "format": "uuid",
-                    "example": "b9e69a63-4f4b-4ea7-8c71-3b73fe62e6d7"
+                    "type": "string"
                 },
                 "username": {
-                    "type": "string",
-                    "example": "mike"
+                    "type": "string"
                 }
             }
         },
@@ -322,23 +319,29 @@ const docTemplate = `{
             ],
             "properties": {
                 "content": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "My First Post Content"
                 },
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2025-07-18T15:04:05Z"
                 },
                 "id": {
-                    "description": "@swagger:strfmt uuid",
-                    "type": "string"
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "4e76b320-d5b7-4a0a-bb0f-2049fe6a91a7"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "My First Post"
                 },
                 "updated_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2025-08-19T15:04:05Z"
                 },
                 "userID": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "5e76b320-d5b7-4a0a-bb0f-2049fe3a91a4"
                 }
             }
         },
@@ -346,13 +349,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2025-07-18T15:04:05Z"
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "mike@example.com"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "b9e69a63-4f4b-4ea7-8c71-3b73fe62e6d7"
                 },
                 "posts": {
                     "type": "array",
@@ -361,7 +368,8 @@ const docTemplate = `{
                     }
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "mike"
                 }
             }
         }

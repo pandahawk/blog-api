@@ -6,8 +6,8 @@ import (
 )
 
 type CreateUserRequest struct {
-	Username string `json:"username" binding:"required" example:"mike"`
-	Email    string `json:"email" binding:"required,email" example:"mike@example.com"`
+	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
 }
 
 type UpdateUserRequest struct {
@@ -16,10 +16,10 @@ type UpdateUserRequest struct {
 }
 
 type UserResponse struct {
-	UserID   uuid.UUID             `json:"user_id" example:"b9e69a63-4f4b-4ea7-8c71-3b73fe62e6d7" swaggertype:"string" format:"uuid"`
-	Username string                `json:"username" example:"mike"`
-	Email    string                `json:"email" example:"mike@example.com"`
-	JoinedAt time.Time             `json:"joined_at" example:"2025-07-18T15:04:05Z"`
+	UserID   uuid.UUID             `json:"user_id" swaggertype:"string"`
+	Username string                `json:"username"`
+	Email    string                `json:"email"`
+	JoinedAt time.Time             `json:"joined_at"`
 	Posts    []PostSummaryResponse `json:"posts"`
 }
 
@@ -28,5 +28,3 @@ type UserSummaryResponse struct {
 	Username string    `json:"username"`
 	Email    string    `json:"email"`
 }
-
-//todo: think of author as full response with []posts and user as just user

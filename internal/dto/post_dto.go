@@ -17,7 +17,7 @@ type PostResponse struct {
 type PostSummaryResponse struct {
 	//PostID uuid.UUID `json:"post_id"`
 	//Title  string    `json:"title"`
-	PostID uuid.UUID `json:"post_id" example:"4e76b320-d5b7-4a0a-bb0f-2049fe6a91a7" swaggertype:"string" format:"uuid"`
+	PostID uuid.UUID `json:"post_id" format:"uuid"`
 	Title  string    `json:"title" example:"My First Post"`
 }
 

@@ -69,7 +69,7 @@ func (uh *UserHandler) getAllUsers(c *gin.Context) {
 // @Description Get the user with the specified ID
 // @Tags users
 // @Produce json
-// @Param id path string true "User ID" Format(uuid)
+// @Param id path string true "User ID" format:"uuid"
 // @Success 200 {object} user.User
 // @Failure 404 {object} apperrors.NotFoundError
 // @Failure 400 {object} apperrors.InvalidInputError
