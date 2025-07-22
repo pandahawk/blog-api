@@ -11,16 +11,16 @@ POST http://localhost:8080/api/v1/users
 Content-Type: application/json
 
 {
-  "username": "bloggertest",
-  "email": "bloggertest@example.com"
+  "username": "12",
+  "email": "bloggertesthlkghjg@example.com"
 }
 
 ### UPDATE User By ID
-PATCH http://localhost:8080/api/v1/users/7173c005-9796-44e3-8cc1-36efd35a2807
+PATCH http://localhost:8080/api/v1/users/58e631f4-3ea8-4a9f-b97e-aa040a82ea23
 Content-Type: application/json
 
 {
-  "email": "blogger01@example.com"
+  "username": "blogger01"
 }
 
 ### DELETE User By ID

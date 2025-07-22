@@ -74,7 +74,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/apperrors.ValidationError"
+                            "$ref": "#/definitions/apperrors.InvalidInputError"
                         }
                     },
                     "409": {
@@ -113,6 +113,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/user.User"
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/apperrors.InvalidInputError"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -146,12 +152,6 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/apperrors.ValidationError"
-                        }
                     },
                     "404": {
                         "description": "Not Found",
@@ -202,19 +202,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/apperrors.ValidationError"
+                            "$ref": "#/definitions/apperrors.InvalidInputError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/apperrors.NotFoundError"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/apperrors.ValidationError"
                         }
                     }
                 }
@@ -230,6 +224,14 @@ const docTemplate = `{
                 }
             }
         },
+        "apperrors.InvalidInputError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "apperrors.NotFoundError": {
             "type": "object",
             "properties": {
@@ -238,21 +240,6 @@ const docTemplate = `{
                 },
                 "resource": {
                     "type": "string"
-                }
-            }
-        },
-        "apperrors.ValidationError": {
-            "type": "object",
-            "properties": {
-                "messages": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "username already exists",
-                        " email already exists"
-                    ]
                 }
             }
         },
@@ -365,7 +352,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "description": "@swagger:strfmt uuid",
                     "type": "string"
                 },
                 "posts": {
