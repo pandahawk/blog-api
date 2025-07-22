@@ -2,7 +2,6 @@ package user
 
 import (
 	"errors"
-	"fmt"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
@@ -44,14 +43,24 @@ func TestService_CreateUser(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, wantUser, gotUser)
 	})
+	t.Run("username has invalid format", func(t *testing.T) {
+		req := dto.CreateUserRequest{
+			Username: "01",
+			Email:    "testuser01@example.com",
+		}
+		_, service := setupMockRepoAndService(t)
+
+		_, err := service.CreateUser(req)
+
+		assert.ErrorContains(t, err, "invalid username: must be alphanumeric, at least 3 character")
+	})
+
 	t.Run("db error", func(t *testing.T) {
 		req := dto.CreateUserRequest{
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
 		mockRepo, service := setupMockRepoAndService(t)
-		//mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(User{}, errors.New(""))
-		//mockRepo.EXPECT().FindByEmail(gomock.Any()).Return(User{}, errors.New(""))
 		mockRepo.EXPECT().Create(gomock.Any()).Return(User{}, errors.New(""))
 
 		_, err := service.CreateUser(req)
@@ -66,7 +75,7 @@ func TestService_CreateUser(t *testing.T) {
 		}
 		mockRepo, service := setupMockRepoAndService(t)
 		mockRepo.EXPECT().Create(gomock.Any()).
-			Return(User{}, errors.New("username already exists"))
+			Return(User{}, errors.New(`violates unique constraint "uni_users_username"`))
 		_, err := service.CreateUser(req)
 
 		assert.ErrorContains(t, err, "username already exists")
@@ -79,7 +88,7 @@ func TestService_CreateUser(t *testing.T) {
 		}
 		mockRepo, service := setupMockRepoAndService(t)
 		mockRepo.EXPECT().Create(gomock.Any()).
-			Return(User{}, errors.New("email already exists"))
+			Return(User{}, errors.New(`violates unique constraint "uni_users_email"`))
 
 		_, err := service.CreateUser(req)
 
@@ -115,18 +124,59 @@ func TestService_UpdateUser(t *testing.T) {
 	})
 
 	t.Run("user not found", func(t *testing.T) {
-		id := uuid.New()
+		req := dto.UpdateUserRequest{
+			Username: ptr("updatedtestuser01"),
+			Email:    ptr("updatedtestuser01@example.com"),
+		}
+		oldUser := User{
+			ID:       uuid.New(),
+			Username: "testuser01",
+			Email:    "testuser01@example.com",
+		}
+		mockRepo, service := setupMockRepoAndService(t)
+		mockRepo.EXPECT().FindByID(gomock.Any()).
+			Return(User{}, apperrors.NewNotFoundError("user", oldUser.ID))
+
+		_, err := service.UpdateUser(oldUser.ID, req)
+
+		assert.ErrorContains(t, err, "not found")
+	})
+
+	t.Run("username already exists", func(t *testing.T) {
+		oldUser := User{
+			ID:       uuid.New(),
+			Username: "testuser01",
+			Email:    "testuser01@example.com",
+		}
 		req := dto.UpdateUserRequest{
 			Username: ptr("updatedtestuser01"),
 			Email:    ptr("updatedtestuser01@example.com"),
 		}
 		mockRepo, service := setupMockRepoAndService(t)
-		mockRepo.EXPECT().FindByID(gomock.Any()).Return(User{}, errors.New("user not found"))
+		mockRepo.EXPECT().FindByID(gomock.Any()).Return(oldUser, nil)
+		mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(User{}, nil)
+		_, err := service.UpdateUser(oldUser.ID, req)
 
-		_, err := service.UpdateUser(id, req)
+		assert.ErrorContains(t, err, "username already exists")
+	})
+	t.Run("email already exists", func(t *testing.T) {
+		oldUser := User{
+			ID:       uuid.New(),
+			Username: "testuser01",
+			Email:    "testuser01@example.com",
+		}
+		req := dto.UpdateUserRequest{
+			Username: ptr("updatedtestuser01"),
+			Email:    ptr("updatedtestuser01@example.com"),
+		}
+		mockRepo, service := setupMockRepoAndService(t)
+		mockRepo.EXPECT().FindByID(gomock.Any()).Return(oldUser, nil)
+		mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(User{}, errors.New("user not found"))
+		mockRepo.EXPECT().FindByEmail(gomock.Any()).
+			Return(User{}, nil)
+		_, err := service.UpdateUser(oldUser.ID, req)
 
-		assert.ErrorContains(t, err, fmt.Sprintf("user with ID %s not found",
-			id.String()))
+		assert.ErrorContains(t, err, "email already exists")
 	})
 
 	t.Run("email not found", func(t *testing.T) {
@@ -145,26 +195,6 @@ func TestService_UpdateUser(t *testing.T) {
 		_, err := service.UpdateUser(oldUser.ID, req)
 
 		assert.ErrorContains(t, err, "invalid username: must be alphanumeric, at least 3 character")
-	})
-
-	t.Run("email empty", func(t *testing.T) {
-		req := dto.UpdateUserRequest{
-			Username: ptr("updatedtestuser01"),
-			Email:    ptr(" "),
-		}
-		oldUser := User{
-			ID:       uuid.New(),
-			Username: "testuser01",
-			Email:    "testuser01@example.com",
-		}
-		mockRepo, service := setupMockRepoAndService(t)
-		mockRepo.EXPECT().FindByID(gomock.Any()).Return(oldUser, nil)
-		mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(User{}, errors.New("email empty"))
-		mockRepo.EXPECT().FindByEmail(gomock.Any()).Return(User{}, errors.New("email empty"))
-
-		_, err := service.UpdateUser(oldUser.ID, req)
-
-		assert.ErrorContains(t, err, "email can not be empty")
 	})
 }
 
@@ -248,5 +278,32 @@ func TestService_GetAllUsers(t *testing.T) {
 		_, err := service.GetAllUsers()
 
 		assert.ErrorContains(t, err, "failed to get all users")
+	})
+}
+
+func TestValidateUsernameFormat(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		err := validateUsernameFormat("testuser01")
+		assert.NoError(t, err)
+	})
+	t.Run("is a number", func(t *testing.T) {
+		err := validateUsernameFormat("123")
+		var ie *apperrors.InvalidInputError
+		assert.True(t, errors.As(err, &ie))
+	})
+	t.Run("has less than 3 characters", func(t *testing.T) {
+		err := validateUsernameFormat("ab")
+		var ie *apperrors.InvalidInputError
+		assert.True(t, errors.As(err, &ie))
+	})
+	t.Run("has less than 3 characters", func(t *testing.T) {
+		err := validateUsernameFormat("ab")
+		var ie *apperrors.InvalidInputError
+		assert.True(t, errors.As(err, &ie))
+	})
+	t.Run("has less than 2 letters", func(t *testing.T) {
+		err := validateUsernameFormat("a12")
+		var ie *apperrors.InvalidInputError
+		assert.True(t, errors.As(err, &ie))
 	})
 }

@@ -26,10 +26,8 @@ type service struct {
 }
 
 func validateUsernameFormat(username string) error {
-	matched, err := regexp.MatchString(`^[a-zA-Z0-9]{3,}$`, username)
-	if err != nil {
-		return err
-	}
+	matched, _ := regexp.MatchString(`^[a-zA-Z0-9]{3,}$`, username)
+
 	if !matched {
 		return apperrors.NewInvalidInputError("invalid username: must be" +
 			" alphanumeric, at least 3 character")
