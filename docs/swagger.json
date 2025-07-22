@@ -68,13 +68,13 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                          "$ref": "#/definitions/apperrors.InvalidInputError"
+                            "$ref": "#/definitions/apperrors.InvalidInputError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                          "$ref": "#/definitions/apperrors.DuplicateError"
+                            "$ref": "#/definitions/apperrors.DuplicateError"
                         }
                     }
                 }
@@ -93,7 +93,6 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "uuid",
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
@@ -107,12 +106,12 @@
                             "$ref": "#/definitions/user.User"
                         }
                     },
-                  "400": {
-                    "description": "Bad Request",
-                    "schema": {
-                      "$ref": "#/definitions/apperrors.InvalidInputError"
-                    }
-                  },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/apperrors.InvalidInputError"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -146,6 +145,12 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/apperrors.InvalidInputError"
+                        }
                     },
                     "404": {
                         "description": "Not Found",
@@ -196,7 +201,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                          "$ref": "#/definitions/apperrors.InvalidInputError"
+                            "$ref": "#/definitions/apperrors.DuplicateError"
                         }
                     },
                     "404": {
@@ -210,22 +215,22 @@
         }
     },
     "definitions": {
-      "apperrors.DuplicateError": {
-        "type": "object",
-        "properties": {
-          "resource": {
-            "type": "string"
-          }
-        }
-      },
-      "apperrors.InvalidInputError": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          }
-        }
-      },
+        "apperrors.DuplicateError": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string"
+                }
+            }
+        },
+        "apperrors.InvalidInputError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "apperrors.NotFoundError": {
             "type": "object",
             "properties": {
@@ -245,12 +250,10 @@
             ],
             "properties": {
                 "email": {
-                  "type": "string",
-                  "example": "mike@example.com"
+                    "type": "string"
                 },
                 "username": {
-                  "type": "string",
-                  "example": "mike"
+                    "type": "string"
                 }
             }
         },
@@ -260,8 +263,7 @@
                 "post_id": {
                     "description": "PostID uuid.UUID `json:\"post_id\"`\nTitle  string    `json:\"title\"`",
                     "type": "string",
-                    "format": "uuid",
-                    "example": "4e76b320-d5b7-4a0a-bb0f-2049fe6a91a7"
+                    "format": "uuid"
                 },
                 "title": {
                     "type": "string",
@@ -284,12 +286,10 @@
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string",
-                    "example": "mike@example.com"
+                    "type": "string"
                 },
                 "joined_at": {
-                    "type": "string",
-                    "example": "2025-07-18T15:04:05Z"
+                    "type": "string"
                 },
                 "posts": {
                     "type": "array",
@@ -298,13 +298,10 @@
                     }
                 },
                 "user_id": {
-                    "type": "string",
-                    "format": "uuid",
-                    "example": "b9e69a63-4f4b-4ea7-8c71-3b73fe62e6d7"
+                    "type": "string"
                 },
                 "username": {
-                    "type": "string",
-                    "example": "mike"
+                    "type": "string"
                 }
             }
         },
@@ -316,23 +313,29 @@
             ],
             "properties": {
                 "content": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "My First Post Content"
                 },
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2025-07-18T15:04:05Z"
                 },
                 "id": {
-                    "description": "@swagger:strfmt uuid",
-                    "type": "string"
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "4e76b320-d5b7-4a0a-bb0f-2049fe6a91a7"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "My First Post"
                 },
                 "updated_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2025-08-19T15:04:05Z"
                 },
                 "userID": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "5e76b320-d5b7-4a0a-bb0f-2049fe3a91a4"
                 }
             }
         },
@@ -340,13 +343,17 @@
             "type": "object",
             "properties": {
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2025-07-18T15:04:05Z"
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "mike@example.com"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "b9e69a63-4f4b-4ea7-8c71-3b73fe62e6d7"
                 },
                 "posts": {
                     "type": "array",
@@ -355,7 +362,8 @@
                     }
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "mike"
                 }
             }
         }
