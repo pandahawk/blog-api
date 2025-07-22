@@ -11,7 +11,7 @@ type NotFoundError struct {
 }
 
 type DuplicateError struct {
-	Resource string
+	Field string
 }
 
 type InvalidInputError struct {
@@ -23,7 +23,7 @@ func (ie *InvalidInputError) Error() string {
 }
 
 func (de *DuplicateError) Error() string {
-	return fmt.Sprintf("%s already exists", de.Resource)
+	return fmt.Sprintf("%s already exists", de.Field)
 }
 
 func (n *NotFoundError) Error() string {
@@ -34,8 +34,8 @@ func NewNotFoundError(resource string, id uuid.UUID) error {
 	return &NotFoundError{Resource: resource, ID: id}
 }
 
-func NewDuplicateError(resource string) error {
-	return &DuplicateError{Resource: resource}
+func NewDuplicateError(field string) error {
+	return &DuplicateError{Field: field}
 }
 
 func NewInvalidInputError(msg string) error {
