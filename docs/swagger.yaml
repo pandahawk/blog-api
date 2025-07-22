@@ -5,22 +5,17 @@ definitions:
       resource:
         type: string
     type: object
+  apperrors.InvalidInputError:
+    properties:
+      message:
+        type: string
+    type: object
   apperrors.NotFoundError:
     properties:
       id:
         type: string
       resource:
         type: string
-    type: object
-  apperrors.ValidationError:
-    properties:
-      messages:
-        example:
-          - username already exists
-          - ' email already exists'
-        items:
-          type: string
-        type: array
     type: object
   dto.CreateUserRequest:
     properties:
@@ -100,7 +95,6 @@ definitions:
       email:
         type: string
       id:
-        description: '@swagger:strfmt uuid'
         type: string
       posts:
         items:
@@ -155,7 +149,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/apperrors.ValidationError'
+            $ref: '#/definitions/apperrors.InvalidInputError'
         "409":
           description: Conflict
           schema:
@@ -180,10 +174,6 @@ paths:
       responses:
         "204":
           description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/apperrors.ValidationError'
         "404":
           description: Not Found
           schema:
@@ -207,6 +197,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/user.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apperrors.InvalidInputError'
         "404":
           description: Not Found
           schema:
@@ -241,15 +235,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/apperrors.ValidationError'
+            $ref: '#/definitions/apperrors.InvalidInputError'
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/apperrors.NotFoundError'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/apperrors.ValidationError'
       summary: Update user by ID
       tags:
         - users

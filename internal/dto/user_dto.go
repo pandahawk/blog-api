@@ -12,7 +12,7 @@ type CreateUserRequest struct {
 
 type UpdateUserRequest struct {
 	Username *string `json:"username"`
-	Email    *string `json:"email" binding:"email"`
+	Email    *string `json:"email" binding:"omitempty,email"`
 }
 
 type UserResponse struct {

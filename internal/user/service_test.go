@@ -35,8 +35,8 @@ func TestService_CreateUser(t *testing.T) {
 			Email:    "testuser01@example.com",
 		}
 		mockRepo, service := setupMockRepoAndService(t)
-		mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(User{}, errors.New(""))
-		mockRepo.EXPECT().FindByEmail(gomock.Any()).Return(User{}, errors.New(""))
+		//mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(User{}, errors.New(""))
+		//mockRepo.EXPECT().FindByEmail(gomock.Any()).Return(User{}, errors.New(""))
 		mockRepo.EXPECT().Create(gomock.Any()).Return(wantUser, nil)
 
 		gotUser, err := service.CreateUser(req)
@@ -50,8 +50,8 @@ func TestService_CreateUser(t *testing.T) {
 			Email:    "testuser01@example.com",
 		}
 		mockRepo, service := setupMockRepoAndService(t)
-		mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(User{}, errors.New(""))
-		mockRepo.EXPECT().FindByEmail(gomock.Any()).Return(User{}, errors.New(""))
+		//mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(User{}, errors.New(""))
+		//mockRepo.EXPECT().FindByEmail(gomock.Any()).Return(User{}, errors.New(""))
 		mockRepo.EXPECT().Create(gomock.Any()).Return(User{}, errors.New(""))
 
 		_, err := service.CreateUser(req)
@@ -64,15 +64,9 @@ func TestService_CreateUser(t *testing.T) {
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
-		wantUser := User{
-			ID:       uuid.New(),
-			Username: "testuser01",
-			Email:    "testuser01@example.com",
-		}
 		mockRepo, service := setupMockRepoAndService(t)
-		mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(wantUser, nil)
-		mockRepo.EXPECT().FindByEmail(gomock.Any()).Return(User{}, nil)
-
+		mockRepo.EXPECT().Create(gomock.Any()).
+			Return(User{}, errors.New("username already exists"))
 		_, err := service.CreateUser(req)
 
 		assert.ErrorContains(t, err, "username already exists")
@@ -83,14 +77,9 @@ func TestService_CreateUser(t *testing.T) {
 			Username: "testuser01",
 			Email:    "testuser01@example.com",
 		}
-		wantUser := User{
-			ID:       uuid.New(),
-			Username: "testuser01",
-			Email:    "testuser01@example.com",
-		}
 		mockRepo, service := setupMockRepoAndService(t)
-		mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(User{}, errors.New(""))
-		mockRepo.EXPECT().FindByEmail(gomock.Any()).Return(wantUser, nil)
+		mockRepo.EXPECT().Create(gomock.Any()).
+			Return(User{}, errors.New("email already exists"))
 
 		_, err := service.CreateUser(req)
 
@@ -115,9 +104,10 @@ func TestService_UpdateUser(t *testing.T) {
 			Email:    "updatedtestuser01@example.com",
 		}
 		mockRepo, service := setupMockRepoAndService(t)
-		mockRepo.EXPECT().Update(gomock.Any()).Return(wantUser, nil)
 		mockRepo.EXPECT().FindByID(gomock.Any()).Return(oldUser, nil)
-
+		mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(User{}, errors.New("user not found"))
+		mockRepo.EXPECT().FindByEmail(gomock.Any()).Return(User{}, errors.New("email not found"))
+		mockRepo.EXPECT().Update(gomock.Any()).Return(wantUser, nil)
 		gotUser, err := service.UpdateUser(oldUser.ID, req)
 
 		assert.NoError(t, err)
@@ -154,7 +144,7 @@ func TestService_UpdateUser(t *testing.T) {
 
 		_, err := service.UpdateUser(oldUser.ID, req)
 
-		assert.ErrorContains(t, err, "username can not be empty")
+		assert.ErrorContains(t, err, "invalid username: must be alphanumeric, at least 3 character")
 	})
 
 	t.Run("email empty", func(t *testing.T) {
@@ -169,6 +159,8 @@ func TestService_UpdateUser(t *testing.T) {
 		}
 		mockRepo, service := setupMockRepoAndService(t)
 		mockRepo.EXPECT().FindByID(gomock.Any()).Return(oldUser, nil)
+		mockRepo.EXPECT().FindByUsername(gomock.Any()).Return(User{}, errors.New("email empty"))
+		mockRepo.EXPECT().FindByEmail(gomock.Any()).Return(User{}, errors.New("email empty"))
 
 		_, err := service.UpdateUser(oldUser.ID, req)
 

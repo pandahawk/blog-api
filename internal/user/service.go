@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
 	"github.com/pandahawk/blog-api/internal/dto"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode"
@@ -24,34 +25,42 @@ type service struct {
 	repo Repository
 }
 
-func isBlank(s string) bool {
-	return strings.TrimSpace(s) == ""
-}
-
-func isNumeric(s string) bool {
-	_, err := strconv.ParseFloat(strings.TrimSpace(s), 64)
-	return err == nil
-}
-
-func isValidUsername(s string) bool {
-	if len(s) < 3 {
-		return false
+func validateUsernameFormat(username string) error {
+	matched, err := regexp.MatchString(`^[a-zA-Z0-9]{3,}$`, username)
+	if err != nil {
+		return err
 	}
-	letterCount := 0
-	for _, r := range s {
+	if !matched {
+		return apperrors.NewInvalidInputError("invalid username: must be" +
+			" alphanumeric, at least 3 character")
+	}
+
+	if _, err := strconv.ParseFloat(username, 64); err == nil {
+		return apperrors.NewInvalidInputError(
+			"invalid username: must not be a number")
+	}
+
+	letters := 0
+	for _, r := range username {
 		if unicode.IsLetter(r) {
-			letterCount++
+			letters++
 		}
 	}
-	return letterCount >= 2
-}
 
-func (s *service) usernameExists(username string) bool {
-	_, err := s.repo.FindByUsername(username)
-	return err != nil
+	if letters < 2 {
+		return apperrors.NewInvalidInputError(
+			"invalid username: must have at least two letters")
+	}
+
+	return nil
 }
 
 func (s *service) CreateUser(req dto.CreateUserRequest) (User, error) {
+
+	if err := validateUsernameFormat(req.Username); err != nil {
+		return User{}, err
+	}
+
 	user, err := s.repo.Create(User{Username: req.Username, Email: req.Email})
 	if err != nil {
 		if strings.Contains(err.Error(),
@@ -62,7 +71,7 @@ func (s *service) CreateUser(req dto.CreateUserRequest) (User, error) {
 			`violates unique constraint "uni_users_email"`) {
 			return User{}, apperrors.NewDuplicateError("email")
 		}
-
+		return User{}, err
 	}
 	return user, nil
 }
@@ -74,25 +83,17 @@ func (s *service) UpdateUser(id uuid.UUID, req dto.UpdateUserRequest) (User, err
 	}
 
 	if req.Username != nil {
-		if isBlank(*req.Username) {
-			return User{}, apperrors.NewInvalidInputError(
-				"username cannot be blank")
+		if err := validateUsernameFormat(*req.Username); err != nil {
+			return User{}, err
 		}
 		if _, err := s.repo.FindByUsername(*req.Username); err == nil {
-			return User{}, apperrors.NewDuplicateError("username")
+			return User{}, apperrors.NewDuplicateError("username already exists")
 		}
 
-		if !isValidUsername(*req.Username) {
-			return User{}, apperrors.NewInvalidInputError("username must be at least 3 characters long and must have at least 2 letters")
-		}
 		user.Username = *req.Username
 	}
 
 	if req.Email != nil {
-		if isBlank(*req.Email) {
-			return User{}, apperrors.NewInvalidInputError(
-				"email cannot be blank and must be valid")
-		}
 		if _, err := s.repo.FindByEmail(*req.Email); err == nil {
 			return User{}, apperrors.NewDuplicateError("email")
 		}

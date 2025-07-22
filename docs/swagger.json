@@ -68,7 +68,7 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/apperrors.ValidationError"
+                          "$ref": "#/definitions/apperrors.InvalidInputError"
                         }
                     },
                     "409": {
@@ -107,6 +107,12 @@
                             "$ref": "#/definitions/user.User"
                         }
                     },
+                  "400": {
+                    "description": "Bad Request",
+                    "schema": {
+                      "$ref": "#/definitions/apperrors.InvalidInputError"
+                    }
+                  },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -140,12 +146,6 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/apperrors.ValidationError"
-                        }
                     },
                     "404": {
                         "description": "Not Found",
@@ -196,19 +196,13 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/apperrors.ValidationError"
+                          "$ref": "#/definitions/apperrors.InvalidInputError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/apperrors.NotFoundError"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/apperrors.ValidationError"
                         }
                     }
                 }
@@ -224,6 +218,14 @@
           }
         }
       },
+      "apperrors.InvalidInputError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
         "apperrors.NotFoundError": {
             "type": "object",
             "properties": {
@@ -232,21 +234,6 @@
                 },
                 "resource": {
                     "type": "string"
-                }
-            }
-        },
-        "apperrors.ValidationError": {
-            "type": "object",
-            "properties": {
-                "messages": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                  "example": [
-                    "username already exists",
-                    " email already exists"
-                  ]
                 }
             }
         },
@@ -359,7 +346,6 @@
                     "type": "string"
                 },
                 "id": {
-                    "description": "@swagger:strfmt uuid",
                     "type": "string"
                 },
                 "posts": {
