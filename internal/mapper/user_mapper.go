@@ -9,7 +9,7 @@ func FromUser(u *user.User) dto.UserResponse {
 
 	posts := make([]dto.PostSummaryResponse, len(u.Posts))
 	for i, p := range u.Posts {
-		posts[i] = fromPostInUserResponse(p)
+		posts[i] = fromPostInUserResponse(&p)
 	}
 	return dto.UserResponse{
 		UserID:   u.ID,

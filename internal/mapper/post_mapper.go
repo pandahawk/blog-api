@@ -6,7 +6,7 @@ import (
 	"github.com/pandahawk/blog-api/internal/user"
 )
 
-func fromPostAndUser(p post.Post, author user.User) dto.PostResponse {
+func fromPostAndUser(p post.Post, author *user.User) dto.PostResponse {
 	return dto.PostResponse{
 		PostID:    p.ID,
 		Title:     p.Title,
@@ -17,7 +17,7 @@ func fromPostAndUser(p post.Post, author user.User) dto.PostResponse {
 	}
 }
 
-func fromPostInUserResponse(p post.Post) dto.PostSummaryResponse {
+func fromPostInUserResponse(p *post.Post) dto.PostSummaryResponse {
 	return dto.PostSummaryResponse{
 		PostID: p.ID,
 		Title:  p.Title,

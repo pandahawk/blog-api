@@ -174,23 +174,23 @@ func TestService_UpdateUser(t *testing.T) {
 		assert.ErrorContains(t, err, "email already exists")
 	})
 
-	//t.Run("email not found", func(t *testing.T) {
-	//	req := dto.UpdateUserRequest{
-	//		Username: ptr("  "),
-	//		Email:    ptr("updatedtestuser01@example.com"),
-	//	}
-	//	oldUser := User{
-	//		ID:       uuid.New(),
-	//		Username: "testuser01",
-	//		Email:    "testuser01@example.com",
-	//	}
-	//	mockRepo, service := setupMockRepoAndService(t)
-	//	mockRepo.EXPECT().FindByID(gomock.Any()).Return(&oldUser, nil)
-	//
-	//	_, err := service.UpdateUser(oldUser.ID, &req)
-	//
-	//	assert.ErrorContains(t, err, "invalid username: must be alphanumeric, at least 3 character")
-	//})
+	t.Run("invalid username format", func(t *testing.T) {
+		req := dto.UpdateUserRequest{
+			Username: ptr("a1"),
+			Email:    ptr("updatedtestuser01@example.com"),
+		}
+		oldUser := User{
+			ID:       uuid.New(),
+			Username: "testuser01",
+			Email:    "testuser01@example.com",
+		}
+		mockRepo, service := setupMockRepoAndService(t)
+		mockRepo.EXPECT().FindByID(gomock.Any()).Return(&oldUser, nil)
+
+		_, err := service.UpdateUser(oldUser.ID, &req)
+
+		assert.ErrorContains(t, err, "invalid username: must be alphanumeric, at least 3 character")
+	})
 }
 
 func TestService_GetUser(t *testing.T) {
