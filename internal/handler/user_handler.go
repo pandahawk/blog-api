@@ -107,7 +107,7 @@ func (uh *UserHandler) createUser(c *gin.Context) {
 		handleError(c, apperrors.NewInvalidInputError("invalid request body"))
 		return
 	}
-	u, err := uh.Service.CreateUser(req)
+	u, err := uh.Service.CreateUser(&req)
 	if err != nil {
 		handleError(c, err)
 		return
@@ -145,7 +145,7 @@ func (uh *UserHandler) updateUser(c *gin.Context) {
 		handleError(c, apperrors.NewInvalidInputError("invalid request body"))
 		return
 	}
-	u, err := uh.Service.UpdateUser(id, req)
+	u, err := uh.Service.UpdateUser(id, &req)
 
 	if err != nil {
 		handleError(c, err)
