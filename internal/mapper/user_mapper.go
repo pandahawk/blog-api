@@ -5,7 +5,7 @@ import (
 	"github.com/pandahawk/blog-api/internal/user"
 )
 
-func FromUser(u user.User) dto.UserResponse {
+func FromUser(u *user.User) dto.UserResponse {
 
 	posts := make([]dto.PostSummaryResponse, len(u.Posts))
 	for i, p := range u.Posts {
@@ -20,7 +20,7 @@ func FromUser(u user.User) dto.UserResponse {
 	}
 }
 
-func FromUserInPostResponse(u user.User) dto.UserSummaryResponse {
+func FromUserInPostResponse(u *user.User) dto.UserSummaryResponse {
 	return dto.UserSummaryResponse{
 		UserID:   u.ID,
 		Username: u.Username,
