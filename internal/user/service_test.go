@@ -150,6 +150,8 @@ func TestService_UpdateUser(t *testing.T) {
 		mockRepo.EXPECT().FindByID(gomock.Any()).Return(&oldUser, nil)
 		mockRepo.EXPECT().FindByUsername(gomock.Any()).
 			Return(nil, apperrors.NewDuplicateError("username already exists"))
+		mockRepo.EXPECT().FindByEmail(gomock.Any()).
+			Return(nil, apperrors.NewNotFoundError("user", oldUser.ID))
 		_, err := service.UpdateUser(oldUser.ID, &req)
 
 		assert.ErrorContains(t, err, "username already exists")
