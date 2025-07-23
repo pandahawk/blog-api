@@ -15,6 +15,10 @@ type User struct {
 	Posts     []post.Post `gorm:"foreignKey:UserID"`
 }
 
+func NewUser(username string, email string) *User {
+	return &User{Username: username, Email: email}
+}
+
 //goland:noinspection GoUnusedParameter
 func (u *User) BeforeCreate(tx *gorm.DB) error {
 	if u.ID == uuid.Nil {

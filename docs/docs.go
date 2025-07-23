@@ -328,7 +328,6 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string",
-                    "format": "uuid",
                     "example": "4e76b320-d5b7-4a0a-bb0f-2049fe6a91a7"
                 },
                 "title": {
@@ -358,7 +357,6 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string",
-                    "format": "uuid",
                     "example": "b9e69a63-4f4b-4ea7-8c71-3b73fe62e6d7"
                 },
                 "posts": {
