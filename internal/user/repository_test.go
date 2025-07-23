@@ -74,23 +74,23 @@ func TestGormRepository_FindByEmail(t *testing.T) {
 func TestGormRepository_Create(t *testing.T) {
 	db := setupTestDB(t)
 	repo := NewGormRepository(db)
-	user := User{Username: "newuser", Email: "newemail@mail.com"}
+	user := NewUser("newuser", "newemail@mail.com")
 
-	saved, err := repo.Create(&user)
+	saved, err := repo.Create(user)
 
 	require.NoError(t, err)
 	assert.Equal(t, user.Username, saved.Username)
 
-	saved, err = repo.Create(&user)
+	saved, err = repo.Create(user)
 	assert.Error(t, err)
 }
 
 func TestGormRepository_Update(t *testing.T) {
 	db := setupTestDB(t)
 	repo := NewGormRepository(db)
-	user := User{Username: "newuser", Email: "newemail@mail.com"}
+	user := NewUser("newuser", "newemail@mail.com")
 
-	updated, err := repo.Update(&user)
+	updated, err := repo.Update(user)
 
 	require.NoError(t, err)
 	assert.Equal(t, user.Username, updated.Username)
@@ -99,13 +99,12 @@ func TestGormRepository_Update(t *testing.T) {
 func TestGormRepository_Delete(t *testing.T) {
 	db := setupTestDB(t)
 	repo := NewGormRepository(db)
-	user := User{
-		ID:       uuid.New(),
-		Username: "testuser1",
-		Email:    "t1@example.com",
-	}
 
-	err := repo.Delete(&user)
+	user, err := repo.Create(NewUser("testuser1", "t1@example.com"))
+	if err != nil {
+		return
+	}
+	err = repo.Delete(user)
 
 	assert.NoError(t, err)
 }

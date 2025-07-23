@@ -15,9 +15,9 @@ import (
 
 type Service interface {
 	GetUser(id uuid.UUID) (*User, error)
-	CreateUser(req dto.CreateUserRequest) (*User, error)
+	CreateUser(req *dto.CreateUserRequest) (*User, error)
 	GetAllUsers() ([]*User, error)
-	UpdateUser(id uuid.UUID, req dto.UpdateUserRequest) (*User, error)
+	UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*User, error)
 	DeleteUser(id uuid.UUID) error
 }
 
@@ -53,7 +53,7 @@ func validateUsernameFormat(username string) error {
 	return nil
 }
 
-func (s *service) CreateUser(req dto.CreateUserRequest) (*User, error) {
+func (s *service) CreateUser(req *dto.CreateUserRequest) (*User, error) {
 
 	if err := validateUsernameFormat(req.Username); err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (s *service) CreateUser(req dto.CreateUserRequest) (*User, error) {
 	return user, nil
 }
 
-func (s *service) UpdateUser(id uuid.UUID, req dto.UpdateUserRequest) (*User, error) {
+func (s *service) UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*User, error) {
 	user, err := s.repo.FindByID(id)
 	if err != nil {
 		return nil, apperrors.NewNotFoundError("user", id)
