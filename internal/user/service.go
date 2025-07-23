@@ -14,10 +14,10 @@ import (
 //go:generate mockgen -source=service.go -destination=service_mock.go -package=user
 
 type Service interface {
-	GetUser(id uuid.UUID) (User, error)
-	CreateUser(req dto.CreateUserRequest) (User, error)
-	GetAllUsers() ([]User, error)
-	UpdateUser(id uuid.UUID, req dto.UpdateUserRequest) (User, error)
+	GetUser(id uuid.UUID) (*User, error)
+	CreateUser(req dto.CreateUserRequest) (*User, error)
+	GetAllUsers() ([]*User, error)
+	UpdateUser(id uuid.UUID, req dto.UpdateUserRequest) (*User, error)
 	DeleteUser(id uuid.UUID) error
 }
 
@@ -53,39 +53,39 @@ func validateUsernameFormat(username string) error {
 	return nil
 }
 
-func (s *service) CreateUser(req dto.CreateUserRequest) (User, error) {
+func (s *service) CreateUser(req dto.CreateUserRequest) (*User, error) {
 
 	if err := validateUsernameFormat(req.Username); err != nil {
-		return User{}, err
+		return nil, err
 	}
 
-	user, err := s.repo.Create(User{Username: req.Username, Email: req.Email})
+	user, err := s.repo.Create(NewUser(req.Username, req.Email))
 	if err != nil {
 		if strings.Contains(err.Error(),
 			`violates unique constraint "uni_users_username"`) {
-			return User{}, apperrors.NewDuplicateError("username")
+			return nil, apperrors.NewDuplicateError("username")
 		}
 		if strings.Contains(err.Error(),
 			`violates unique constraint "uni_users_email"`) {
-			return User{}, apperrors.NewDuplicateError("email")
+			return nil, apperrors.NewDuplicateError("email")
 		}
-		return User{}, err
+		return nil, err
 	}
 	return user, nil
 }
 
-func (s *service) UpdateUser(id uuid.UUID, req dto.UpdateUserRequest) (User, error) {
+func (s *service) UpdateUser(id uuid.UUID, req dto.UpdateUserRequest) (*User, error) {
 	user, err := s.repo.FindByID(id)
 	if err != nil {
-		return User{}, apperrors.NewNotFoundError("user", id)
+		return nil, apperrors.NewNotFoundError("user", id)
 	}
 
 	if req.Username != nil {
 		if err := validateUsernameFormat(*req.Username); err != nil {
-			return User{}, err
+			return nil, err
 		}
 		if _, err := s.repo.FindByUsername(*req.Username); err == nil {
-			return User{}, apperrors.NewDuplicateError("username already exists")
+			return nil, apperrors.NewDuplicateError("username already exists")
 		}
 
 		user.Username = *req.Username
@@ -93,7 +93,7 @@ func (s *service) UpdateUser(id uuid.UUID, req dto.UpdateUserRequest) (User, err
 
 	if req.Email != nil {
 		if _, err := s.repo.FindByEmail(*req.Email); err == nil {
-			return User{}, apperrors.NewDuplicateError("email")
+			return nil, apperrors.NewDuplicateError("email")
 		}
 		user.Email = *req.Email
 	}
@@ -113,19 +113,19 @@ func (s *service) DeleteUser(id uuid.UUID) error {
 	return nil
 }
 
-func (s *service) GetUser(id uuid.UUID) (User, error) {
+func (s *service) GetUser(id uuid.UUID) (*User, error) {
 	user, err := s.repo.FindByID(id)
 	if err != nil {
-		return User{}, apperrors.NewNotFoundError("user", id)
+		return nil, apperrors.NewNotFoundError("user", id)
 	}
 	return user, nil
 }
 
-func (s *service) GetAllUsers() ([]User, error) {
+func (s *service) GetAllUsers() ([]*User, error) {
 
 	users, err := s.repo.FindAll()
 	if err != nil {
-		return []User{}, errors.New("failed to get all users")
+		return nil, errors.New("failed to get all users")
 	}
 	return users, nil
 }

@@ -76,12 +76,12 @@ func TestGormRepository_Create(t *testing.T) {
 	repo := NewGormRepository(db)
 	user := User{Username: "newuser", Email: "newemail@mail.com"}
 
-	saved, err := repo.Create(user)
+	saved, err := repo.Create(&user)
 
 	require.NoError(t, err)
 	assert.Equal(t, user.Username, saved.Username)
 
-	saved, err = repo.Create(user)
+	saved, err = repo.Create(&user)
 	assert.Error(t, err)
 }
 
@@ -90,7 +90,7 @@ func TestGormRepository_Update(t *testing.T) {
 	repo := NewGormRepository(db)
 	user := User{Username: "newuser", Email: "newemail@mail.com"}
 
-	updated, err := repo.Update(user)
+	updated, err := repo.Update(&user)
 
 	require.NoError(t, err)
 	assert.Equal(t, user.Username, updated.Username)
@@ -105,7 +105,7 @@ func TestGormRepository_Delete(t *testing.T) {
 		Email:    "t1@example.com",
 	}
 
-	err := repo.Delete(user)
+	err := repo.Delete(&user)
 
 	assert.NoError(t, err)
 }
