@@ -2,7 +2,6 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/pandahawk/blog-api/internal/handler"
 	"github.com/pandahawk/blog-api/internal/user"
 	"gorm.io/gorm"
 )
@@ -10,7 +9,7 @@ import (
 func setupUserRoutes(r *gin.Engine, db *gorm.DB) {
 	userRepository := user.NewDevGormRepository(db)
 	userService := user.NewService(userRepository)
-	userHandler := handler.NewHandler(userService)
+	userHandler := user.NewHandler(userService)
 
 	v1 := r.Group("/api/v1")
 	userGroup := v1.Group("/users")

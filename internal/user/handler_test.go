@@ -1,4 +1,4 @@
-package handler
+package user
 
 import (
 	"encoding/json"
@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
 	"github.com/pandahawk/blog-api/internal/dto"
-	"github.com/pandahawk/blog-api/internal/user"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -17,10 +16,10 @@ import (
 	"time"
 )
 
-func setupTestRouterWithMockService(t *testing.T) (*gin.Engine, *user.MockService) {
+func setupTestRouterWithMockService(t *testing.T) (*gin.Engine, *MockService) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
-	mockService := user.NewMockService(ctrl)
+	mockService := NewMockService(ctrl)
 
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
@@ -34,14 +33,14 @@ func TestHandler_GetAllUsers(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		router, mockService := setupTestRouterWithMockService(t)
-		wantUser := []*user.User{
+		wantUser := []*User{
 			{ID: uuid.New(), Username: "testuser1",
 				Email: "testuser1@example.com", CreatedAt: time.Now()},
 			{ID: uuid.New(), Username: "testuser2",
 				Email: "testuser1@example.com", CreatedAt: time.Now()},
 		}
 		mockService.EXPECT().
-			GetAllUsers().
+			GetUsers().
 			Return(wantUser, nil)
 
 		req, _ := http.NewRequest(http.MethodGet, "/users", nil)
@@ -60,7 +59,7 @@ func TestHandler_GetAllUsers(t *testing.T) {
 func TestHandler_GetUser(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		router, mockService := setupTestRouterWithMockService(t)
-		wantUser := user.User{ID: uuid.New(), Username: "testuser1", CreatedAt: time.Now()}
+		wantUser := User{ID: uuid.New(), Username: "testuser1", CreatedAt: time.Now()}
 		mockService.EXPECT().
 			GetUser(gomock.Any()).
 			Return(&wantUser, nil)
@@ -108,7 +107,7 @@ func TestHandler_CreateUser(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		router, mockService := setupTestRouterWithMockService(t)
-		wantUser := user.User{
+		wantUser := User{
 			ID:        uuid.New(),
 			Username:  "testuser1",
 			Email:     "testuser1@example.com",
@@ -207,7 +206,7 @@ func TestHandler_UpdateUser(t *testing.T) {
 					"email": "testuserupdate@example.com"
 				}`
 		body := strings.NewReader(rawJSON)
-		wantUser := user.User{
+		wantUser := User{
 			ID:        id,
 			Username:  "testuser",
 			Email:     "testuserupdate@example.com",
