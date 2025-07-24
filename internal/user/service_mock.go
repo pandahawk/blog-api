@@ -64,21 +64,6 @@ func (mr *MockServiceMockRecorder) DeleteUser(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockService)(nil).DeleteUser), id)
 }
 
-// GetAllUsers mocks base method.
-func (m *MockService) GetAllUsers() ([]*User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllUsers")
-	ret0, _ := ret[0].([]*User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAllUsers indicates an expected call of GetAllUsers.
-func (mr *MockServiceMockRecorder) GetAllUsers() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllUsers", reflect.TypeOf((*MockService)(nil).GetAllUsers))
-}
-
 // GetUser mocks base method.
 func (m *MockService) GetUser(id uuid.UUID) (*User, error) {
 	m.ctrl.T.Helper()
@@ -94,6 +79,36 @@ func (mr *MockServiceMockRecorder) GetUser(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockService)(nil).GetUser), id)
 }
 
+// GetUserSummary mocks base method.
+func (m *MockService) GetUserSummary(userID uuid.UUID) (*dto.UserSummaryResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserSummary", userID)
+	ret0, _ := ret[0].(*dto.UserSummaryResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserSummary indicates an expected call of GetUserSummary.
+func (mr *MockServiceMockRecorder) GetUserSummary(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserSummary", reflect.TypeOf((*MockService)(nil).GetUserSummary), userID)
+}
+
+// GetUsers mocks base method.
+func (m *MockService) GetUsers() ([]*User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUsers")
+	ret0, _ := ret[0].([]*User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUsers indicates an expected call of GetUsers.
+func (mr *MockServiceMockRecorder) GetUsers() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockService)(nil).GetUsers))
+}
+
 // UpdateUser mocks base method.
 func (m *MockService) UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*User, error) {
 	m.ctrl.T.Helper()
@@ -107,4 +122,42 @@ func (m *MockService) UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*Use
 func (mr *MockServiceMockRecorder) UpdateUser(id, req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockService)(nil).UpdateUser), id, req)
+}
+
+// MockPostSummaryService is a mock of PostSummaryService interface.
+type MockPostSummaryService struct {
+	ctrl     *gomock.Controller
+	recorder *MockPostSummaryServiceMockRecorder
+}
+
+// MockPostSummaryServiceMockRecorder is the mock recorder for MockPostSummaryService.
+type MockPostSummaryServiceMockRecorder struct {
+	mock *MockPostSummaryService
+}
+
+// NewMockPostSummaryService creates a new mock instance.
+func NewMockPostSummaryService(ctrl *gomock.Controller) *MockPostSummaryService {
+	mock := &MockPostSummaryService{ctrl: ctrl}
+	mock.recorder = &MockPostSummaryServiceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockPostSummaryService) EXPECT() *MockPostSummaryServiceMockRecorder {
+	return m.recorder
+}
+
+// GetSummary mocks base method.
+func (m *MockPostSummaryService) GetSummary(postID uuid.UUID) (*dto.PostSummaryResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSummary", postID)
+	ret0, _ := ret[0].(*dto.PostSummaryResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSummary indicates an expected call of GetSummary.
+func (mr *MockPostSummaryServiceMockRecorder) GetSummary(postID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSummary", reflect.TypeOf((*MockPostSummaryService)(nil).GetSummary), postID)
 }

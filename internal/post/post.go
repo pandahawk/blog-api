@@ -15,6 +15,14 @@ type Post struct {
 	UserID    uuid.UUID `gorm:"type:char(36);not null;constraint:OnDelete:CASCADE;" example:"5e76b320-d5b7-4a0a-bb0f-2049fe3a91a4"`
 }
 
+func NewPost(title string, content string, authorID uuid.UUID) *Post {
+	return &Post{
+		Title:   title,
+		Content: content,
+		UserID:  authorID,
+	}
+}
+
 //goland:noinspection GoExportedElementShouldHaveComment
 func (p *Post) BeforeCreate(tx *gorm.DB) error {
 	if p.ID == uuid.Nil {

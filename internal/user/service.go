@@ -16,13 +16,31 @@ import (
 type Service interface {
 	GetUser(id uuid.UUID) (*User, error)
 	CreateUser(req *dto.CreateUserRequest) (*User, error)
-	GetAllUsers() ([]*User, error)
+	GetUsers() ([]*User, error)
 	UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*User, error)
 	DeleteUser(id uuid.UUID) error
+	GetUserSummary(userID uuid.UUID) (*dto.UserSummaryResponse, error)
 }
 
 type service struct {
 	repo Repository
+	//postService PostSummaryService
+}
+
+type PostSummaryService interface {
+	GetSummary(postID uuid.UUID) (*dto.PostSummaryResponse, error)
+}
+
+func (s *service) GetUserSummary(id uuid.UUID) (*dto.UserSummaryResponse, error) {
+	u, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return &dto.UserSummaryResponse{
+		UserID:   u.ID,
+		Username: u.Username,
+		Email:    u.Email,
+	}, nil
 }
 
 func validateUsernameFormat(username string) error {
@@ -121,7 +139,7 @@ func (s *service) GetUser(id uuid.UUID) (*User, error) {
 	return user, nil
 }
 
-func (s *service) GetAllUsers() ([]*User, error) {
+func (s *service) GetUsers() ([]*User, error) {
 
 	users, err := s.repo.FindAll()
 	if err != nil {
@@ -130,6 +148,9 @@ func (s *service) GetAllUsers() ([]*User, error) {
 	return users, nil
 }
 
+//	func NewService(r Repository, ps PostSummaryService) Service {
+//		return &service{repo: r, postService: ps}
+//	}
 func NewService(r Repository) Service {
 	return &service{repo: r}
 }

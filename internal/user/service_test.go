@@ -262,7 +262,7 @@ func TestService_GetAllUsers(t *testing.T) {
 		mockRepo, service := setupMockRepoAndService(t)
 		mockRepo.EXPECT().FindAll().Return(wantUsers, nil)
 
-		gotUsers, err := service.GetAllUsers()
+		gotUsers, err := service.GetUsers()
 
 		assert.NoError(t, err)
 		assert.Equal(t, wantUsers, gotUsers)
@@ -272,7 +272,7 @@ func TestService_GetAllUsers(t *testing.T) {
 		mockRepo, service := setupMockRepoAndService(t)
 		mockRepo.EXPECT().FindAll().Return(wantUsers, errors.New("failed"))
 
-		_, err := service.GetAllUsers()
+		_, err := service.GetUsers()
 
 		assert.ErrorContains(t, err, "failed to get all users")
 	})

@@ -15,8 +15,6 @@ type PostResponse struct {
 }
 
 type PostSummaryResponse struct {
-	//PostID uuid.UUID `json:"post_id"`
-	//Title  string    `json:"title"`
 	PostID uuid.UUID `json:"post_id" format:"uuid"`
 	Title  string    `json:"title" example:"My First Post"`
 }
