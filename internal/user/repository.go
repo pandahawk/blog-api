@@ -19,50 +19,50 @@ type Repository interface {
 	Update(user *model.User) (*model.User, error)
 }
 
-type gormRepository struct {
+type repository struct {
 	db *gorm.DB
 }
 
-func (r *gormRepository) FindAll() ([]*model.User, error) {
+func (r *repository) FindAll() ([]*model.User, error) {
 	var users []*model.User
 	err := r.db.Preload("Posts").Find(&users).Error
 	return users, err
 }
 
-func (r *gormRepository) FindByID(id uuid.UUID) (*model.User, error) {
-	var user model.User
-	err := r.db.Preload("Posts").First(&user, id).Error
-	return &user, err
+func (r *repository) FindByID(id uuid.UUID) (*model.User, error) {
+	var user *model.User
+	err := r.db.Preload("Posts").First(user, id).Error
+	return user, err
 }
 
-func (r *gormRepository) FindByUsername(username string) (*model.User, error) {
+func (r *repository) FindByUsername(username string) (*model.User, error) {
 	var user model.User
 	err := r.db.Where("username = ?", username).First(&user).Error
 	return &user, err
 }
 
-func (r *gormRepository) FindByEmail(email string) (*model.User, error) {
+func (r *repository) FindByEmail(email string) (*model.User, error) {
 	var user model.User
 	err := r.db.Where("email = ?", email).First(&user).Error
 	return &user, err
 }
 
-func (r *gormRepository) Create(user *model.User) (*model.User, error) {
+func (r *repository) Create(user *model.User) (*model.User, error) {
 	err := r.db.Preload("Posts").Create(&user).Error
 	return user, err
 }
 
-func (r *gormRepository) Update(user *model.User) (*model.User, error) {
+func (r *repository) Update(user *model.User) (*model.User, error) {
 	err := r.db.Preload("Posts").Save(&user).Error
 	return user, err
 }
 
-func (r *gormRepository) Delete(user *model.User) error {
+func (r *repository) Delete(user *model.User) error {
 	err := r.db.Delete(&user).Error
 	return err
 }
 
-func NewDevGormRepository(db *gorm.DB) Repository {
+func NewDevRepository(db *gorm.DB) Repository {
 
 	var user *model.User
 	if err := db.First(&user).Error; errors.Is(err, gorm.ErrRecordNotFound) {
@@ -79,9 +79,9 @@ func NewDevGormRepository(db *gorm.DB) Repository {
 		}
 		log.Println("init sample users successfully")
 	}
-	return &gormRepository{db: db}
+	return &repository{db: db}
 }
 
-func NewGormRepository(db *gorm.DB) Repository {
-	return &gormRepository{db: db}
+func NewRepository(db *gorm.DB) Repository {
+	return &repository{db: db}
 }

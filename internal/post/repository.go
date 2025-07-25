@@ -21,13 +21,15 @@ type repository struct {
 }
 
 func (r repository) FindAll() ([]*model.Post, error) {
-	//TODO implement me
-	panic("implement me")
+	var posts []*model.Post
+	err := r.db.Find(&posts).Error
+	return posts, err
 }
 
 func (r repository) FindByID(id uuid.UUID) (*model.Post, error) {
-	//TODO implement me
-	panic("implement me")
+	var post model.Post
+	err := r.db.Preload("Users").First(&post, id).Error
+	return &post, err
 }
 
 func (r repository) Create(user *model.Post) (*model.Post, error) {
