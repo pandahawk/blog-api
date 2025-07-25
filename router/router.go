@@ -7,7 +7,7 @@ import (
 )
 
 func setupUserRoutes(r *gin.Engine, db *gorm.DB) {
-	userRepository := user.NewDevGormRepository(db)
+	userRepository := user.NewDevRepository(db)
 	userService := user.NewService(userRepository)
 	userHandler := user.NewHandler(userService)
 

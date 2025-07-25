@@ -28,7 +28,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 func TestGormRepository_FindAll(t *testing.T) {
 	db := setupTestDB(t)
-	repo := NewGormRepository(db)
+	repo := NewRepository(db)
 
 	users, err := repo.FindAll()
 
@@ -40,7 +40,7 @@ func TestGormRepository_FindAll(t *testing.T) {
 
 func TestGormRepository_FindByID(t *testing.T) {
 	db := setupTestDB(t)
-	repo := NewGormRepository(db)
+	repo := NewRepository(db)
 	id := uuid.MustParse("0ef05522-38ce-4008-a57b-cae75c7681e6")
 	log.Println(id)
 	got, err := repo.FindByID(id)
@@ -51,7 +51,7 @@ func TestGormRepository_FindByID(t *testing.T) {
 
 func TestGormRepository_FindByUsername(t *testing.T) {
 	db := setupTestDB(t)
-	repo := NewGormRepository(db)
+	repo := NewRepository(db)
 	username := "testuser1"
 
 	got, err := repo.FindByUsername(username)
@@ -62,7 +62,7 @@ func TestGormRepository_FindByUsername(t *testing.T) {
 
 func TestGormRepository_FindByEmail(t *testing.T) {
 	db := setupTestDB(t)
-	repo := NewGormRepository(db)
+	repo := NewRepository(db)
 	email := "t1@example.com"
 
 	got, err := repo.FindByEmail(email)
@@ -73,7 +73,7 @@ func TestGormRepository_FindByEmail(t *testing.T) {
 
 func TestGormRepository_Create(t *testing.T) {
 	db := setupTestDB(t)
-	repo := NewGormRepository(db)
+	repo := NewRepository(db)
 	user := model.NewUser("newuser", "newemail@mail.com")
 
 	saved, err := repo.Create(user)
@@ -87,7 +87,7 @@ func TestGormRepository_Create(t *testing.T) {
 
 func TestGormRepository_Update(t *testing.T) {
 	db := setupTestDB(t)
-	repo := NewGormRepository(db)
+	repo := NewRepository(db)
 	user := model.NewUser("newuser", "newemail@mail.com")
 
 	updated, err := repo.Update(user)
@@ -98,7 +98,7 @@ func TestGormRepository_Update(t *testing.T) {
 
 func TestGormRepository_Delete(t *testing.T) {
 	db := setupTestDB(t)
-	repo := NewGormRepository(db)
+	repo := NewRepository(db)
 
 	user, err := repo.Create(model.NewUser("testuser1", "t1@example.com"))
 	if err != nil {
