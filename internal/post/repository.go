@@ -11,9 +11,9 @@ import (
 type Repository interface {
 	FindAll() ([]*model.Post, error)
 	FindByID(id uuid.UUID) (*model.Post, error)
-	Create(user *model.Post) (*model.Post, error)
-	Delete(user *model.Post) error
-	Update(user *model.Post) (*model.Post, error)
+	Create(post *model.Post) (*model.Post, error)
+	Delete(post *model.Post) error
+	Update(post *model.Post) (*model.Post, error)
 }
 
 type repository struct {
@@ -28,23 +28,23 @@ func (r repository) FindAll() ([]*model.Post, error) {
 
 func (r repository) FindByID(id uuid.UUID) (*model.Post, error) {
 	var post model.Post
-	err := r.db.Preload("Users").First(&post, id).Error
+	err := r.db.Preload("User").First(&post, id).Error
 	return &post, err
 }
 
-func (r repository) Create(user *model.Post) (*model.Post, error) {
-	//TODO implement me
-	panic("implement me")
+func (r repository) Create(post *model.Post) (*model.Post, error) {
+	err := r.db.Create(post).Error
+	return post, err
 }
 
-func (r repository) Delete(user *model.Post) error {
-	//TODO implement me
-	panic("implement me")
+func (r repository) Delete(post *model.Post) error {
+	err := r.db.Delete(post).Error
+	return err
 }
 
-func (r repository) Update(user *model.Post) (*model.Post, error) {
-	//TODO implement me
-	panic("implement me")
+func (r repository) Update(post *model.Post) (*model.Post, error) {
+	err := r.db.Save(post).Error
+	return post, err
 }
 
 func NewRepository(db *gorm.DB) Repository {
