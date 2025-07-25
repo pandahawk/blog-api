@@ -5,6 +5,7 @@
 package post
 
 import (
+	"github.com/pandahawk/blog-api/internal/shared/model"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -36,10 +37,10 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // CreatePost mocks base method.
-func (m *MockService) CreatePost(req *dto.CreatePostRequest) (*Post, error) {
+func (m *MockService) CreatePost(req *dto.CreatePostRequest) (*model.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreatePost", req)
-	ret0, _ := ret[0].(*Post)
+	ret0, _ := ret[0].(*model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -65,10 +66,10 @@ func (mr *MockServiceMockRecorder) DeletePost(id interface{}) *gomock.Call {
 }
 
 // GetPost mocks base method.
-func (m *MockService) GetPost(id uuid.UUID) (*Post, error) {
+func (m *MockService) GetPost(id uuid.UUID) (*model.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPost", id)
-	ret0, _ := ret[0].(*Post)
+	ret0, _ := ret[0].(*model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -95,10 +96,10 @@ func (mr *MockServiceMockRecorder) GetPostSummary(postID interface{}) *gomock.Ca
 }
 
 // GetPosts mocks base method.
-func (m *MockService) GetPosts() ([]*Post, error) {
+func (m *MockService) GetPosts() ([]*model.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPosts")
-	ret0, _ := ret[0].([]*Post)
+	ret0, _ := ret[0].([]*model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -110,10 +111,10 @@ func (mr *MockServiceMockRecorder) GetPosts() *gomock.Call {
 }
 
 // UpdatePost mocks base method.
-func (m *MockService) UpdatePost(id uuid.UUID, req *dto.UpdatePostRequest) (*Post, error) {
+func (m *MockService) UpdatePost(id uuid.UUID, req *dto.UpdatePostRequest) (*model.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePost", id, req)
-	ret0, _ := ret[0].(*Post)
+	ret0, _ := ret[0].(*model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

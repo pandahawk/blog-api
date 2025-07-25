@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
 	"github.com/pandahawk/blog-api/internal/dto"
+	"github.com/pandahawk/blog-api/internal/shared/model"
 	"regexp"
 	"strconv"
 	"strings"
@@ -14,10 +15,10 @@ import (
 //go:generate mockgen -source=service.go -destination=service_mock.go -package=user
 
 type Service interface {
-	GetUser(id uuid.UUID) (*User, error)
-	CreateUser(req *dto.CreateUserRequest) (*User, error)
-	GetUsers() ([]*User, error)
-	UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*User, error)
+	GetUser(id uuid.UUID) (*model.User, error)
+	CreateUser(req *dto.CreateUserRequest) (*model.User, error)
+	GetUsers() ([]*model.User, error)
+	UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*model.User, error)
 	DeleteUser(id uuid.UUID) error
 	GetUserSummary(userID uuid.UUID) (*dto.UserSummaryResponse, error)
 }
@@ -71,13 +72,13 @@ func validateUsernameFormat(username string) error {
 	return nil
 }
 
-func (s *service) CreateUser(req *dto.CreateUserRequest) (*User, error) {
+func (s *service) CreateUser(req *dto.CreateUserRequest) (*model.User, error) {
 
 	if err := validateUsernameFormat(req.Username); err != nil {
 		return nil, err
 	}
 
-	user, err := s.repo.Create(NewUser(req.Username, req.Email))
+	user, err := s.repo.Create(model.NewUser(req.Username, req.Email))
 	if err != nil {
 		if strings.Contains(err.Error(),
 			`violates unique constraint "uni_users_username"`) {
@@ -92,7 +93,7 @@ func (s *service) CreateUser(req *dto.CreateUserRequest) (*User, error) {
 	return user, nil
 }
 
-func (s *service) UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*User, error) {
+func (s *service) UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*model.User, error) {
 	user, err := s.repo.FindByID(id)
 	if err != nil {
 		return nil, apperrors.NewNotFoundError("user", id)
@@ -131,7 +132,7 @@ func (s *service) DeleteUser(id uuid.UUID) error {
 	return nil
 }
 
-func (s *service) GetUser(id uuid.UUID) (*User, error) {
+func (s *service) GetUser(id uuid.UUID) (*model.User, error) {
 	user, err := s.repo.FindByID(id)
 	if err != nil {
 		return nil, apperrors.NewNotFoundError("user", id)
@@ -139,7 +140,7 @@ func (s *service) GetUser(id uuid.UUID) (*User, error) {
 	return user, nil
 }
 
-func (s *service) GetUsers() ([]*User, error) {
+func (s *service) GetUsers() ([]*model.User, error) {
 
 	users, err := s.repo.FindAll()
 	if err != nil {

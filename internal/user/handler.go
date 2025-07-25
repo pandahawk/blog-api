@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
 	"github.com/pandahawk/blog-api/internal/dto"
+	"github.com/pandahawk/blog-api/internal/shared/model"
 	"net/http"
 	"strings"
 )
@@ -14,7 +15,7 @@ type Handler struct {
 	Service Service
 }
 
-func buildUserResponse(u *User) *dto.UserResponse {
+func buildUserResponse(u *model.User) *dto.UserResponse {
 	posts := make([]dto.PostSummaryResponse, len(u.Posts))
 	for i, p := range u.Posts {
 		posts[i] = dto.PostSummaryResponse{

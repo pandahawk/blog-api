@@ -5,6 +5,7 @@
 package post
 
 import (
+	"github.com/pandahawk/blog-api/internal/shared/model"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -35,10 +36,10 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockRepository) Create(user *Post) (*Post, error) {
+func (m *MockRepository) Create(user *model.Post) (*model.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", user)
-	ret0, _ := ret[0].(*Post)
+	ret0, _ := ret[0].(*model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -50,7 +51,7 @@ func (mr *MockRepositoryMockRecorder) Create(user interface{}) *gomock.Call {
 }
 
 // Delete mocks base method.
-func (m *MockRepository) Delete(user *Post) error {
+func (m *MockRepository) Delete(user *model.Post) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", user)
 	ret0, _ := ret[0].(error)
@@ -64,10 +65,10 @@ func (mr *MockRepositoryMockRecorder) Delete(user interface{}) *gomock.Call {
 }
 
 // FindAll mocks base method.
-func (m *MockRepository) FindAll() ([]*Post, error) {
+func (m *MockRepository) FindAll() ([]*model.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindAll")
-	ret0, _ := ret[0].([]*Post)
+	ret0, _ := ret[0].([]*model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -79,10 +80,10 @@ func (mr *MockRepositoryMockRecorder) FindAll() *gomock.Call {
 }
 
 // FindByID mocks base method.
-func (m *MockRepository) FindByID(id uuid.UUID) (*Post, error) {
+func (m *MockRepository) FindByID(id uuid.UUID) (*model.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByID", id)
-	ret0, _ := ret[0].(*Post)
+	ret0, _ := ret[0].(*model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -94,10 +95,10 @@ func (mr *MockRepositoryMockRecorder) FindByID(id interface{}) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockRepository) Update(user *Post) (*Post, error) {
+func (m *MockRepository) Update(user *model.Post) (*model.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", user)
-	ret0, _ := ret[0].(*Post)
+	ret0, _ := ret[0].(*model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
