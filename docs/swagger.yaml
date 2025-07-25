@@ -17,51 +17,7 @@ definitions:
       resource:
         type: string
     type: object
-  dto.CreateUserRequest:
-    properties:
-      email:
-        type: string
-      username:
-        type: string
-    required:
-    - email
-    - username
-    type: object
-  dto.PostSummaryResponse:
-    properties:
-      post_id:
-        description: |-
-          PostID uuid.UUID `json:"post_id"`
-          Title  string    `json:"title"`
-        format: uuid
-        type: string
-      title:
-        example: My First Post
-        type: string
-    type: object
-  dto.UpdateUserRequest:
-    properties:
-      email:
-        type: string
-      username:
-        type: string
-    type: object
-  dto.UserResponse:
-    properties:
-      email:
-        type: string
-      joined_at:
-        type: string
-      posts:
-        items:
-          $ref: '#/definitions/dto.PostSummaryResponse'
-        type: array
-      user_id:
-        type: string
-      username:
-        type: string
-    type: object
-  post.Post:
+  model.Post:
     properties:
       content:
         example: My First Post Content
@@ -78,6 +34,8 @@ definitions:
       updated_at:
         example: "2025-08-19T15:04:05Z"
         type: string
+      user:
+        $ref: '#/definitions/model.User'
       userID:
         example: 5e76b320-d5b7-4a0a-bb0f-2049fe3a91a4
         type: string
@@ -85,7 +43,7 @@ definitions:
     - content
     - title
     type: object
-  user.User:
+  model.User:
     properties:
       created_at:
         example: "2025-07-18T15:04:05Z"
@@ -98,10 +56,51 @@ definitions:
         type: string
       posts:
         items:
-          $ref: '#/definitions/post.Post'
+          $ref: '#/definitions/model.Post'
         type: array
       username:
         example: mike
+        type: string
+    type: object
+  user.CreateUserRequest:
+    properties:
+      email:
+        type: string
+      username:
+        type: string
+    required:
+      - email
+      - username
+    type: object
+  user.PostSummaryResponse:
+    properties:
+      post_id:
+        format: uuid
+        type: string
+      title:
+        example: My First Post
+        type: string
+    type: object
+  user.Response:
+    properties:
+      email:
+        type: string
+      joined_at:
+        type: string
+      posts:
+        items:
+          $ref: '#/definitions/user.PostSummaryResponse'
+        type: array
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  user.UpdateUserRequest:
+    properties:
+      email:
+        type: string
+      username:
         type: string
     type: object
 host: localhost:8080
@@ -124,7 +123,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/user.User'
+              $ref: '#/definitions/model.User'
             type: array
       summary: Get all users
       tags:
@@ -139,14 +138,14 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/dto.CreateUserRequest'
+          $ref: '#/definitions/user.CreateUserRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/dto.UserResponse'
+            $ref: '#/definitions/user.Response'
         "400":
           description: Bad Request
           schema:
@@ -200,7 +199,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/user.User'
+            $ref: '#/definitions/model.User'
         "400":
           description: Bad Request
           schema:
@@ -228,14 +227,14 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/dto.UpdateUserRequest'
+          $ref: '#/definitions/user.UpdateUserRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/user.User'
+            $ref: '#/definitions/model.User'
         "400":
           description: Bad Request
           schema:

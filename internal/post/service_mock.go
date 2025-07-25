@@ -5,12 +5,11 @@
 package post
 
 import (
-	"github.com/pandahawk/blog-api/internal/shared/model"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
-	dto "github.com/pandahawk/blog-api/internal/dto"
+	model "github.com/pandahawk/blog-api/internal/shared/model"
 )
 
 // MockService is a mock of Service interface.
@@ -37,7 +36,7 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // CreatePost mocks base method.
-func (m *MockService) CreatePost(req *dto.CreatePostRequest) (*model.Post, error) {
+func (m *MockService) CreatePost(req *CreatePostRequest) (*model.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreatePost", req)
 	ret0, _ := ret[0].(*model.Post)
@@ -80,21 +79,6 @@ func (mr *MockServiceMockRecorder) GetPost(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPost", reflect.TypeOf((*MockService)(nil).GetPost), id)
 }
 
-// GetPostSummary mocks base method.
-func (m *MockService) GetPostSummary(postID uuid.UUID) (*dto.PostSummaryResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPostSummary", postID)
-	ret0, _ := ret[0].(*dto.PostSummaryResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetPostSummary indicates an expected call of GetPostSummary.
-func (mr *MockServiceMockRecorder) GetPostSummary(postID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostSummary", reflect.TypeOf((*MockService)(nil).GetPostSummary), postID)
-}
-
 // GetPosts mocks base method.
 func (m *MockService) GetPosts() ([]*model.Post, error) {
 	m.ctrl.T.Helper()
@@ -111,7 +95,7 @@ func (mr *MockServiceMockRecorder) GetPosts() *gomock.Call {
 }
 
 // UpdatePost mocks base method.
-func (m *MockService) UpdatePost(id uuid.UUID, req *dto.UpdatePostRequest) (*model.Post, error) {
+func (m *MockService) UpdatePost(id uuid.UUID, req *UpdatePostRequest) (*model.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePost", id, req)
 	ret0, _ := ret[0].(*model.Post)

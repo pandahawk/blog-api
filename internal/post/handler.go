@@ -4,20 +4,9 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/pandahawk/blog-api/internal/apperrors"
+	"github.com/pandahawk/blog-api/internal/shared/model"
 	"net/http"
 )
-
-//TODO move this to post handler
-//func FromPostAndUser(p post.Post, author *user.User) dto.PostResponse {
-//	return dto.PostResponse{
-//		PostID:    p.ID,
-//		Title:     p.Title,
-//		Content:   p.Content,
-//		CreatedAt: p.CreatedAt,
-//		UpdatedAt: p.UpdatedAt,
-//		Author:    user.FromUserInPostResponse(author),
-//	}
-//}
 
 type Handler struct {
 	Service Service
@@ -48,20 +37,20 @@ func handleError(c *gin.Context, err error) {
 	}
 }
 
-//func buildPostResponse(p *Post, ur *dto.UserResponse) dto.PostResponse {
-//	return dto.PostResponse{
-//		PostID:    p.ID,
-//		Title:     p.Title,
-//		Content:   p.Content,
-//		CreatedAt: p.CreatedAt,
-//		UpdatedAt: p.UpdatedAt,
-//		Author: dto.UserSummaryResponse{
-//			UserID:   ur.UserID,
-//			Username: ur.Username,
-//			Email:    ur.Email,
-//		},
-//	}
-//}
+func buildPostResponse(p *model.Post) Response {
+	return Response{
+		PostID:    p.ID,
+		Title:     p.Title,
+		Content:   p.Content,
+		CreatedAt: p.CreatedAt,
+		UpdatedAt: p.UpdatedAt,
+		Author: UserSummaryResponse{
+			UserID:   p.User.ID,
+			Username: p.User.Username,
+			Email:    p.User.Email,
+		},
+	}
+}
 
 func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	r.GET("", h.getPosts)

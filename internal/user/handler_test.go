@@ -7,7 +7,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
-	"github.com/pandahawk/blog-api/internal/dto"
 	"github.com/pandahawk/blog-api/internal/shared/model"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -48,7 +47,7 @@ func TestHandler_GetAllUsers(t *testing.T) {
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
-		var ur []dto.UserResponse
+		var ur []Response
 		err := json.NewDecoder(w.Body).Decode(&ur)
 		assert.NoError(t, err, "Error unmarshaling response body to []User")
 		assert.Equal(t, http.StatusOK, w.Code)
@@ -70,7 +69,7 @@ func TestHandler_GetUser(t *testing.T) {
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
-		var ur dto.UserResponse
+		var ur Response
 		err := json.NewDecoder(w.Body).Decode(&ur)
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, w.Code)
@@ -123,7 +122,7 @@ func TestHandler_CreateUser(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 		router.ServeHTTP(w, req)
 
-		var ur dto.UserResponse
+		var ur Response
 		err := json.NewDecoder(w.Body).Decode(&ur)
 		assert.NoError(t, err)
 		assert.Equal(t, wantUser.ID, ur.UserID)
@@ -221,7 +220,7 @@ func TestHandler_UpdateUser(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 		router.ServeHTTP(w, req)
 
-		var ur dto.UserResponse
+		var ur Response
 		err := json.NewDecoder(w.Body).Decode(&ur)
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, w.Code)

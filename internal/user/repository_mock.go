@@ -5,11 +5,11 @@
 package user
 
 import (
-	"github.com/pandahawk/blog-api/internal/shared/model"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
+	model "github.com/pandahawk/blog-api/internal/shared/model"
 )
 
 // MockRepository is a mock of Repository interface.
