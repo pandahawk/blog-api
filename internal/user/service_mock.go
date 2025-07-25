@@ -5,12 +5,11 @@
 package user
 
 import (
-	"github.com/pandahawk/blog-api/internal/shared/model"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
-	dto "github.com/pandahawk/blog-api/internal/dto"
+	model "github.com/pandahawk/blog-api/internal/shared/model"
 )
 
 // MockService is a mock of Service interface.
@@ -37,7 +36,7 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // CreateUser mocks base method.
-func (m *MockService) CreateUser(req *dto.CreateUserRequest) (*model.User, error) {
+func (m *MockService) CreateUser(req *CreateUserRequest) (*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateUser", req)
 	ret0, _ := ret[0].(*model.User)
@@ -80,21 +79,6 @@ func (mr *MockServiceMockRecorder) GetUser(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockService)(nil).GetUser), id)
 }
 
-// GetUserSummary mocks base method.
-func (m *MockService) GetUserSummary(userID uuid.UUID) (*dto.UserSummaryResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserSummary", userID)
-	ret0, _ := ret[0].(*dto.UserSummaryResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetUserSummary indicates an expected call of GetUserSummary.
-func (mr *MockServiceMockRecorder) GetUserSummary(userID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserSummary", reflect.TypeOf((*MockService)(nil).GetUserSummary), userID)
-}
-
 // GetUsers mocks base method.
 func (m *MockService) GetUsers() ([]*model.User, error) {
 	m.ctrl.T.Helper()
@@ -111,7 +95,7 @@ func (mr *MockServiceMockRecorder) GetUsers() *gomock.Call {
 }
 
 // UpdateUser mocks base method.
-func (m *MockService) UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*model.User, error) {
+func (m *MockService) UpdateUser(id uuid.UUID, req *UpdateUserRequest) (*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateUser", id, req)
 	ret0, _ := ret[0].(*model.User)
@@ -123,42 +107,4 @@ func (m *MockService) UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*mod
 func (mr *MockServiceMockRecorder) UpdateUser(id, req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockService)(nil).UpdateUser), id, req)
-}
-
-// MockPostSummaryService is a mock of PostSummaryService interface.
-type MockPostSummaryService struct {
-	ctrl     *gomock.Controller
-	recorder *MockPostSummaryServiceMockRecorder
-}
-
-// MockPostSummaryServiceMockRecorder is the mock recorder for MockPostSummaryService.
-type MockPostSummaryServiceMockRecorder struct {
-	mock *MockPostSummaryService
-}
-
-// NewMockPostSummaryService creates a new mock instance.
-func NewMockPostSummaryService(ctrl *gomock.Controller) *MockPostSummaryService {
-	mock := &MockPostSummaryService{ctrl: ctrl}
-	mock.recorder = &MockPostSummaryServiceMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockPostSummaryService) EXPECT() *MockPostSummaryServiceMockRecorder {
-	return m.recorder
-}
-
-// GetSummary mocks base method.
-func (m *MockPostSummaryService) GetSummary(postID uuid.UUID) (*dto.PostSummaryResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSummary", postID)
-	ret0, _ := ret[0].(*dto.PostSummaryResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetSummary indicates an expected call of GetSummary.
-func (mr *MockPostSummaryServiceMockRecorder) GetSummary(postID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSummary", reflect.TypeOf((*MockPostSummaryService)(nil).GetSummary), postID)
 }

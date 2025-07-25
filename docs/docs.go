@@ -35,7 +35,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/user.User"
+                                "$ref": "#/definitions/model.User"
                             }
                         }
                     }
@@ -60,7 +60,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CreateUserRequest"
+                            "$ref": "#/definitions/user.CreateUserRequest"
                         }
                     }
                 ],
@@ -68,7 +68,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/dto.UserResponse"
+                            "$ref": "#/definitions/user.Response"
                         }
                     },
                     "400": {
@@ -109,7 +109,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user.User"
+                            "$ref": "#/definitions/model.User"
                         }
                     },
                     "400": {
@@ -193,7 +193,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.UpdateUserRequest"
+                            "$ref": "#/definitions/user.UpdateUserRequest"
                         }
                     }
                 ],
@@ -201,7 +201,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/user.User"
+                            "$ref": "#/definitions/model.User"
                         }
                     },
                     "400": {
@@ -248,70 +248,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.CreateUserRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "username"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.PostSummaryResponse": {
-            "type": "object",
-            "properties": {
-                "post_id": {
-                    "description": "PostID uuid.UUID ` + "`" + `json:\"post_id\"` + "`" + `\nTitle  string    ` + "`" + `json:\"title\"` + "`" + `",
-                    "type": "string",
-                    "format": "uuid"
-                },
-                "title": {
-                    "type": "string",
-                    "example": "My First Post"
-                }
-            }
-        },
-        "dto.UpdateUserRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.UserResponse": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "joined_at": {
-                    "type": "string"
-                },
-                "posts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.PostSummaryResponse"
-                    }
-                },
-                "user_id": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "post.Post": {
+        "model.Post": {
             "type": "object",
             "required": [
                 "content",
@@ -338,13 +275,16 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2025-08-19T15:04:05Z"
                 },
+                "user": {
+                    "$ref": "#/definitions/model.User"
+                },
                 "userID": {
                     "type": "string",
                     "example": "5e76b320-d5b7-4a0a-bb0f-2049fe3a91a4"
                 }
             }
         },
-        "user.User": {
+        "model.User": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -362,12 +302,74 @@ const docTemplate = `{
                 "posts": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/post.Post"
+                        "$ref": "#/definitions/model.Post"
                     }
                 },
                 "username": {
                     "type": "string",
                     "example": "mike"
+                }
+            }
+        },
+        "user.CreateUserRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.PostSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "post_id": {
+                    "type": "string",
+                    "format": "uuid"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "My First Post"
+                }
+            }
+        },
+        "user.Response": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "joined_at": {
+                    "type": "string"
+                },
+                "posts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.PostSummaryResponse"
+                    }
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.UpdateUserRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         }

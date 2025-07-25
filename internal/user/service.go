@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
-	"github.com/pandahawk/blog-api/internal/dto"
 	"github.com/pandahawk/blog-api/internal/shared/model"
 	"regexp"
 	"strconv"
@@ -16,32 +15,14 @@ import (
 
 type Service interface {
 	GetUser(id uuid.UUID) (*model.User, error)
-	CreateUser(req *dto.CreateUserRequest) (*model.User, error)
+	CreateUser(req *CreateUserRequest) (*model.User, error)
 	GetUsers() ([]*model.User, error)
-	UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*model.User, error)
+	UpdateUser(id uuid.UUID, req *UpdateUserRequest) (*model.User, error)
 	DeleteUser(id uuid.UUID) error
-	GetUserSummary(userID uuid.UUID) (*dto.UserSummaryResponse, error)
 }
 
 type service struct {
 	repo Repository
-	//postService PostSummaryService
-}
-
-type PostSummaryService interface {
-	GetSummary(postID uuid.UUID) (*dto.PostSummaryResponse, error)
-}
-
-func (s *service) GetUserSummary(id uuid.UUID) (*dto.UserSummaryResponse, error) {
-	u, err := s.repo.FindByID(id)
-	if err != nil {
-		return nil, err
-	}
-	return &dto.UserSummaryResponse{
-		UserID:   u.ID,
-		Username: u.Username,
-		Email:    u.Email,
-	}, nil
 }
 
 func validateUsernameFormat(username string) error {
@@ -72,7 +53,7 @@ func validateUsernameFormat(username string) error {
 	return nil
 }
 
-func (s *service) CreateUser(req *dto.CreateUserRequest) (*model.User, error) {
+func (s *service) CreateUser(req *CreateUserRequest) (*model.User, error) {
 
 	if err := validateUsernameFormat(req.Username); err != nil {
 		return nil, err
@@ -93,7 +74,7 @@ func (s *service) CreateUser(req *dto.CreateUserRequest) (*model.User, error) {
 	return user, nil
 }
 
-func (s *service) UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*model.User, error) {
+func (s *service) UpdateUser(id uuid.UUID, req *UpdateUserRequest) (*model.User, error) {
 	user, err := s.repo.FindByID(id)
 	if err != nil {
 		return nil, apperrors.NewNotFoundError("user", id)
@@ -149,9 +130,6 @@ func (s *service) GetUsers() ([]*model.User, error) {
 	return users, nil
 }
 
-//	func NewService(r Repository, ps PostSummaryService) Service {
-//		return &service{repo: r, postService: ps}
-//	}
 func NewService(r Repository) Service {
 	return &service{repo: r}
 }

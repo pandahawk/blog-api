@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
-	"github.com/pandahawk/blog-api/internal/dto"
 	"github.com/pandahawk/blog-api/internal/shared/model"
 	"net/http"
 	"strings"
@@ -15,15 +14,15 @@ type Handler struct {
 	Service Service
 }
 
-func buildUserResponse(u *model.User) *dto.UserResponse {
-	posts := make([]dto.PostSummaryResponse, len(u.Posts))
+func buildUserResponse(u *model.User) *Response {
+	posts := make([]*PostSummaryResponse, len(u.Posts))
 	for i, p := range u.Posts {
-		posts[i] = dto.PostSummaryResponse{
+		posts[i] = &PostSummaryResponse{
 			PostID: p.ID,
 			Title:  p.Title,
 		}
 	}
-	return &dto.UserResponse{
+	return &Response{
 		UserID:   u.ID,
 		Username: u.Username,
 		Email:    u.Email,
@@ -68,12 +67,12 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 // @Description Get all users in the system
 // @Tags users
 // @Produce json
-// @Success 200 {array} user.User
+// @Success 200 {array} model.User
 // @Router /users [get]
 func (h *Handler) getUsers(c *gin.Context) {
 	users, _ := h.Service.GetUsers()
 
-	resp := make([]*dto.UserResponse, len(users))
+	resp := make([]*Response, len(users))
 	for i, u := range users {
 		resp[i] = buildUserResponse(u)
 	}
@@ -86,7 +85,7 @@ func (h *Handler) getUsers(c *gin.Context) {
 // @Tags users
 // @Produce json
 // @Param id path string true "User ID" format:"uuid"
-// @Success 200 {object} user.User
+// @Success 200 {object} model.User
 // @Failure 404 {object} apperrors.NotFoundError
 // @Failure 400 {object} apperrors.InvalidInputError
 // @Router /users/{id} [get]
@@ -111,13 +110,13 @@ func (h *Handler) getUser(c *gin.Context) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param user body dto.CreateUserRequest true "User data"
-// @Success 201 {object} dto.UserResponse
+// @Param user body user.CreateUserRequest true "User data"
+// @Success 201 {object} Response
 // @Failure 400 {object} apperrors.InvalidInputError
 // @Failure 409 {object} apperrors.DuplicateError
 // @Router /users [post]
 func (h *Handler) createUser(c *gin.Context) {
-	var req dto.CreateUserRequest
+	var req CreateUserRequest
 	c.Header("Content-Type", "application/json")
 	if err := c.ShouldBindJSON(&req); err != nil {
 		handleError(c, apperrors.NewInvalidInputError("invalid request body"))
@@ -139,8 +138,8 @@ func (h *Handler) createUser(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID" format(uuid)
-// @Param user body dto.UpdateUserRequest true "User update data"
-// @Success 201 {object} user.User
+// @Param user body user.UpdateUserRequest true "User update data"
+// @Success 201 {object} model.User
 // @Failure 400 {object} apperrors.InvalidInputError
 // @Failure 404 {object} apperrors.NotFoundError
 // @Failure 400 {object} apperrors.DuplicateError
@@ -152,7 +151,7 @@ func (h *Handler) updateUser(c *gin.Context) {
 		handleError(c, apperrors.NewInvalidInputError("ID must be a uuid"))
 		return
 	}
-	var req dto.UpdateUserRequest
+	var req UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		if strings.Contains(err.Error(), "Email") {
 			handleError(c, apperrors.NewInvalidInputError("invalid email"))
