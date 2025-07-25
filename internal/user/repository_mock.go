@@ -5,6 +5,7 @@
 package user
 
 import (
+	"github.com/pandahawk/blog-api/internal/shared/model"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -35,10 +36,10 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockRepository) Create(user *User) (*User, error) {
+func (m *MockRepository) Create(user *model.User) (*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", user)
-	ret0, _ := ret[0].(*User)
+	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -50,7 +51,7 @@ func (mr *MockRepositoryMockRecorder) Create(user interface{}) *gomock.Call {
 }
 
 // Delete mocks base method.
-func (m *MockRepository) Delete(user *User) error {
+func (m *MockRepository) Delete(user *model.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", user)
 	ret0, _ := ret[0].(error)
@@ -64,10 +65,10 @@ func (mr *MockRepositoryMockRecorder) Delete(user interface{}) *gomock.Call {
 }
 
 // FindAll mocks base method.
-func (m *MockRepository) FindAll() ([]*User, error) {
+func (m *MockRepository) FindAll() ([]*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindAll")
-	ret0, _ := ret[0].([]*User)
+	ret0, _ := ret[0].([]*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -79,10 +80,10 @@ func (mr *MockRepositoryMockRecorder) FindAll() *gomock.Call {
 }
 
 // FindByEmail mocks base method.
-func (m *MockRepository) FindByEmail(email string) (*User, error) {
+func (m *MockRepository) FindByEmail(email string) (*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByEmail", email)
-	ret0, _ := ret[0].(*User)
+	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -94,10 +95,10 @@ func (mr *MockRepositoryMockRecorder) FindByEmail(email interface{}) *gomock.Cal
 }
 
 // FindByID mocks base method.
-func (m *MockRepository) FindByID(id uuid.UUID) (*User, error) {
+func (m *MockRepository) FindByID(id uuid.UUID) (*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByID", id)
-	ret0, _ := ret[0].(*User)
+	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -109,10 +110,10 @@ func (mr *MockRepositoryMockRecorder) FindByID(id interface{}) *gomock.Call {
 }
 
 // FindByUsername mocks base method.
-func (m *MockRepository) FindByUsername(username string) (*User, error) {
+func (m *MockRepository) FindByUsername(username string) (*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByUsername", username)
-	ret0, _ := ret[0].(*User)
+	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -124,10 +125,10 @@ func (mr *MockRepositoryMockRecorder) FindByUsername(username interface{}) *gomo
 }
 
 // Update mocks base method.
-func (m *MockRepository) Update(user *User) (*User, error) {
+func (m *MockRepository) Update(user *model.User) (*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", user)
-	ret0, _ := ret[0].(*User)
+	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

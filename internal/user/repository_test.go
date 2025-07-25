@@ -2,7 +2,7 @@ package user
 
 import (
 	"github.com/google/uuid"
-	"github.com/pandahawk/blog-api/internal/post"
+	"github.com/pandahawk/blog-api/internal/shared/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/sqlite"
@@ -14,8 +14,8 @@ import (
 func setupTestDB(t *testing.T) *gorm.DB {
 	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
 	require.NoError(t, err)
-	require.NoError(t, db.AutoMigrate(&User{}, &post.Post{}))
-	sampleUsers := []User{
+	require.NoError(t, db.AutoMigrate(&model.User{}, &model.Post{}))
+	sampleUsers := []model.User{
 		{ID: uuid.MustParse("0ef05522-38ce-4008-a57b-cae75c7681e6"),
 			Username: "testuser1",
 			Email:    "t1@example.com"},
@@ -74,7 +74,7 @@ func TestGormRepository_FindByEmail(t *testing.T) {
 func TestGormRepository_Create(t *testing.T) {
 	db := setupTestDB(t)
 	repo := NewGormRepository(db)
-	user := NewUser("newuser", "newemail@mail.com")
+	user := model.NewUser("newuser", "newemail@mail.com")
 
 	saved, err := repo.Create(user)
 
@@ -88,7 +88,7 @@ func TestGormRepository_Create(t *testing.T) {
 func TestGormRepository_Update(t *testing.T) {
 	db := setupTestDB(t)
 	repo := NewGormRepository(db)
-	user := NewUser("newuser", "newemail@mail.com")
+	user := model.NewUser("newuser", "newemail@mail.com")
 
 	updated, err := repo.Update(user)
 
@@ -100,7 +100,7 @@ func TestGormRepository_Delete(t *testing.T) {
 	db := setupTestDB(t)
 	repo := NewGormRepository(db)
 
-	user, err := repo.Create(NewUser("testuser1", "t1@example.com"))
+	user, err := repo.Create(model.NewUser("testuser1", "t1@example.com"))
 	if err != nil {
 		return
 	}

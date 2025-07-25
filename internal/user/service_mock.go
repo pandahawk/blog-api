@@ -5,6 +5,7 @@
 package user
 
 import (
+	"github.com/pandahawk/blog-api/internal/shared/model"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -36,10 +37,10 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // CreateUser mocks base method.
-func (m *MockService) CreateUser(req *dto.CreateUserRequest) (*User, error) {
+func (m *MockService) CreateUser(req *dto.CreateUserRequest) (*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateUser", req)
-	ret0, _ := ret[0].(*User)
+	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -65,10 +66,10 @@ func (mr *MockServiceMockRecorder) DeleteUser(id interface{}) *gomock.Call {
 }
 
 // GetUser mocks base method.
-func (m *MockService) GetUser(id uuid.UUID) (*User, error) {
+func (m *MockService) GetUser(id uuid.UUID) (*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUser", id)
-	ret0, _ := ret[0].(*User)
+	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -95,10 +96,10 @@ func (mr *MockServiceMockRecorder) GetUserSummary(userID interface{}) *gomock.Ca
 }
 
 // GetUsers mocks base method.
-func (m *MockService) GetUsers() ([]*User, error) {
+func (m *MockService) GetUsers() ([]*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUsers")
-	ret0, _ := ret[0].([]*User)
+	ret0, _ := ret[0].([]*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -110,10 +111,10 @@ func (mr *MockServiceMockRecorder) GetUsers() *gomock.Call {
 }
 
 // UpdateUser mocks base method.
-func (m *MockService) UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*User, error) {
+func (m *MockService) UpdateUser(id uuid.UUID, req *dto.UpdateUserRequest) (*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateUser", id, req)
-	ret0, _ := ret[0].(*User)
+	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -4,8 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/pandahawk/blog-api/docs"
 	"github.com/pandahawk/blog-api/internal/database"
-	"github.com/pandahawk/blog-api/internal/post"
-	"github.com/pandahawk/blog-api/internal/user"
+	"github.com/pandahawk/blog-api/internal/shared/model"
 	"github.com/pandahawk/blog-api/router"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -28,7 +27,7 @@ func main() {
 
 	db := database.Connect()
 
-	if err := db.AutoMigrate(&user.User{}, &post.Post{}); err != nil {
+	if err := db.AutoMigrate(&model.User{}, &model.Post{}); err != nil {
 		log.Fatal("failed to create db tables")
 	}
 

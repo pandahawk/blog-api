@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
 	"github.com/pandahawk/blog-api/internal/dto"
+	"github.com/pandahawk/blog-api/internal/shared/model"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -33,7 +34,7 @@ func TestHandler_GetAllUsers(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		router, mockService := setupTestRouterWithMockService(t)
-		wantUser := []*User{
+		wantUser := []*model.User{
 			{ID: uuid.New(), Username: "testuser1",
 				Email: "testuser1@example.com", CreatedAt: time.Now()},
 			{ID: uuid.New(), Username: "testuser2",
@@ -59,7 +60,7 @@ func TestHandler_GetAllUsers(t *testing.T) {
 func TestHandler_GetUser(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		router, mockService := setupTestRouterWithMockService(t)
-		wantUser := User{ID: uuid.New(), Username: "testuser1", CreatedAt: time.Now()}
+		wantUser := model.User{ID: uuid.New(), Username: "testuser1", CreatedAt: time.Now()}
 		mockService.EXPECT().
 			GetUser(gomock.Any()).
 			Return(&wantUser, nil)
@@ -107,7 +108,7 @@ func TestHandler_CreateUser(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		router, mockService := setupTestRouterWithMockService(t)
-		wantUser := User{
+		wantUser := model.User{
 			ID:        uuid.New(),
 			Username:  "testuser1",
 			Email:     "testuser1@example.com",
@@ -206,7 +207,7 @@ func TestHandler_UpdateUser(t *testing.T) {
 					"email": "testuserupdate@example.com"
 				}`
 		body := strings.NewReader(rawJSON)
-		wantUser := User{
+		wantUser := model.User{
 			ID:        id,
 			Username:  "testuser",
 			Email:     "testuserupdate@example.com",

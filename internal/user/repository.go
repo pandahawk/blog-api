@@ -3,75 +3,76 @@ package user
 import (
 	"errors"
 	"github.com/google/uuid"
+	"github.com/pandahawk/blog-api/internal/shared/model"
 	"gorm.io/gorm"
 	"log"
 )
 
 //go:generate mockgen -source=repository.go -destination=repository_mock.go -package=user
 type Repository interface {
-	FindAll() ([]*User, error)
-	FindByID(id uuid.UUID) (*User, error)
-	FindByUsername(username string) (*User, error)
-	FindByEmail(email string) (*User, error)
-	Create(user *User) (*User, error)
-	Delete(user *User) error
-	Update(user *User) (*User, error)
+	FindAll() ([]*model.User, error)
+	FindByID(id uuid.UUID) (*model.User, error)
+	FindByUsername(username string) (*model.User, error)
+	FindByEmail(email string) (*model.User, error)
+	Create(user *model.User) (*model.User, error)
+	Delete(user *model.User) error
+	Update(user *model.User) (*model.User, error)
 }
 
 type gormRepository struct {
 	db *gorm.DB
 }
 
-func (r *gormRepository) FindAll() ([]*User, error) {
-	var users []*User
+func (r *gormRepository) FindAll() ([]*model.User, error) {
+	var users []*model.User
 	err := r.db.Preload("Posts").Find(&users).Error
 	return users, err
 }
 
-func (r *gormRepository) FindByID(id uuid.UUID) (*User, error) {
-	var user User
+func (r *gormRepository) FindByID(id uuid.UUID) (*model.User, error) {
+	var user model.User
 	err := r.db.Preload("Posts").First(&user, id).Error
 	return &user, err
 }
 
-func (r *gormRepository) FindByUsername(username string) (*User, error) {
-	var user User
+func (r *gormRepository) FindByUsername(username string) (*model.User, error) {
+	var user model.User
 	err := r.db.Where("username = ?", username).First(&user).Error
 	return &user, err
 }
 
-func (r *gormRepository) FindByEmail(email string) (*User, error) {
-	var user User
+func (r *gormRepository) FindByEmail(email string) (*model.User, error) {
+	var user model.User
 	err := r.db.Where("email = ?", email).First(&user).Error
 	return &user, err
 }
 
-func (r *gormRepository) Create(user *User) (*User, error) {
+func (r *gormRepository) Create(user *model.User) (*model.User, error) {
 	err := r.db.Preload("Posts").Create(&user).Error
 	return user, err
 }
 
-func (r *gormRepository) Update(user *User) (*User, error) {
+func (r *gormRepository) Update(user *model.User) (*model.User, error) {
 	err := r.db.Preload("Posts").Save(&user).Error
 	return user, err
 }
 
-func (r *gormRepository) Delete(user *User) error {
+func (r *gormRepository) Delete(user *model.User) error {
 	err := r.db.Delete(&user).Error
 	return err
 }
 
 func NewDevGormRepository(db *gorm.DB) Repository {
 
-	var user *User
+	var user *model.User
 	if err := db.First(&user).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		log.Println("no users found... initializing sample data")
-		sampleUsers := []*User{
-			NewUser("alice", "alice@example.com"),
-			NewUser("bob", "bob@example.com"),
-			NewUser("carl", "carl@example.com"),
-			NewUser("dave", "dave@example.com"),
-			NewUser("eve", "eve@example.com"),
+		sampleUsers := []*model.User{
+			model.NewUser("alice", "alice@example.com"),
+			model.NewUser("bob", "bob@example.com"),
+			model.NewUser("carl", "carl@example.com"),
+			model.NewUser("dave", "dave@example.com"),
+			model.NewUser("eve", "eve@example.com"),
 		}
 		if err := db.Create(&sampleUsers).Error; err != nil {
 			log.Fatal("error creating sample users", err)
