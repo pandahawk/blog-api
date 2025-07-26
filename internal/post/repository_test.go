@@ -12,6 +12,7 @@ import (
 )
 
 func setupTestDB(t *testing.T) (*gorm.DB, []*model.Post, []*model.User) {
+	t.Helper()
 	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&model.User{}, &model.Post{}))

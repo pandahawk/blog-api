@@ -30,9 +30,9 @@ func (r *repository) FindAll() ([]*model.User, error) {
 }
 
 func (r *repository) FindByID(id uuid.UUID) (*model.User, error) {
-	var user *model.User
-	err := r.db.Preload("Posts").First(user, id).Error
-	return user, err
+	var user model.User
+	err := r.db.Preload("Posts").First(&user, id).Error
+	return &user, err
 }
 
 func (r *repository) FindByUsername(username string) (*model.User, error) {

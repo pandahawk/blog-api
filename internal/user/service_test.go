@@ -15,6 +15,7 @@ func ptr(s string) *string {
 }
 
 func setupMockRepoAndService(t *testing.T) (*MockRepository, Service) {
+	t.Helper()
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 	mockRepo := NewMockRepository(ctrl)
