@@ -29,7 +29,70 @@ func setupTestRouterWithMockService(t *testing.T) (*gin.Engine, *MockService) {
 	return router, mockService
 }
 
-func TestHandler_GetAllUsers(t *testing.T) {
+func TestHandler_GetUser(t *testing.T) {
+	id := uuid.New()
+	tests := []struct {
+		name          string
+		want          *model.User
+		method        string
+		path          string
+		mockBehaviour func(service *MockService, user *model.User)
+		wantStatus    int
+	}{
+		{
+			name: "success",
+			want: &model.User{
+				ID:       id,
+				Username: "testuser",
+				Email:    "testuser@example.com",
+			},
+			method: http.MethodGet,
+			path:   fmt.Sprintf("/users/%s", id.String()),
+			mockBehaviour: func(service *MockService, user *model.User) {
+				service.EXPECT().
+					GetUser(gomock.Any()).
+					Return(user, nil)
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:   "not found",
+			want:   nil,
+			method: http.MethodGet,
+			path:   fmt.Sprintf("/users/%s", id.String()),
+			mockBehaviour: func(service *MockService, user *model.User) {
+				service.EXPECT().
+					GetUser(gomock.Any()).
+					Return(nil, apperrors.NewNotFoundError("user", id))
+			},
+			wantStatus: http.StatusNotFound,
+		},
+		{
+			name:          "invalid id",
+			want:          nil,
+			method:        http.MethodGet,
+			path:          "/users/abc",
+			mockBehaviour: nil,
+			wantStatus:    http.StatusBadRequest,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			router, mockService := setupTestRouterWithMockService(t)
+			if test.mockBehaviour != nil {
+				test.mockBehaviour(mockService, test.want)
+			}
+
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest(test.method, test.path, nil)
+			router.ServeHTTP(w, req)
+
+			assert.Equal(t, test.wantStatus, w.Code)
+		})
+	}
+}
+
+func TestHandler_GetUsers(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		router, mockService := setupTestRouterWithMockService(t)
@@ -53,53 +116,6 @@ func TestHandler_GetAllUsers(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 		assert.Equal(t, wantUser[0].ID, ur[0].UserID)
 		assert.Equal(t, wantUser[1].ID, ur[1].UserID)
-	})
-}
-
-func TestHandler_GetUser(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		router, mockService := setupTestRouterWithMockService(t)
-		wantUser := model.User{ID: uuid.New(), Username: "testuser1", CreatedAt: time.Now()}
-		mockService.EXPECT().
-			GetUser(gomock.Any()).
-			Return(&wantUser, nil)
-
-		req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/users/%v",
-			wantUser.ID), nil)
-		w := httptest.NewRecorder()
-		router.ServeHTTP(w, req)
-
-		var ur Response
-		err := json.NewDecoder(w.Body).Decode(&ur)
-		assert.NoError(t, err)
-		assert.Equal(t, http.StatusOK, w.Code)
-		assert.Equal(t, wantUser.ID, ur.UserID)
-	})
-
-	t.Run("not found", func(t *testing.T) {
-		router, mockService := setupTestRouterWithMockService(t)
-		id := uuid.New()
-		mockService.EXPECT().
-			GetUser(gomock.Any()).
-			Return(nil, apperrors.NewNotFoundError("user", id))
-
-		req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/users/%v",
-			id), nil)
-		w := httptest.NewRecorder()
-		router.ServeHTTP(w, req)
-
-		assert.Equal(t, http.StatusNotFound, w.Code)
-	})
-
-	t.Run("invalid id", func(t *testing.T) {
-		router, _ := setupTestRouterWithMockService(t)
-		id := "abc"
-
-		req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/users/%v", id), nil)
-		w := httptest.NewRecorder()
-		router.ServeHTTP(w, req)
-
-		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 }
 
@@ -354,4 +370,35 @@ func TestHandler_DeleteUser(t *testing.T) {
 			apperrors.NewNotFoundError("user", id).Error())
 	})
 
+}
+
+func TestHandler_buildUserResponse(t *testing.T) {
+	id := uuid.New()
+	posts := []*model.Post{
+		model.NewPost("title1", "content1", id),
+		model.NewPost("title2", "content2", id),
+	}
+	user := &model.User{
+		ID:       id,
+		Username: "testuser",
+		Email:    "testuser@mail.com",
+		Posts:    posts,
+	}
+	want := &Response{
+		UserID:   id,
+		Username: "testuser",
+		Email:    "testuser@mail.com",
+		Posts: []*PostSummaryResponse{
+			{
+				PostID: posts[0].ID,
+				Title:  "title1",
+			},
+			{
+				PostID: posts[1].ID,
+				Title:  "title2",
+			}},
+	}
+
+	got := buildUserResponse(user)
+	assert.Equal(t, want, got)
 }
