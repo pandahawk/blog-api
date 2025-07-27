@@ -1,6 +1,7 @@
 package post
 
 import (
+	"errors"
 	"fmt"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
@@ -18,34 +19,80 @@ func setup(t *testing.T) (*MockRepository, Service) {
 	return mockRepo, service
 }
 
-//func TestPostService_CreatePost(t *testing.T) {
-//	t.Run("success", func(t *testing.T) {
-//		mockRepo, service := setup(t)
-//		wantUser := &model.User{
-//			ID:       uuid.UUID{},
-//			Username: "testuser",
-//			Email:    "testuser@mail.test",
-//		}
-//		wantPost := &model.Post{
-//			ID:      uuid.New(),
-//			Title:   "First Post",
-//			Content: "This is a test gotPost",
-//			UserID:  wantUser.ID,
-//			User:    wantUser,
-//		}
-//		req := &CreatePostRequest{
-//			Title:    wantPost.Title,
-//			Content:  wantPost.Content,
-//			AuthorID: wantPost.UserID,
-//		}
-//		mockRepo.EXPECT().Create(gomock.Any()).Return(wantPost, nil)
-//
-//		gotPost, err := service.CreatePost(req)
-//
-//		assert.NoError(t, err)
-//		assert.Equal(t, wantPost, gotPost)
-//	})
-//}
+func TestService_CreatePost(t *testing.T) {
+	tests := []struct {
+		name          string
+		req           *CreatePostRequest
+		want          *model.Post
+		mockBehaviour func(repo *MockRepository, post *model.Post)
+		wantErr       string
+	}{
+		{
+			name: "success",
+			req: &CreatePostRequest{
+				Title:    "test title",
+				Content:  "test content",
+				AuthorID: uuid.UUID{},
+			},
+			want: &model.Post{
+				Title:   "test title",
+				Content: "test content",
+				UserID:  uuid.UUID{},
+				User: &model.User{
+					ID:       uuid.UUID{},
+					Username: "testuser",
+					Email:    "testuser@mail.com",
+				},
+			},
+			mockBehaviour: func(repo *MockRepository, post *model.Post) {
+				repo.EXPECT().Create(gomock.Any()).Return(post, nil)
+			},
+			wantErr: "",
+		},
+		{
+			name: "author id not found",
+			req: &CreatePostRequest{
+				Title:    "test title",
+				Content:  "test content",
+				AuthorID: uuid.UUID{},
+			},
+			want: nil,
+			mockBehaviour: func(repo *MockRepository, post *model.Post) {
+				repo.EXPECT().Create(gomock.Any()).Return(nil, errors.New("author not found"))
+			},
+			wantErr: "author not found",
+		},
+		{
+			name: "whitespace tile",
+			req: &CreatePostRequest{
+				Title:    " ",
+				Content:  "test content",
+				AuthorID: uuid.UUID{},
+			},
+			want:          nil,
+			mockBehaviour: nil,
+			wantErr:       "title must not be empty",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			mockRepo, service := setup(t)
+			if test.mockBehaviour != nil {
+				test.mockBehaviour(mockRepo, test.want)
+			}
+			got, err := service.CreatePost(test.req)
+			if test.wantErr == "" {
+				assert.NoError(t, err)
+				assert.NotNil(t, got)
+				assert.Equal(t, test.want.Title, got.Title)
+				assert.Equal(t, test.want.Content, got.Content)
+			} else {
+				assert.Nil(t, got)
+				assert.ErrorContains(t, err, test.wantErr)
+			}
+		})
+	}
+}
 
 func Test_service_GetPost(t *testing.T) {
 	tests := []struct {
