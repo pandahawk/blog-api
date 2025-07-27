@@ -99,8 +99,12 @@ func TestGormRepository_Update(t *testing.T) {
 func TestGormRepository_Delete(t *testing.T) {
 	db := setupTestDB(t)
 	repo := NewRepository(db)
+	user := &model.User{
+		ID:       uuid.MustParse("0ef05522-38ce-4008-a57b-cae75c7681e6"),
+		Username: "testuser1",
+		Email:    "t1@example.com"}
 
-	user, err := repo.Create(model.NewUser("testuser1", "t1@example.com"))
+	err := repo.Delete(user)
 	if err != nil {
 		return
 	}
