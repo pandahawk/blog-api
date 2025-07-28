@@ -25,15 +25,19 @@ type service struct {
 
 func validateTitle(title string) error {
 	if _, err := strconv.ParseFloat(title, 64); err == nil {
-		return apperrors.NewInvalidInputError("title must not be number")
+		return apperrors.NewInvalidInputError("title must not be a number")
 	}
-	if strings.TrimSpace(title) == "" {
+	if isBlank(title) {
 		return apperrors.NewInvalidInputError("title must not be blank")
 	}
 	if len(title) < 3 {
 		return apperrors.NewInvalidInputError("title must have more than 2 characters")
 	}
 	return nil
+}
+
+func isBlank(s string) bool {
+	return strings.TrimSpace(s) == ""
 }
 
 func (s service) GetPost(id uuid.UUID) (*model.Post, error) {
@@ -49,7 +53,7 @@ func (s service) CreatePost(req *CreatePostRequest) (*model.Post, error) {
 		return nil, err
 	}
 
-	if strings.TrimSpace(req.Content) == "" {
+	if isBlank(req.Content) {
 		return nil, apperrors.NewInvalidInputError("content must not be blank")
 	}
 
@@ -67,8 +71,25 @@ func (s service) GetPosts() ([]*model.Post, error) {
 }
 
 func (s service) UpdatePost(id uuid.UUID, req *UpdatePostRequest) (*model.Post, error) {
-	//TODO implement me
-	panic("implement me")
+	post, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, apperrors.NewNotFoundError("post", id)
+	}
+	if req.Title != nil {
+		err := validateTitle(*req.Title)
+		if err != nil {
+			return nil, err
+		}
+		post.Title = *req.Title
+	}
+
+	if req.Content != nil {
+		if isBlank(*req.Content) {
+			return nil, apperrors.NewInvalidInputError("content must not be blank")
+		}
+		post.Content = *req.Content
+	}
+	return s.repo.Update(post)
 }
 
 func (s service) DeletePost(id uuid.UUID) error {
