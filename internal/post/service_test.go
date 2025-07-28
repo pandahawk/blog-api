@@ -19,6 +19,10 @@ func setup(t *testing.T) (*MockRepository, Service) {
 	return mockRepo, service
 }
 
+func ptr(s string) *string {
+	return &s
+}
+
 func TestService_CreatePost(t *testing.T) {
 	tests := []struct {
 		name          string
@@ -267,13 +271,100 @@ func TestService_DeletePost(t *testing.T) {
 
 func TestService_UpdatePost(t *testing.T) {
 	tests := []struct {
-		name string
+		name          string
+		id            uuid.UUID
+		req           *UpdatePostRequest
+		want          *model.Post
+		mockBehaviour func(repo *MockRepository, id uuid.UUID, post *model.Post)
+		wantErr       string
 	}{
-		// TODO: test cases
+		{
+			name: "success",
+			id:   uuid.Nil,
+			req: &UpdatePostRequest{
+				Title:   ptr("update title"),
+				Content: ptr("update post"),
+			},
+			want: &model.Post{
+				ID:      uuid.Nil,
+				Title:   "update title",
+				Content: "update post",
+			},
+			mockBehaviour: func(repo *MockRepository, id uuid.UUID, post *model.Post) {
+				repo.EXPECT().FindByID(gomock.Any()).
+					Return(&model.Post{
+						ID:      uuid.Nil,
+						Title:   "old title",
+						Content: "old content"}, nil)
+				repo.EXPECT().Update(gomock.Any()).Return(post, nil)
+			},
+			wantErr: "",
+		},
+		{
+			name: "post not found",
+			id:   uuid.Nil,
+			req: &UpdatePostRequest{
+				Title:   ptr("update title"),
+				Content: ptr("update post"),
+			},
+			want: nil,
+			mockBehaviour: func(repo *MockRepository, id uuid.UUID, post *model.Post) {
+				repo.EXPECT().FindByID(gomock.Any()).
+					Return(nil, apperrors.NewNotFoundError("post", id))
+			},
+			wantErr: "not found",
+		},
+		{
+			name: "invalid title",
+			id:   uuid.Nil,
+			req: &UpdatePostRequest{
+				Title:   ptr("12"),
+				Content: ptr("update post"),
+			},
+			want: nil,
+			mockBehaviour: func(repo *MockRepository, id uuid.UUID, post *model.Post) {
+				repo.EXPECT().FindByID(gomock.Any()).
+					Return(&model.Post{
+						ID:      uuid.Nil,
+						Title:   "old title",
+						Content: "old content"}, nil)
+			},
+			wantErr: "title must not be a number",
+		},
+		{
+			name: "blank content",
+			id:   uuid.Nil,
+			req: &UpdatePostRequest{
+				Title:   ptr("update title"),
+				Content: ptr(" "),
+			},
+			want: nil,
+			mockBehaviour: func(repo *MockRepository, id uuid.UUID, post *model.Post) {
+				repo.EXPECT().FindByID(gomock.Any()).
+					Return(&model.Post{
+						ID:      uuid.Nil,
+						Title:   "old title",
+						Content: "old content"}, nil)
+			},
+			wantErr: "content must not be blank",
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			mockRepo, service := setup(t)
+			if test.mockBehaviour != nil {
+				test.mockBehaviour(mockRepo, test.id, test.want)
+			}
 
+			got, err := service.UpdatePost(test.id, test.req)
+
+			if test.wantErr == "" {
+				assert.NoError(t, err)
+				assert.Equal(t, test.want, got)
+			} else {
+				assert.Nil(t, got)
+				assert.ErrorContains(t, err, test.wantErr)
+			}
 		})
 	}
 }
