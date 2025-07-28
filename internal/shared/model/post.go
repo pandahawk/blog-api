@@ -12,8 +12,8 @@ type Post struct {
 	Content   string    `gorm:"type:text;not null" binding:"required" example:"My First Post Content"`
 	CreatedAt time.Time `gorm:"not null" example:"2025-07-18T15:04:05Z"`
 	UpdatedAt time.Time `gorm:"not null" example:"2025-08-19T15:04:05Z"`
-	UserID    uuid.UUID
-	User      *User `gorm:"constraint:OnDelete:CASCADE"`
+	UserID    uuid.UUID `gorm:"type:char(36);not null;index"`
+	User      *User     `gorm:"constraint:OnDelete:CASCADE"`
 }
 
 func NewPost(title string, content string, authorID uuid.UUID) *Post {

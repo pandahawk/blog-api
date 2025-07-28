@@ -2,9 +2,9 @@ package post
 
 import (
 	"errors"
-	"fmt"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
+	"github.com/pandahawk/blog-api/internal/apperrors"
 	"github.com/pandahawk/blog-api/internal/shared/model"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -63,7 +63,7 @@ func TestService_CreatePost(t *testing.T) {
 			wantErr: "author not found",
 		},
 		{
-			name: "whitespace tile",
+			name: "blank tile",
 			req: &CreatePostRequest{
 				Title:    " ",
 				Content:  "test content",
@@ -71,7 +71,18 @@ func TestService_CreatePost(t *testing.T) {
 			},
 			want:          nil,
 			mockBehaviour: nil,
-			wantErr:       "title must not be empty",
+			wantErr:       "title must not be blank",
+		},
+		{
+			name: "blank content",
+			req: &CreatePostRequest{
+				Title:    "test title",
+				Content:  " ",
+				AuthorID: uuid.UUID{},
+			},
+			want:          nil,
+			mockBehaviour: nil,
+			wantErr:       "content must not be blank",
 		},
 	}
 	for _, test := range tests {
@@ -94,7 +105,7 @@ func TestService_CreatePost(t *testing.T) {
 	}
 }
 
-func Test_service_GetPost(t *testing.T) {
+func TestService_GetPost(t *testing.T) {
 	tests := []struct {
 		name       string
 		searchID   uuid.UUID
@@ -117,11 +128,11 @@ func Test_service_GetPost(t *testing.T) {
 		},
 		{
 			name:     "post not found",
-			searchID: uuid.New(),
+			searchID: uuid.Nil,
 			wantPost: nil,
 			expectMock: func(mockRepo *MockRepository, wantPost *model.Post) {
 				mockRepo.EXPECT().FindByID(gomock.Any()).
-					Return(wantPost, fmt.Errorf("not found"))
+					Return(wantPost, apperrors.NewNotFoundError("post", uuid.Nil))
 			},
 			wantErr: "not found",
 		},
@@ -141,6 +152,21 @@ func Test_service_GetPost(t *testing.T) {
 				assert.Nil(t, gotPost)
 				assert.ErrorContains(t, err, tt.wantErr)
 			}
+		})
+	}
+}
+
+func TestService_GetPosts(t *testing.T) {
+	tests := []struct {
+		name          string
+		want          []*model.Post
+		mockBehaviour func(repo *MockRepository, posts []*model.Post)
+	}{
+		// TODO: test cases
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+
 		})
 	}
 }

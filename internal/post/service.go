@@ -27,7 +27,7 @@ func validateTitle(title string) error {
 		return apperrors.NewInvalidInputError("title must not be number")
 	}
 	if strings.TrimSpace(title) == "" {
-		return apperrors.NewInvalidInputError("title must not be empty")
+		return apperrors.NewInvalidInputError("title must not be blank")
 	}
 	if len(title) < 3 {
 		return apperrors.NewInvalidInputError("title must have more than 2 characters")
@@ -47,6 +47,11 @@ func (s service) CreatePost(req *CreatePostRequest) (*model.Post, error) {
 	if err := validateTitle(req.Title); err != nil {
 		return nil, err
 	}
+
+	if strings.TrimSpace(req.Content) == "" {
+		return nil, apperrors.NewInvalidInputError("content must not be blank")
+	}
+
 	post := model.NewPost(req.Title, req.Content, req.AuthorID)
 	created, err := s.repo.Create(post)
 	return created, err
