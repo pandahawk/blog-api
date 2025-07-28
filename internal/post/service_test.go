@@ -161,6 +161,113 @@ func TestService_GetPosts(t *testing.T) {
 		name          string
 		want          []*model.Post
 		mockBehaviour func(repo *MockRepository, posts []*model.Post)
+		wantErr       string
+	}{
+		{
+			name: "success",
+			want: []*model.Post{},
+			mockBehaviour: func(repo *MockRepository, posts []*model.Post) {
+				repo.EXPECT().FindAll().Return(posts, nil)
+			},
+			wantErr: "",
+		},
+		{
+			name: "failed",
+			want: nil,
+			mockBehaviour: func(repo *MockRepository, posts []*model.Post) {
+				repo.EXPECT().FindAll().Return(nil, errors.New("db error"))
+			},
+			wantErr: "db error",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			mockRepo, service := setup(t)
+			if test.mockBehaviour != nil {
+				test.mockBehaviour(mockRepo, test.want)
+			}
+			got, err := service.GetPosts()
+			if test.wantErr == "" {
+				assert.NoError(t, err)
+				assert.Equal(t, test.want, got)
+			} else {
+				assert.Nil(t, got)
+				assert.ErrorContains(t, err, test.wantErr)
+			}
+		})
+	}
+}
+
+func TestService_DeletePost(t *testing.T) {
+	tests := []struct {
+		name          string
+		id            uuid.UUID
+		post          *model.Post
+		mockBehaviour func(repo *MockRepository, id uuid.UUID, post *model.Post)
+		wantErr       string
+	}{
+		{
+			name: "success",
+			id:   uuid.Nil,
+			post: &model.Post{
+				ID:      uuid.Nil,
+				Title:   "First Post",
+				Content: "This is a test Post"},
+			mockBehaviour: func(repo *MockRepository, id uuid.UUID, post *model.Post) {
+				repo.EXPECT().FindByID(gomock.Any()).Return(post, nil)
+				repo.EXPECT().Delete(gomock.Any()).Return(nil)
+			},
+			wantErr: "",
+		},
+		{
+			name: "not found",
+			id:   uuid.Nil,
+			post: &model.Post{
+				ID:      uuid.New(),
+				Title:   "First Post",
+				Content: "This is a test Post"},
+			mockBehaviour: func(repo *MockRepository, id uuid.UUID, post *model.Post) {
+				repo.EXPECT().FindByID(gomock.Any()).
+					Return(nil, apperrors.NewNotFoundError("post", post.ID))
+			},
+			wantErr: "not found",
+		},
+		{
+			name: "db error",
+			id:   uuid.Nil,
+			post: &model.Post{
+				ID:      uuid.Nil,
+				Title:   "First Post",
+				Content: "This is a test Post"},
+			mockBehaviour: func(repo *MockRepository, id uuid.UUID, post *model.Post) {
+				repo.EXPECT().FindByID(gomock.Any()).Return(post, nil)
+				repo.EXPECT().Delete(gomock.Any()).
+					Return(errors.New("error deleting post"))
+			},
+			wantErr: "error deleting post",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			mockRepo, service := setup(t)
+			if test.mockBehaviour != nil {
+				test.mockBehaviour(mockRepo, test.id, test.post)
+			}
+
+			err := service.DeletePost(test.id)
+
+			if test.wantErr == "" {
+				assert.NoError(t, err)
+			} else {
+				assert.ErrorContains(t, err, test.wantErr)
+			}
+		})
+	}
+}
+
+func TestService_UpdatePost(t *testing.T) {
+	tests := []struct {
+		name string
 	}{
 		// TODO: test cases
 	}

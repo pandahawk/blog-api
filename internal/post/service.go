@@ -1,6 +1,7 @@
 package post
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
 	"github.com/pandahawk/blog-api/internal/shared/model"
@@ -58,8 +59,11 @@ func (s service) CreatePost(req *CreatePostRequest) (*model.Post, error) {
 }
 
 func (s service) GetPosts() ([]*model.Post, error) {
-	//TODO implement me
-	panic("implement me")
+	posts, err := s.repo.FindAll()
+	if err != nil {
+		return nil, errors.New("db error")
+	}
+	return posts, nil
 }
 
 func (s service) UpdatePost(id uuid.UUID, req *UpdatePostRequest) (*model.Post, error) {
@@ -68,8 +72,15 @@ func (s service) UpdatePost(id uuid.UUID, req *UpdatePostRequest) (*model.Post, 
 }
 
 func (s service) DeletePost(id uuid.UUID) error {
-	//TODO implement me
-	panic("implement me")
+	user, err := s.repo.FindByID(id)
+	if err != nil {
+		return apperrors.NewNotFoundError("post", id)
+	}
+	err = s.repo.Delete(user)
+	if err != nil {
+		return errors.New("error deleting post")
+	}
+	return nil
 }
 func NewService(repo Repository) Service {
 	return &service{repo: repo}
