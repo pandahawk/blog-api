@@ -23,7 +23,6 @@ func handleError(c *gin.Context, err error) {
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
-
 	var ne *apperrors.NotFoundError
 	if errors.As(err, &ne) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -37,8 +36,8 @@ func handleError(c *gin.Context, err error) {
 	}
 }
 
-func buildPostResponse(p *model.Post) Response {
-	return Response{
+func buildPostResponse(p *model.Post) *Response {
+	return &Response{
 		PostID:    p.ID,
 		Title:     p.Title,
 		Content:   p.Content,
@@ -61,7 +60,16 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 }
 
 func (h *Handler) getPosts(c *gin.Context) {
-
+	posts, err := h.Service.GetPosts()
+	if err != nil {
+		handleError(c, err)
+		return
+	}
+	resp := make([]*Response, len(posts))
+	for i, p := range posts {
+		resp[i] = buildPostResponse(p)
+	}
+	c.JSON(http.StatusOK, resp)
 }
 
 func (h *Handler) getPost(c *gin.Context) {
