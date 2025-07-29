@@ -119,32 +119,7 @@ func TestHandler_GetUsers(t *testing.T) {
 	})
 }
 
-func TestHandler_CreateUser(t *testing.T) {
-
-	t.Run("success", func(t *testing.T) {
-		router, mockService := setupTestRouterWithMockService(t)
-		wantUser := model.User{
-			ID:        uuid.New(),
-			Username:  "testuser1",
-			Email:     "testuser1@example.com",
-			CreatedAt: time.Now(),
-		}
-		mockService.EXPECT().CreateUser(gomock.Any()).Return(&wantUser, nil)
-		rawJSON := `{"username": "testuser1","email": "testuser1@example.com"}`
-		body := strings.NewReader(rawJSON)
-
-		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodPost, "/users", body)
-		req.Header.Set("Content-Type", "application/json")
-		router.ServeHTTP(w, req)
-
-		var ur Response
-		err := json.NewDecoder(w.Body).Decode(&ur)
-		assert.NoError(t, err)
-		assert.Equal(t, wantUser.ID, ur.UserID)
-		assert.Equal(t, wantUser.Email, ur.Email)
-		assert.Equal(t, wantUser.Username, ur.Username)
-	})
+func TestHandler_CreateUser2(t *testing.T) {
 
 	t.Run("username is a number", func(t *testing.T) {
 		router, mockService := setupTestRouterWithMockService(t)
@@ -211,6 +186,82 @@ func TestHandler_CreateUser(t *testing.T) {
 
 		assert.Equal(t, http.StatusConflict, w.Code)
 	})
+}
+
+// TODO refactor this and other tests
+func TestHandler_CreateUser(t *testing.T) {
+	tests := []struct {
+		name          string
+		rawBody       string
+		method        string
+		path          string
+		mockBehaviour func(service *MockService)
+		wantStatus    int
+		want          *Response
+		wantErr       string
+	}{
+		{
+			name:    "success",
+			rawBody: `{"username": "testuser", "email":"testuser@example.com"}`,
+			method:  http.MethodPost,
+			path:    "/users",
+			mockBehaviour: func(service *MockService) {
+				service.EXPECT().CreateUser(gomock.Any()).
+					Return(&model.User{
+						ID:       uuid.Nil,
+						Username: "testuser",
+						Email:    "testuser@mail.com",
+					}, nil)
+			},
+			want: &Response{
+				UserID:   uuid.Nil,
+				Username: "testuser",
+				Email:    "testuser@mail.com",
+			},
+			wantStatus: http.StatusCreated,
+			wantErr:    "",
+		},
+		{
+			name:          "invalid json",
+			rawBody:       `{}`,
+			method:        http.MethodPost,
+			path:          "/users",
+			mockBehaviour: nil,
+			want:          nil,
+			wantStatus:    http.StatusBadRequest,
+			wantErr:       "invalid json",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			router, mockService := setupTestRouterWithMockService(t)
+			if test.mockBehaviour != nil {
+				test.mockBehaviour(mockService)
+			}
+			body := strings.NewReader(test.rawBody)
+
+			//if err := json.NewEncoder(buf).Encode(test.req); err != nil {
+			//	log.Fatal(err)
+			//}
+
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest(test.method, test.path, body)
+			req.Header.Set("Content-Type", "application/json")
+			router.ServeHTTP(w, req)
+
+			var r *Response
+			err := json.NewDecoder(w.Body).Decode(&r)
+			if test.wantStatus == http.StatusCreated {
+				assert.NoError(t, err)
+				assert.Equal(t, http.StatusCreated, w.Code)
+				assert.Equal(t, test.want.Username, r.Username)
+				assert.Equal(t, test.want.Email, r.Email)
+			} else {
+				assert.ErrorContains(t, err, test.wantErr)
+			}
+
+		})
+	}
 }
 
 func TestHandler_UpdateUser(t *testing.T) {
