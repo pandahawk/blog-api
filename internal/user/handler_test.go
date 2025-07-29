@@ -9,6 +9,7 @@ import (
 	"github.com/pandahawk/blog-api/internal/apperrors"
 	"github.com/pandahawk/blog-api/internal/shared/model"
 	"github.com/stretchr/testify/assert"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -231,7 +232,7 @@ func TestHandler_CreateUser(t *testing.T) {
 			mockBehaviour: nil,
 			want:          nil,
 			wantStatus:    http.StatusBadRequest,
-			wantErr:       "invalid json",
+			wantErr:       "invalid request body",
 		},
 	}
 	for _, test := range tests {
@@ -251,15 +252,18 @@ func TestHandler_CreateUser(t *testing.T) {
 			req.Header.Set("Content-Type", "application/json")
 			router.ServeHTTP(w, req)
 
-			var r *Response
-			err = json.NewDecoder(w.Body).Decode(&r)
 			if test.wantStatus == http.StatusCreated {
+				var r *Response
+				json.NewDecoder(w.Body).Decode(&r)
 				assert.NoError(t, err)
 				assert.Equal(t, http.StatusCreated, w.Code)
 				assert.Equal(t, test.want.Username, r.Username)
 				assert.Equal(t, test.want.Email, r.Email)
 			} else {
-				assert.ErrorContains(t, err, test.wantErr)
+				bodyBytes, _ := io.ReadAll(w.Body)
+				bodyStr := string(bodyBytes)
+				assert.Equal(t, test.wantStatus, w.Code)
+				assert.Contains(t, bodyStr, test.wantErr)
 			}
 		})
 	}
