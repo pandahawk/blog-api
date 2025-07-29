@@ -1,6 +1,7 @@
 package user
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -10,6 +11,7 @@ import (
 	"github.com/pandahawk/blog-api/internal/shared/model"
 	"github.com/stretchr/testify/assert"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -204,10 +206,13 @@ func TestHandler_CreateUser(t *testing.T) {
 	}{
 		{
 			name:    "success",
-			rawBody: `{"username": "testuser", "email":"testuser@example.com"}`,
-			req:     nil,
-			method:  http.MethodPost,
-			path:    "/users",
+			rawBody: "",
+			req: &CreateUserRequest{
+				Username: "testuser",
+				Email:    "testuser@mail.com",
+			},
+			method: http.MethodPost,
+			path:   "/users",
 			mockBehaviour: func(service *MockService) {
 				service.EXPECT().CreateUser(gomock.Any()).
 					Return(&model.User{
@@ -241,31 +246,36 @@ func TestHandler_CreateUser(t *testing.T) {
 			if test.mockBehaviour != nil {
 				test.mockBehaviour(mockService)
 			}
-			body := strings.NewReader(test.rawBody)
 
-			if test.req == nil {
-
+			var body io.Reader
+			if test.rawBody != "" {
+				body = strings.NewReader(test.rawBody)
+			} else {
+				buf := new(bytes.Buffer)
+				if err := json.NewEncoder(buf).Encode(test.req); err != nil {
+					log.Fatal(err)
+				}
+				body = buf
 			}
-			//if err := json.NewEncoder(buf).Encode(test.req); err != nil {
-			//	log.Fatal(err)
-			//}
 
 			w := httptest.NewRecorder()
-			req, err := http.NewRequest(test.method, test.path, body)
+			req, _ := http.NewRequest(test.method, test.path, body)
 			req.Header.Set("Content-Type", "application/json")
 			router.ServeHTTP(w, req)
 
+			assert.Equal(t, test.wantStatus, w.Code)
 			if test.wantStatus == http.StatusCreated {
 				var r *Response
-				json.NewDecoder(w.Body).Decode(&r)
+				err := json.NewDecoder(w.Body).Decode(&r)
+				if err != nil {
+					log.Fatal(err)
+				}
 				assert.NoError(t, err)
-				assert.Equal(t, http.StatusCreated, w.Code)
 				assert.Equal(t, test.want.Username, r.Username)
 				assert.Equal(t, test.want.Email, r.Email)
 			} else {
 				bodyBytes, _ := io.ReadAll(w.Body)
 				bodyStr := string(bodyBytes)
-				assert.Equal(t, test.wantStatus, w.Code)
 				assert.Contains(t, bodyStr, test.wantErr)
 			}
 		})
