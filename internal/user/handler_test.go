@@ -243,6 +243,9 @@ func TestHandler_CreateUser(t *testing.T) {
 			}
 			body := strings.NewReader(test.rawBody)
 
+			if test.req == nil {
+
+			}
 			//if err := json.NewEncoder(buf).Encode(test.req); err != nil {
 			//	log.Fatal(err)
 			//}
