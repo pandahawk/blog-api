@@ -192,6 +192,7 @@ func TestHandler_CreateUser2(t *testing.T) {
 func TestHandler_CreateUser(t *testing.T) {
 	tests := []struct {
 		name          string
+		req           *CreateUserRequest
 		rawBody       string
 		method        string
 		path          string
@@ -203,6 +204,7 @@ func TestHandler_CreateUser(t *testing.T) {
 		{
 			name:    "success",
 			rawBody: `{"username": "testuser", "email":"testuser@example.com"}`,
+			req:     nil,
 			method:  http.MethodPost,
 			path:    "/users",
 			mockBehaviour: func(service *MockService) {
@@ -223,7 +225,7 @@ func TestHandler_CreateUser(t *testing.T) {
 		},
 		{
 			name:          "invalid json",
-			rawBody:       `{}`,
+			rawBody:       `{"username": "testuser", "email":"testuser@example.com"`,
 			method:        http.MethodPost,
 			path:          "/users",
 			mockBehaviour: nil,
@@ -245,12 +247,12 @@ func TestHandler_CreateUser(t *testing.T) {
 			//}
 
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest(test.method, test.path, body)
+			req, err := http.NewRequest(test.method, test.path, body)
 			req.Header.Set("Content-Type", "application/json")
 			router.ServeHTTP(w, req)
 
 			var r *Response
-			err := json.NewDecoder(w.Body).Decode(&r)
+			err = json.NewDecoder(w.Body).Decode(&r)
 			if test.wantStatus == http.StatusCreated {
 				assert.NoError(t, err)
 				assert.Equal(t, http.StatusCreated, w.Code)
@@ -259,7 +261,6 @@ func TestHandler_CreateUser(t *testing.T) {
 			} else {
 				assert.ErrorContains(t, err, test.wantErr)
 			}
-
 		})
 	}
 }
