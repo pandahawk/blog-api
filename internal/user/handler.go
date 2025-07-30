@@ -70,7 +70,11 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 // @Success 200 {array} model.User
 // @Router /users [get]
 func (h *Handler) getUsers(c *gin.Context) {
-	users, _ := h.Service.GetUsers()
+	users, err := h.Service.GetUsers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
 	resp := make([]*Response, len(users))
 	for i, u := range users {

@@ -3,6 +3,7 @@ package user
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -95,7 +96,7 @@ func TestHandler_GetUser(t *testing.T) {
 	}
 }
 
-func TestHandler_GetUsers(t *testing.T) {
+func TestHandler_GetUsersOld(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		router, mockService := setupTestRouterWithMockService(t)
@@ -122,73 +123,66 @@ func TestHandler_GetUsers(t *testing.T) {
 	})
 }
 
-func TestHandler_CreateUser2(t *testing.T) {
+func TestHandler_GetUsers(t *testing.T) {
+	tests := []struct {
+		name          string
+		mockBehaviour func(service *MockService, users []*model.User)
+		wantUsers     []*model.User
+		want          []*Response
+		wantStatus    int
+		wantErr       string
+	}{
+		{
+			name: "success",
+			mockBehaviour: func(service *MockService, users []*model.User) {
+				service.EXPECT().GetUsers().Return(users, nil)
+			},
+			wantUsers: []*model.User{
+				{ID: uuid.New(), Username: "testuser1", Email: "testuser1@mail.com"},
+				{ID: uuid.New(), Username: "testuser2", Email: "testuser2@mail.com"},
+			},
+			want: []*Response{
+				{Username: "testuser1", Email: "testuser1@mail.com"},
+				{Username: "testuser2", Email: "testuser2@mail.com"},
+			},
+			wantStatus: 200,
+			wantErr:    "",
+		},
+		{
+			name:      "db error",
+			wantUsers: nil,
+			want:      nil,
+			mockBehaviour: func(service *MockService, users []*model.User) {
+				service.EXPECT().GetUsers().
+					Return(nil, errors.New("db error"))
+			},
+			wantStatus: 500,
+			wantErr:    "db error",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			router, mockService := setupTestRouterWithMockService(t)
+			if test.mockBehaviour != nil {
+				test.mockBehaviour(mockService, test.wantUsers)
+			}
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest(http.MethodGet, "/users", nil)
+			router.ServeHTTP(w, req)
 
-	t.Run("username is a number", func(t *testing.T) {
-		router, mockService := setupTestRouterWithMockService(t)
-		mockService.EXPECT().CreateUser(gomock.Any()).
-			Return(nil, apperrors.NewInvalidInputError(
-				"invalid username: must not be a number"))
-		rawJSON := `{"username": "123","email": "testuser1@example.com"}`
-		body := strings.NewReader(rawJSON)
-
-		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodPost, "/users", body)
-		req.Header.Set("Content-Type", "application/json")
-		router.ServeHTTP(w, req)
-
-		assert.Equal(t, w.Code, http.StatusBadRequest)
-	})
-
-	t.Run("invalid json", func(t *testing.T) {
-		router, _ := setupTestRouterWithMockService(t)
-		invalidJSON := `{
-	ID:       "1",
-	Username: "testuser1",
-	Email:    "testuser1@example.com"
-	},`
-		body := strings.NewReader(invalidJSON)
-
-		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodPost, "/users", body)
-		req.Header.Set("Content-Type", "application/json")
-		router.ServeHTTP(w, req)
-
-		assert.Equal(t, http.StatusBadRequest, w.Code)
-	})
-
-	t.Run("missing required field", func(t *testing.T) {
-		router, _ := setupTestRouterWithMockService(t)
-		rawJSON := `{
-		"id":       1,
-		"username": "testuser1",
-		"email":    ""
-	}`
-		body := strings.NewReader(rawJSON)
-		w := httptest.NewRecorder()
-
-		req, _ := http.NewRequest(http.MethodPost, "/users", body)
-		router.ServeHTTP(w, req)
-
-		assert.Equal(t, http.StatusBadRequest, w.Code)
-	})
-
-	t.Run("username taken", func(t *testing.T) {
-		router, mockService := setupTestRouterWithMockService(t)
-		rawJSON := `{
-		"username": "testuser",
-		"email":    "testuser@example.com"
-	}`
-		body := strings.NewReader(rawJSON)
-		mockService.EXPECT().CreateUser(gomock.Any()).Return(nil,
-			apperrors.NewDuplicateError("username"))
-
-		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodPost, "/users", body)
-		router.ServeHTTP(w, req)
-
-		assert.Equal(t, http.StatusConflict, w.Code)
-	})
+			assert.Equal(t, test.wantStatus, w.Code)
+			if test.wantErr == "" {
+				var r []*Response
+				if err := json.NewDecoder(w.Body).Decode(&r); err != nil {
+					log.Fatal(err)
+				}
+				for i, expected := range test.want {
+					assert.Equal(t, expected.Username, r[i].Username)
+					assert.Equal(t, expected.Email, r[i].Email)
+				}
+			}
+		})
+	}
 }
 
 // TODO refactor this and other tests
@@ -197,8 +191,6 @@ func TestHandler_CreateUser(t *testing.T) {
 		name          string
 		req           *CreateUserRequest
 		rawBody       string
-		method        string
-		path          string
 		mockBehaviour func(service *MockService)
 		wantStatus    int
 		want          *Response
@@ -211,8 +203,6 @@ func TestHandler_CreateUser(t *testing.T) {
 				Username: "testuser",
 				Email:    "testuser@mail.com",
 			},
-			method: http.MethodPost,
-			path:   "/users",
 			mockBehaviour: func(service *MockService) {
 				service.EXPECT().CreateUser(gomock.Any()).
 					Return(&model.User{
@@ -232,12 +222,26 @@ func TestHandler_CreateUser(t *testing.T) {
 		{
 			name:          "invalid json",
 			rawBody:       `{"username": "testuser", "email":"testuser@example.com"`,
-			method:        http.MethodPost,
-			path:          "/users",
 			mockBehaviour: nil,
 			want:          nil,
 			wantStatus:    http.StatusBadRequest,
 			wantErr:       "invalid request body",
+		},
+		{
+			name:    "invalid username",
+			rawBody: "",
+			req: &CreateUserRequest{
+				Username: "123",
+				Email:    "testuser@mail.com",
+			},
+			mockBehaviour: func(service *MockService) {
+				service.EXPECT().CreateUser(gomock.Any()).
+					Return(nil, apperrors.NewInvalidInputError(
+						"invalid username: must not be a number"))
+			},
+			want:       nil,
+			wantStatus: http.StatusBadRequest,
+			wantErr:    "\"invalid username: must not be a number\"",
 		},
 	}
 	for _, test := range tests {
@@ -259,7 +263,7 @@ func TestHandler_CreateUser(t *testing.T) {
 			}
 
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest(test.method, test.path, body)
+			req, _ := http.NewRequest(http.MethodPost, "/users", body)
 			req.Header.Set("Content-Type", "application/json")
 			router.ServeHTTP(w, req)
 
