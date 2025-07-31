@@ -11,7 +11,6 @@ import (
 	"github.com/pandahawk/blog-api/internal/shared/model"
 	"github.com/stretchr/testify/assert"
 	"io"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -145,7 +144,7 @@ func TestHandler_GetUsers(t *testing.T) {
 			if test.wantErr == "" {
 				var r []*Response
 				if err := json.NewDecoder(w.Body).Decode(&r); err != nil {
-					log.Fatal(err)
+					t.Fatal(err)
 				}
 				for i, expected := range test.want {
 					assert.Equal(t, expected.Username, r[i].Username)
@@ -233,7 +232,7 @@ func TestHandler_CreateUser(t *testing.T) {
 				var r *Response
 				err := json.NewDecoder(w.Body).Decode(&r)
 				if err != nil {
-					log.Fatal(err)
+					t.Fatal(err)
 				}
 				assert.NoError(t, err)
 				assert.Equal(t, test.want.Username, r.Username)
@@ -342,7 +341,7 @@ func TestHandler_UpdateUser(t *testing.T) {
 			if test.wantErr == "" {
 				var r *Response
 				if err := json.NewDecoder(w.Body).Decode(&r); err != nil {
-					log.Fatal(err)
+					t.Fatal(err)
 				}
 				assert.Equal(t, test.wantUser.Username, r.Username)
 				assert.Equal(t, test.wantUser.Email, r.Email)

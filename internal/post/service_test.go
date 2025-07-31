@@ -88,6 +88,17 @@ func TestService_CreatePost(t *testing.T) {
 			mockBehaviour: nil,
 			wantErr:       "content must not be blank",
 		},
+		{
+			name: "title too short",
+			req: &CreatePostRequest{
+				Title:    "te",
+				Content:  "abc",
+				AuthorID: uuid.UUID{},
+			},
+			want:          nil,
+			mockBehaviour: nil,
+			wantErr:       "title must have more than 2 characters",
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

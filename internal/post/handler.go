@@ -3,6 +3,7 @@ package post
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/pandahawk/blog-api/internal/apperrors"
 	"github.com/pandahawk/blog-api/internal/shared/model"
 	"net/http"
@@ -62,7 +63,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 func (h *Handler) getPosts(c *gin.Context) {
 	posts, err := h.Service.GetPosts()
 	if err != nil {
-		handleError(c, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	resp := make([]*Response, len(posts))
@@ -73,10 +74,34 @@ func (h *Handler) getPosts(c *gin.Context) {
 }
 
 func (h *Handler) getPost(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		handleError(c, apperrors.NewInvalidInputError("ID must be a uuid"))
+		return
+	}
+	p, err := h.Service.GetPost(id)
+	if err != nil {
+		handleError(c, err)
+	}
+	resp := buildPostResponse(p)
+	c.JSON(http.StatusOK, resp)
 
 }
-func (h *Handler) createPost(c *gin.Context) {
 
+func (h *Handler) createPost(c *gin.Context) {
+	var req *CreatePostRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		handleError(c, apperrors.NewInvalidInputError("Invalid json body"))
+		return
+	}
+	post, err := h.Service.CreatePost(req)
+	if err != nil {
+		handleError(c, err)
+		return
+	}
+	resp := buildPostResponse(post)
+	c.JSON(http.StatusCreated, resp)
 }
 
 func (h *Handler) updatePost(c *gin.Context) {
