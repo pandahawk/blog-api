@@ -90,12 +90,12 @@ func (h *Handler) getPost(c *gin.Context) {
 }
 
 func (h *Handler) createPost(c *gin.Context) {
-	var req *CreatePostRequest
+	var req CreatePostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		handleError(c, apperrors.NewInvalidInputError("Invalid json body"))
 		return
 	}
-	post, err := h.Service.CreatePost(req)
+	post, err := h.Service.CreatePost(&req)
 	if err != nil {
 		handleError(c, err)
 		return
@@ -105,7 +105,24 @@ func (h *Handler) createPost(c *gin.Context) {
 }
 
 func (h *Handler) updatePost(c *gin.Context) {
-
+	idstr := c.Param("id")
+	id, err := uuid.Parse(idstr)
+	if err != nil {
+		handleError(c, apperrors.NewInvalidInputError("ID must be a uuid"))
+		return
+	}
+	var req UpdatePostRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		handleError(c, apperrors.NewInvalidInputError("invalid json body"))
+		return
+	}
+	post, err := h.Service.UpdatePost(id, &req)
+	if err != nil {
+		handleError(c, err)
+		return
+	}
+	resp := buildPostResponse(post)
+	c.JSON(http.StatusOK, resp)
 }
 
 func (h *Handler) deletePost(c *gin.Context) {

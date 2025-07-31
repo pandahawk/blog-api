@@ -312,39 +312,37 @@ func TestHandler_UpdateUser(t *testing.T) {
 					"3c9d5f8d-91c6-4e3e-9f76-046b7e9b6c1a")},
 			},
 			mockBehaviour: func(service *MockService, id uuid.UUID, post *model.Post) {
-				service.EXPECT().CreatePost(gomock.Any()).Return(post, nil)
+				service.EXPECT().UpdatePost(gomock.Any(), gomock.Any()).Return(post, nil)
 			},
 			wantStatus: 200,
 			wantErr:    "",
 		},
-		//{
-		//	name: "invalid json body",
-		//	rawBody: `
-		//		{"title":"title",
-		//		"content":"content",
-		//		"author_id":"3c9d5f8d-91c6-4e3e-9f76-046b7e9b6c1a"
-		//		`,
-		//	wantPost:      nil,
-		//	mockBehaviour: nil,
-		//	wantStatus:    400,
-		//	wantErr:       "invalid json",
-		//},
-		//{
-		//	name: "invalid title",
-		//	rawBody: `
-		//		{"title":"123",
-		//		"content":"content",
-		//		"author_id":"3c9d5f8d-91c6-4e3e-9f76-046b7e9b6c1a"}
-		//		`,
-		//	wantPost: nil,
-		//	mockBehaviour: func(service *MockService, post *model.Post) {
-		//		service.EXPECT().CreatePost(gomock.Any()).
-		//			Return(nil, apperrors.NewInvalidInputError(
-		//				"invalid title"))
-		//	},
-		//	wantStatus: 400,
-		//	wantErr:    "invalid",
-		//},
+		{
+			name: "not an uuid",
+			rawBody: `
+				{"title":"updated",
+				"content":"content updated",
+				"author_id":"3c9d5f8d-91c6-4e3e-9f76-046b7e9b6c1a"}
+				`,
+			id:            "abc",
+			wantPost:      nil,
+			mockBehaviour: nil,
+			wantStatus:    400,
+			wantErr:       "must be a uuid",
+		},
+		{
+			name: "invalid json body",
+			rawBody: `
+				{"title":"updated",
+				"content":"content updated",
+				"author_id":"3c9d5f8d-91c6-4e3e-9f76-046b7e9b6c1a"
+				`,
+			id:            "3c9d5f8d-91c6-4e3e-9f76-046b7e9b6c1a",
+			wantPost:      nil,
+			mockBehaviour: nil,
+			wantStatus:    400,
+			wantErr:       "invalid json",
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -367,6 +365,8 @@ func TestHandler_UpdateUser(t *testing.T) {
 				}
 				assert.Equal(t, test.wantPost.Title, r.Title)
 				assert.Equal(t, test.wantPost.Content, r.Content)
+			} else {
+				assert.Contains(t, w.Body.String(), test.wantErr)
 			}
 		})
 	}
