@@ -200,7 +200,7 @@ func TestHandler_GetPost(t *testing.T) {
 	}
 }
 
-func TestHandler_CreateUser(t *testing.T) {
+func TestHandler_CreatePost(t *testing.T) {
 	tests := []struct {
 		name          string
 		rawBody       string
@@ -285,7 +285,7 @@ func TestHandler_CreateUser(t *testing.T) {
 	}
 }
 
-func TestHandler_UpdateUser(t *testing.T) {
+func TestHandler_UpdatePost(t *testing.T) {
 	tests := []struct {
 		name          string
 		rawBody       string
@@ -343,6 +343,29 @@ func TestHandler_UpdateUser(t *testing.T) {
 			wantStatus:    400,
 			wantErr:       "invalid json",
 		},
+		{
+			name: "blank content",
+			rawBody: `
+					{"title":"updated",
+					"content":" ",
+					"author_id":"3c9d5f8d-91c6-4e3e-9f76-046b7e9b6c1a"}
+				`,
+			id: "3c9a5f8d-91c6-4e3e-9f76-046b7e9b6c1a",
+			wantPost: &model.Post{
+				ID:      uuid.MustParse("3c9a5f8d-91c6-4e3e-9f76-046b7e9b6c1a"),
+				Title:   "updated",
+				Content: "content updated",
+				UserID:  uuid.MustParse("3c9d5f8d-91c6-4e3e-9f76-046b7e9b6c1a"),
+				User: &model.User{ID: uuid.MustParse(
+					"3c9d5f8d-91c6-4e3e-9f76-046b7e9b6c1a")},
+			},
+			mockBehaviour: func(service *MockService, id uuid.UUID, post *model.Post) {
+				service.EXPECT().UpdatePost(gomock.Any(), gomock.Any()).
+					Return(nil, apperrors.NewInvalidInputError("content must not be blank"))
+			},
+			wantStatus: 400,
+			wantErr:    "not be blank",
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -368,6 +391,62 @@ func TestHandler_UpdateUser(t *testing.T) {
 			} else {
 				assert.Contains(t, w.Body.String(), test.wantErr)
 			}
+		})
+	}
+}
+
+func TestHandler_DeletePost(t *testing.T) {
+	tests := []struct {
+		name          string
+		id            string
+		mockBehaviour func(service *MockService, id uuid.UUID)
+		wantStatus    int
+		wantErr       string
+	}{
+		{
+			name: "success",
+			id:   uuid.Nil.String(),
+			mockBehaviour: func(service *MockService, id uuid.UUID) {
+				service.EXPECT().DeletePost(id).Return(nil)
+			},
+			wantStatus: 204,
+			wantErr:    "",
+		},
+		{
+			name:          "not a uuid",
+			id:            "abc",
+			mockBehaviour: nil,
+			wantStatus:    400,
+			wantErr:       "must be a uuid",
+		},
+		{
+			name: "post not found",
+			id:   uuid.Nil.String(),
+			mockBehaviour: func(service *MockService, id uuid.UUID) {
+				service.EXPECT().DeletePost(id).
+					Return(apperrors.NewNotFoundError("post", uuid.Nil))
+			},
+			wantStatus: 404,
+			wantErr:    "not found",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			router, mockService := setupTestRouterWithMockService(t)
+			if test.mockBehaviour != nil {
+				test.mockBehaviour(mockService, uuid.MustParse(test.id))
+			}
+			w := httptest.NewRecorder()
+			req, _ := http.NewRequest(http.MethodDelete, "/posts/"+test.id, nil)
+			router.ServeHTTP(w, req)
+
+			assert.Equal(t, test.wantStatus, w.Code)
+			if test.wantErr == "" {
+				assert.Empty(t, w.Body.String())
+			} else {
+				assert.Contains(t, w.Body.String(), test.wantErr)
+			}
+
 		})
 	}
 }

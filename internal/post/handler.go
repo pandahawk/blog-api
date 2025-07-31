@@ -105,8 +105,8 @@ func (h *Handler) createPost(c *gin.Context) {
 }
 
 func (h *Handler) updatePost(c *gin.Context) {
-	idstr := c.Param("id")
-	id, err := uuid.Parse(idstr)
+	idStr := c.Param("id")
+	id, err := uuid.Parse(idStr)
 	if err != nil {
 		handleError(c, apperrors.NewInvalidInputError("ID must be a uuid"))
 		return
@@ -126,5 +126,16 @@ func (h *Handler) updatePost(c *gin.Context) {
 }
 
 func (h *Handler) deletePost(c *gin.Context) {
-
+	idStr := c.Param("id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		handleError(c, apperrors.NewInvalidInputError("ID must be a uuid"))
+		return
+	}
+	err = h.Service.DeletePost(id)
+	if err != nil {
+		handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusNoContent, nil)
 }
