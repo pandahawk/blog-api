@@ -194,7 +194,7 @@ func (h *Handler) deleteUser(c *gin.Context) {
 	}
 
 	if err = h.Service.DeleteUser(id); err != nil {
-		handleError(c, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusNoContent, nil)
