@@ -67,7 +67,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 // @Description Get all users in the system
 // @Tags users
 // @Produce json
-// @Success 200 {array} model.User
+// @Success 200 {array} Response
 // @Router /users [get]
 func (h *Handler) getUsers(c *gin.Context) {
 	users, err := h.Service.GetUsers()
@@ -83,13 +83,12 @@ func (h *Handler) getUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// List all users
 // @Summary Get user by ID
 // @Description Get the user with the specified ID
 // @Tags users
 // @Produce json
 // @Param id path string true "User ID" format:"uuid"
-// @Success 200 {object} model.User
+// @Success 200 {object} Response
 // @Failure 404 {object} apperrors.NotFoundError
 // @Failure 400 {object} apperrors.InvalidInputError
 // @Router /users/{id} [get]
@@ -143,7 +142,7 @@ func (h *Handler) createUser(c *gin.Context) {
 // @Produce json
 // @Param id path string true "User ID" format(uuid)
 // @Param user body user.UpdateUserRequest true "User update data"
-// @Success 201 {object} model.User
+// @Success 201 {object} Response
 // @Failure 400 {object} apperrors.InvalidInputError
 // @Failure 404 {object} apperrors.NotFoundError
 // @Failure 400 {object} apperrors.DuplicateError

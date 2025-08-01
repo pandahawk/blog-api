@@ -68,11 +68,24 @@ func NewDevRepository(db *gorm.DB) Repository {
 	if err := db.First(&user).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		log.Println("no users found... initializing sample data")
 		sampleUsers := []*model.User{
-			model.NewUser("alice", "alice@example.com"),
-			model.NewUser("bob", "bob@example.com"),
-			model.NewUser("carl", "carl@example.com"),
-			model.NewUser("dave", "dave@example.com"),
-			model.NewUser("eve", "eve@example.com"),
+			{
+				ID:       uuid.MustParse("3d9f18b2-f029-4a44-baf8-7437d51967d7"),
+				Username: "alice",
+				Email:    "alice@example.com",
+				Posts:    nil,
+			},
+			{
+				ID:       uuid.MustParse("27e6db8c-3432-456e-a879-e7a0c58c9cc4"),
+				Username: "bob",
+				Email:    "bob@example.com",
+				Posts:    nil,
+			},
+			{
+				ID:       uuid.MustParse("27a6db8c-3132-456e-a879-e7b0c58c9cc4"),
+				Username: "caren",
+				Email:    "caren@example.com",
+				Posts:    nil,
+			},
 		}
 		if err := db.Create(&sampleUsers).Error; err != nil {
 			log.Fatal("error creating sample users", err)
