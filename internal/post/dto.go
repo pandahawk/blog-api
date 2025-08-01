@@ -19,7 +19,7 @@ type UpdatePostRequest struct {
 type Response struct {
 	PostID    uuid.UUID           `json:"post_id"`
 	Title     string              `json:"title"`
-	Content   string              `json:"content"`
+	Content   string              `json:"content,omitempty"`
 	CreatedAt time.Time           `json:"created_at"`
 	UpdatedAt time.Time           `json:"updated_at"`
 	Author    UserSummaryResponse `json:"author"`

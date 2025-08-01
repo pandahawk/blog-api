@@ -22,7 +22,7 @@ definitions:
       content:
         example: My First Post Content
         type: string
-      created_at:
+      createdAt:
         example: "2025-07-18T15:04:05Z"
         type: string
       id:
@@ -31,13 +31,12 @@ definitions:
       title:
         example: My First Post
         type: string
-      updated_at:
+      updatedAt:
         example: "2025-08-19T15:04:05Z"
         type: string
       user:
         $ref: '#/definitions/model.User'
       userID:
-        example: 5e76b320-d5b7-4a0a-bb0f-2049fe3a91a4
         type: string
     required:
     - content
@@ -60,6 +59,50 @@ definitions:
         type: array
       username:
         example: mike
+        type: string
+    type: object
+  post.CreatePostRequest:
+    properties:
+      author_id:
+        type: string
+      content:
+        type: string
+      title:
+        type: string
+    required:
+      - author_id
+      - content
+      - title
+    type: object
+  post.Response:
+    properties:
+      author:
+        $ref: '#/definitions/post.UserSummaryResponse'
+      content:
+        type: string
+      created_at:
+        type: string
+      post_id:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  post.UpdatePostRequest:
+    properties:
+      content:
+        type: string
+      title:
+        type: string
+    type: object
+  post.UserSummaryResponse:
+    properties:
+      email:
+        type: string
+      user_id:
+        type: string
+      username:
         type: string
     type: object
   user.CreateUserRequest:
@@ -113,6 +156,139 @@ info:
   title: Blog API
   version: "1.0"
 paths:
+  /posts:
+    get:
+      description: Get all posts in the system
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Post'
+            type: array
+      summary: Get all posts
+      tags:
+        - posts
+    post:
+      consumes:
+        - application/json
+      description: Creates a new post and returns the created resource
+      parameters:
+        - description: Post data
+          in: body
+          name: post
+          required: true
+          schema:
+            $ref: '#/definitions/post.CreatePostRequest'
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/post.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apperrors.InvalidInputError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/apperrors.DuplicateError'
+      summary: Create a new post
+      tags:
+        - posts
+  /posts/{id}:
+    delete:
+      consumes:
+        - application/json
+      description: Deletes an existing post
+      parameters:
+        - description: Post ID
+          format: uuid
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apperrors.InvalidInputError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apperrors.NotFoundError'
+      summary: Delete post by ID
+      tags:
+        - posts
+    get:
+      description: Get the post with the specified ID
+      parameters:
+        - description: Post ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/post.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apperrors.InvalidInputError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apperrors.NotFoundError'
+      summary: Get post by ID
+      tags:
+        - posts
+    patch:
+      consumes:
+        - application/json
+      description: Updates an existing post and returns the updated resource
+      parameters:
+        - description: Post ID
+          format: uuid
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Post update data
+          in: body
+          name: post
+          required: true
+          schema:
+            $ref: '#/definitions/post.UpdatePostRequest'
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/post.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apperrors.DuplicateError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apperrors.NotFoundError'
+      summary: Update post by ID
+      tags:
+        - posts
   /users:
     get:
       description: Get all users in the system
@@ -123,7 +299,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.User'
+              $ref: '#/definitions/user.Response'
             type: array
       summary: Get all users
       tags:
@@ -199,7 +375,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.User'
+            $ref: '#/definitions/user.Response'
         "400":
           description: Bad Request
           schema:
@@ -234,7 +410,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/model.User'
+            $ref: '#/definitions/user.Response'
         "400":
           description: Bad Request
           schema:

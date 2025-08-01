@@ -37,11 +37,26 @@ func handleError(c *gin.Context, err error) {
 	}
 }
 
-func buildPostResponse(p *model.Post) *Response {
+func buildPostResponse(p *model.Post, content bool) *Response {
+
+	if content {
+		return &Response{
+			PostID:    p.ID,
+			Title:     p.Title,
+			Content:   p.Content,
+			CreatedAt: p.CreatedAt,
+			UpdatedAt: p.UpdatedAt,
+			Author: UserSummaryResponse{
+				UserID:   p.User.ID,
+				Username: p.User.Username,
+				Email:    p.User.Email,
+			},
+		}
+	}
+
 	return &Response{
 		PostID:    p.ID,
 		Title:     p.Title,
-		Content:   p.Content,
 		CreatedAt: p.CreatedAt,
 		UpdatedAt: p.UpdatedAt,
 		Author: UserSummaryResponse{
@@ -60,6 +75,12 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	r.DELETE("/:id", h.deletePost)
 }
 
+// @Summary Get all posts
+// @Description Get all posts in the system
+// @Tags posts
+// @Produce json
+// @Success 200 {array} model.Post
+// @Router /posts [get]
 func (h *Handler) getPosts(c *gin.Context) {
 	posts, err := h.Service.GetPosts()
 	if err != nil {
@@ -68,11 +89,20 @@ func (h *Handler) getPosts(c *gin.Context) {
 	}
 	resp := make([]*Response, len(posts))
 	for i, p := range posts {
-		resp[i] = buildPostResponse(p)
+		resp[i] = buildPostResponse(p, false)
 	}
 	c.JSON(http.StatusOK, resp)
 }
 
+// @Summary Get post by ID
+// @Description Get the post with the specified ID
+// @Tags posts
+// @Produce json
+// @Param id path string true "Post ID" format:"uuid"
+// @Success 200 {object} Response
+// @Failure 404 {object} apperrors.NotFoundError
+// @Failure 400 {object} apperrors.InvalidInputError
+// @Router /posts/{id} [get]
 func (h *Handler) getPost(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -84,11 +114,21 @@ func (h *Handler) getPost(c *gin.Context) {
 	if err != nil {
 		handleError(c, err)
 	}
-	resp := buildPostResponse(p)
+	resp := buildPostResponse(p, true)
 	c.JSON(http.StatusOK, resp)
 
 }
 
+// @Summary Create a new post
+// @Description Creates a new post and returns the created resource
+// @Tags posts
+// @Accept json
+// @Produce json
+// @Param post body post.CreatePostRequest true "Post data"
+// @Success 201 {object} Response
+// @Failure 400 {object} apperrors.InvalidInputError
+// @Failure 409 {object} apperrors.DuplicateError
+// @Router /posts [post]
 func (h *Handler) createPost(c *gin.Context) {
 	var req CreatePostRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -100,10 +140,22 @@ func (h *Handler) createPost(c *gin.Context) {
 		handleError(c, err)
 		return
 	}
-	resp := buildPostResponse(post)
+	resp := buildPostResponse(post, true)
 	c.JSON(http.StatusCreated, resp)
 }
 
+// @Summary Update post by ID
+// @Description Updates an existing post and returns the updated resource
+// @Tags posts
+// @Accept json
+// @Produce json
+// @Param id path string true "Post ID" format(uuid)
+// @Param post body post.UpdatePostRequest true "Post update data"
+// @Success 201 {object} Response
+// @Failure 400 {object} apperrors.InvalidInputError
+// @Failure 404 {object} apperrors.NotFoundError
+// @Failure 400 {object} apperrors.DuplicateError
+// @Router /posts/{id} [patch]
 func (h *Handler) updatePost(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -121,10 +173,20 @@ func (h *Handler) updatePost(c *gin.Context) {
 		handleError(c, err)
 		return
 	}
-	resp := buildPostResponse(post)
+	resp := buildPostResponse(post, true)
 	c.JSON(http.StatusOK, resp)
 }
 
+// @Summary Delete post by ID
+// @Description Deletes an existing post
+// @Tags posts
+// @Accept json
+// @Produce json
+// @Param id path string true "Post ID" Format(uuid)
+// @Success 204
+// @Failure 404 {object} apperrors.NotFoundError
+// @Failure 400 {object} apperrors.InvalidInputError
+// @Router /posts/{id} [delete]
 func (h *Handler) deletePost(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
