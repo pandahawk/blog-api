@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres
-    container_name: blog-postgres
+    container_name: blog-pg
     ports:
       - "5432:5432"
     environment:

@@ -113,6 +113,7 @@ func (h *Handler) getPost(c *gin.Context) {
 	p, err := h.Service.GetPost(id)
 	if err != nil {
 		handleError(c, err)
+		return
 	}
 	resp := buildPostResponse(p, true)
 	c.JSON(http.StatusOK, resp)
