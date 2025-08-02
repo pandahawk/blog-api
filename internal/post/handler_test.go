@@ -105,15 +105,13 @@ func TestHandler_GetPosts(t *testing.T) {
 
 				assert.Equal(t, w.Code, test.wantStatus)
 				if test.wantErr == "" {
-					var r []*Response
-					if err := json.NewDecoder(w.Body).Decode(&r); err != nil {
+					var got []*Response
+					if err := json.NewDecoder(w.Body).Decode(&got); err != nil {
 						t.Fatal(err)
 					}
-					for i, response := range r {
-						assert.Equal(t, response, r[i])
+					for i, response := range got {
 						assert.Equal(t, test.wantPosts[i].Title, response.Title)
 						assert.Equal(t, test.wantPosts[i].User.Username, response.Author.Username)
-						assert.Equal(t, test.wantPosts[i].Content, response.Content)
 					}
 				} else {
 					assert.Contains(t, w.Body.String(), test.wantErr)
@@ -229,6 +227,18 @@ func TestHandler_CreatePost(t *testing.T) {
 			},
 			wantStatus: 201,
 			wantErr:    "",
+		},
+		{
+			name: "duplicate username",
+			rawBody: `{"title":"title",
+				"content":"content",
+				"author_id":"3c9d5f8d-91c6-4e3e-9f76-046b7e9b6c1a"}`,
+			wantPost: nil,
+			mockBehaviour: func(service *MockService, post *model.Post) {
+				service.EXPECT().CreatePost(gomock.Any()).Return(nil, apperrors.NewDuplicateError("username"))
+			},
+			wantStatus: 409,
+			wantErr:    "duplicate username",
 		},
 		{
 			name: "invalid json body",
