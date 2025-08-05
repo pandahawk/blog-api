@@ -54,8 +54,8 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	require.NoError(t, err)
 
-	applyMigrations(db)
-	SeedDevData(db)
+	//applyMigrations(db)
+	//SeedDevData(db)
 	require.NoError(t, err)
 	return db
 }
