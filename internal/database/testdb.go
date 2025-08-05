@@ -30,11 +30,13 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 		},
 		//WaitingFor: wait.ForListeningPort("5432/tcp").
 		//	WithStartupTimeout(30 * time.Second),
+
 		WaitingFor: wait.ForSQL("5432/tcp", "postgres",
 			func(host string, port nat.Port) string {
 				return fmt.Sprintf("host=%s port=%s user=blogadmin"+
 					" password=blogadmin dbname=blog sslmode=disable", host, port.Port())
 			}).WithStartupTimeout(60 * time.Second),
+
 	}
 
 	container, err := testcontainers.
