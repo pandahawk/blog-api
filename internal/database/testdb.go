@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"github.com/docker/go-connections/nat"
 	"github.com/golang-migrate/migrate/v4"
 	migratepg "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -29,8 +30,11 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 		},
 		//WaitingFor: wait.ForListeningPort("5432/tcp").
 		//	WithStartupTimeout(30 * time.Second),
-		WaitingFor: wait.ForLog("database system is ready to accept connections").
-			WithStartupTimeout(60 * time.Second),
+		WaitingFor: wait.ForSQL("5432/tcp", "postgres",
+			func(host string, port nat.Port) string {
+				return fmt.Sprintf("host=%s port=%s user=blogadmin"+
+					" password=blogadmin dbname=blog sslmode=disable", host, port.Port())
+			}).WithStartupTimeout(60 * time.Second),
 	}
 
 	container, err := testcontainers.
