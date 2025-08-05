@@ -11,5 +11,17 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - pgdata:/var/lib/postgresql/data
+
+
+  api:
+    build: .
+    container_name: blog-api
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgres://blogadmin:blogadmin@postgres:5432/blog
+    depends_on:
+      - postgres
+
 volumes:
   pgdata:
