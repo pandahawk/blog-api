@@ -34,5 +34,15 @@ jobs:
         sleep 1
         done
 
+    - name: Show listening ports
+      run: netstat -tuln || ss -tuln
+
+    - name: Show Docker containers
+      run: docker ps
+
+    - name: Print env vars
+      run: env
+
+
     - name: Test
       run: go test -v ./...
