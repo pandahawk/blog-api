@@ -27,8 +27,10 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 			"POSTGRES_PASSWORD": "blogadmin",
 			"POSTGRES_DB":       "blog",
 		},
-		WaitingFor: wait.ForListeningPort("5432/tcp").
-			WithStartupTimeout(30 * time.Second),
+		//WaitingFor: wait.ForListeningPort("5432/tcp").
+		//	WithStartupTimeout(30 * time.Second),
+		WaitingFor: wait.ForLog("database system is ready to accept connections").
+			WithStartupTimeout(60 * time.Second),
 	}
 
 	container, err := testcontainers.
