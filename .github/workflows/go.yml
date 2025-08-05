@@ -24,25 +24,5 @@ jobs:
     - name: Build
       run: go build -v ./...
 
-    - name: Start services with Docker Compose
-      run: docker compose up -d
-
-    - name: Wait for Postgres
-      run: |
-        for i in {1..20}; do
-        pg_isready -h 127.0.0.1 -p 5432 && break
-        sleep 1
-        done
-
-    - name: Show listening ports
-      run: netstat -tuln || ss -tuln
-
-    - name: Show Docker containers
-      run: docker ps
-
-    - name: Print env vars
-      run: env
-
-
     - name: Test
       run: go test -v ./...
