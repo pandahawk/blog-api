@@ -24,14 +24,14 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 		Image:        "postgres:latest",
 		ExposedPorts: []string{"5432/tcp"},
 		Env: map[string]string{
-			"POSTGRES_USER":     "blogadmin",
-			"POSTGRES_PASSWORD": "blogadmin",
+			"POSTGRES_USER":     "admin",
+			"POSTGRES_PASSWORD": "admin",
 			"POSTGRES_DB":       "blog",
 		},
 		WaitingFor: wait.ForSQL("5432/tcp", "postgres",
 			func(host string, port nat.Port) string {
-				return fmt.Sprintf("host=%s port=%s user=blogadmin"+
-					" password=blogadmin dbname=blog sslmode=disable", host, port.Port())
+				return fmt.Sprintf("host=%s port=%s user=admin"+
+					" password=admin dbname=blog sslmode=disable", host, port.Port())
 			}).WithStartupTimeout(60 * time.Second),
 	}
 
@@ -51,7 +51,7 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 	host, _ := container.Host(ctx)
 	port, _ := container.MappedPort(ctx, "5432")
 
-	dsn := fmt.Sprintf("host=%s port=%s user=blogadmin password=blogadmin "+
+	dsn := fmt.Sprintf("host=%s port=%s user=admin password=admin "+
 		"dbname=blog sslmode=disable", host, port.Port())
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	require.NoError(t, err)
