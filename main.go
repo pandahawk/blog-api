@@ -21,8 +21,10 @@ import (
 // @contact.name   Michael Obeng
 // @contact.url    https://github.com/pandahawk
 // @contact.email  michael@example.com
-
-// @host      localhost:8080
+// @servers [
+//   {"url":"http://localhost:8080", "description":"Local"},
+//   {"url":"http://89.58.5.201:8080", "description":"Production"}
+// ]
 // @BasePath  /api/v1
 
 func main() {
