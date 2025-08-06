@@ -38,8 +38,5 @@ coverage.out
 *.orig
 *.swo
 
-# Environment files (optional)
-.env
-.env.*
 
 /.run/
