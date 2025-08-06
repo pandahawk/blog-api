@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/pandahawk/blog-api/docs"
@@ -31,6 +32,7 @@ func main() {
 	db := database.ConnectWithRetry(5, 5*time.Second)
 
 	r := gin.Default()
+	r.Use(cors.Default())
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
