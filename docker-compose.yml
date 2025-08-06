@@ -6,8 +6,8 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_DB: blog
-      POSTGRES_USER: blogadmin
-      POSTGRES_PASSWORD: blogadmin
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - pgdata:/var/lib/postgresql/data
@@ -19,7 +19,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DATABASE_URL=postgres://blogadmin:blogadmin@postgres:5432/blog
+      - DATABASE_URL=postgres://admin:admin@postgres:5432/blog
+      - PORT=8080
     depends_on:
       - postgres
 

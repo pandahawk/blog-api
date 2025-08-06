@@ -10,6 +10,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"
 	"os"
+	"time"
 )
 
 // @title       Blog API
@@ -26,8 +27,11 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
+	dsn := os.Getenv("DATABASE_URL")
+
 	fmt.Println("before db connect")
-	db := database.Connect()
+	//db := database.Connect()
+	db := database.ConnectWithRetry(dsn, 20, 5*time.Second)
 	fmt.Println("after db connect")
 
 	r := gin.Default()
