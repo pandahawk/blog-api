@@ -63,7 +63,11 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 }
 
 func applyMigrations(db *gorm.DB) {
-	log.Println(os.Getwd())
+	wd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	log.Println(wd)
 	sqlDB, _ := db.DB()
 	driver, _ := migratepg.WithInstance(sqlDB, &migratepg.Config{})
 	m, err := migrate.NewWithDatabaseInstance(

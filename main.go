@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	_ "github.com/pandahawk/blog-api/docs"
 	"github.com/pandahawk/blog-api/internal/database"
 	"github.com/pandahawk/blog-api/router"
@@ -26,13 +26,9 @@ import (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	_ = godotenv.Load()
 
-	dsn := os.Getenv("DATABASE_URL")
-
-	fmt.Println("before db connect")
-	//db := database.Connect()
-	db := database.ConnectWithRetry(dsn, 20, 5*time.Second)
-	fmt.Println("after db connect")
+	db := database.ConnectWithRetry(5, 5*time.Second)
 
 	r := gin.Default()
 

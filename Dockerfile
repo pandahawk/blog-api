@@ -22,8 +22,8 @@ RUN adduser -D appuser
 # Copy the binary from the builder stage
 COPY --from=builder /app/blog-api /usr/local/bin/blog-api
 
-# Copy migrations folder from builder
-COPY --from=builder /app/internal/database/migrations /home/appuser/internal/database/migrations
+##' Copy migrations folder from builder
+#COPY --from=builder /app/internal/database/migrations /home/appuser/internal/database/migrations
 
 
 USER appuser
