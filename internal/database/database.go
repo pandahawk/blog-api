@@ -1,6 +1,7 @@
 package database
 
 import (
+	"github.com/pandahawk/blog-api/internal/shared/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -20,14 +21,19 @@ func Connect() *gorm.DB {
 	return db
 }
 
-func ConnectWithRetry(dsn string, maxAttempts int, delay time.Duration) *gorm.DB {
+func ConnectWithRetry(maxAttempts int, delay time.Duration) *gorm.DB {
 	var db *gorm.DB
 	var err error
+	dsn := os.Getenv("DATABASE_URL")
+
 	for i := 0; i < maxAttempts; i++ {
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err == nil {
 			log.Println("successfully connected to database")
-			applyMigrations(db)
+			if err := db.AutoMigrate(&model.User{}, &model.Post{}); err != nil {
+				log.Fatalf("AutoMigrate failed: %v", err)
+			}
+			log.Println("AutoMigrate successful")
 			SeedDevData(db)
 			return db
 		}

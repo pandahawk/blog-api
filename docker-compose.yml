@@ -3,13 +3,17 @@ services:
     image: postgres
     container_name: blog-pg
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     environment:
-      POSTGRES_DB: blog
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 3s
+      timeout: 5s
+      retries: 5
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - pgdata:/var/lib/postgresql/data
 
 
@@ -17,12 +21,13 @@ services:
     build: .
     container_name: blog-api
     ports:
-      - "8080:8080"
+      - "${PORT}:${PORT}"
     environment:
-      - DATABASE_URL=postgres://admin:admin@postgres:5432/blog
-      - PORT=8080
+      DATABASE_URL: ${DATABASE_URL}
+      PORT: ${PORT}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
 volumes:
   pgdata:
