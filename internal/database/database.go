@@ -14,6 +14,12 @@ func ConnectWithRetry(maxAttempts int, delay time.Duration) *gorm.DB {
 	var db *gorm.DB
 	var err error
 
+	fmt.Println("DB_USER:", os.Getenv("DB_USER"))
+	fmt.Println("DB_PASSWORD:", os.Getenv("DB_PASSWORD"))
+	fmt.Println("DB_NAME:", os.Getenv("DB_NAME"))
+	fmt.Println("DB_HOST:", os.Getenv("DB_HOST"))
+	fmt.Println("DB_PORT:", os.Getenv("DB_PORT"))
+
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")
 	host := os.Getenv("DB_HOST")
