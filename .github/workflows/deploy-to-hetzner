@@ -1,0 +1,30 @@
+name: Deploy to Hetzner
+
+on:
+  push:
+    branches: [ main ]  # Or your desired branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Add SSH key for deploy
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+
+    - name: Copy files to server
+      run: |
+        rsync -avz --exclude='.git*' -e 'ssh -o StrictHostKeyChecking=no' ./ root@${{ secrets.HETZNER_HOST }}:/root/app/
+
+    - name: Deploy with Docker Compose
+      run: |
+        ssh -o StrictHostKeyChecking=no root@${{ secrets.HETZNER_HOST }} '
+          cd /root/app &&
+          docker compose pull &&
+          docker compose up -d
+        '
