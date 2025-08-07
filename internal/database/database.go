@@ -31,6 +31,8 @@ func ConnectWithRetry(maxAttempts int, delay time.Duration) *gorm.DB {
 		user, password, host, port, dbname,
 	)
 
+	log.Println("ACTUAL DSN USED:", dsn)
+
 	for i := 0; i < maxAttempts; i++ {
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err == nil {
