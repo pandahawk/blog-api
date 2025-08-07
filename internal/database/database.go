@@ -14,12 +14,6 @@ func ConnectWithRetry(maxAttempts int, delay time.Duration) *gorm.DB {
 	var db *gorm.DB
 	var err error
 
-	log.Println("DB_USER:", os.Getenv("DB_USER"))
-	log.Println("DB_PASSWORD:", os.Getenv("DB_PASSWORD"))
-	log.Println("DB_NAME:", os.Getenv("DB_NAME"))
-	log.Println("DB_HOST:", os.Getenv("DB_HOST"))
-	log.Println("DB_PORT:", os.Getenv("DB_PORT"))
-
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")
 	host := os.Getenv("DB_HOST")
@@ -30,8 +24,6 @@ func ConnectWithRetry(maxAttempts int, delay time.Duration) *gorm.DB {
 		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		user, password, host, port, dbname,
 	)
-
-	log.Println("ACTUAL DSN USED:", dsn)
 
 	for i := 0; i < maxAttempts; i++ {
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
