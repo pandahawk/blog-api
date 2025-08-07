@@ -18,12 +18,6 @@ jobs:
     - name: Add Go bin to PATH
       run: echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
-    - name: Install swag CLI
-      run: go install github.com/swaggo/swag/cmd/swag@latest
-
-    - name: Add Go bin to PATH
-      run: echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
-
     - name: Set Swagger host to prod and generate docs
       run: |
         sed -i 's|@host .*|@host blog.pandahawk.dev|' main.go
