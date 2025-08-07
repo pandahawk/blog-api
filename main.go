@@ -21,14 +21,12 @@ import (
 // @contact.name   Michael Obeng
 // @contact.url    https://github.com/pandahawk
 // @contact.email  michael@example.com
-// @servers [
-//   {"url":"http://localhost:8080", "description":"Local"},
-//   {"url":"http://89.58.5.201:8080", "description":"Production"}
-// ]
+// @host blog.pandahawk.dev
 // @BasePath  /api/v1
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	_ = godotenv.Load(".env.local")
 	_ = godotenv.Load()
 
 	db := database.ConnectWithRetry(5, 5*time.Second)

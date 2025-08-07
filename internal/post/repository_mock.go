@@ -36,32 +36,32 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockRepository) Create(user *model.Post) (*model.Post, error) {
+func (m *MockRepository) Create(post *model.Post) (*model.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", user)
+	ret := m.ctrl.Call(m, "Create", post)
 	ret0, _ := ret[0].(*model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockRepositoryMockRecorder) Create(user interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Create(post interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), post)
 }
 
 // Delete mocks base method.
-func (m *MockRepository) Delete(user *model.Post) error {
+func (m *MockRepository) Delete(post *model.Post) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", user)
+	ret := m.ctrl.Call(m, "Delete", post)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockRepositoryMockRecorder) Delete(user interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Delete(post interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepository)(nil).Delete), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepository)(nil).Delete), post)
 }
 
 // FindAll mocks base method.
@@ -95,16 +95,16 @@ func (mr *MockRepositoryMockRecorder) FindByID(id interface{}) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockRepository) Update(user *model.Post) (*model.Post, error) {
+func (m *MockRepository) Update(post *model.Post) (*model.Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", user)
+	ret := m.ctrl.Call(m, "Update", post)
 	ret0, _ := ret[0].(*model.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockRepositoryMockRecorder) Update(user interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Update(post interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), post)
 }
