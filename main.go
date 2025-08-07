@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -31,6 +32,12 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	_ = godotenv.Load()
+
+	fmt.Println("DB_USER:", os.Getenv("DB_USER"))
+	fmt.Println("DB_PASSWORD:", os.Getenv("DB_PASSWORD"))
+	fmt.Println("DB_NAME:", os.Getenv("DB_NAME"))
+	fmt.Println("DB_HOST:", os.Getenv("DB_HOST"))
+	fmt.Println("DATABASE_URL:", os.Getenv("DATABASE_URL"))
 
 	db := database.ConnectWithRetry(5, 5*time.Second)
 
