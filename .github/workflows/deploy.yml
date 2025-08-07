@@ -11,6 +11,12 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      
+    - name: Install swag CLI
+      run: go install github.com/swaggo/swag/cmd/swag@latest
+
+    - name: Add Go bin to PATH
+      run: echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
     - name: Set Swagger host to prod and generate docs
       run: |
