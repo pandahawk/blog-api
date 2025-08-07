@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"github.com/pandahawk/blog-api/internal/shared/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -9,22 +10,20 @@ import (
 	"time"
 )
 
-func Connect() *gorm.DB {
-	//dsn := "host=localhost user=blogadmin password=blogadmin dbname=blog port" +
-	//	"=5432 sslmode=disable"
-	dsn := os.Getenv("DATABASE_URL")
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatal("failed to connect to database")
-	}
-	SeedDevData(db)
-	return db
-}
-
 func ConnectWithRetry(maxAttempts int, delay time.Duration) *gorm.DB {
 	var db *gorm.DB
 	var err error
-	dsn := os.Getenv("DATABASE_URL")
+
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	dbname := os.Getenv("DB_NAME")
+
+	dsn := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		user, password, host, port, dbname,
+	)
 
 	for i := 0; i < maxAttempts; i++ {
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})

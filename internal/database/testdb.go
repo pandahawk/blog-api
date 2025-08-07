@@ -20,18 +20,24 @@ import (
 
 func SetupTestDB(t *testing.T) *gorm.DB {
 	ctx := context.Background()
+
+	dbUser := "admin"
+	dbPass := "admin"
+	dbName := "blog"
+
 	req := testcontainers.ContainerRequest{
 		Image:        "postgres:latest",
 		ExposedPorts: []string{"5432/tcp"},
 		Env: map[string]string{
-			"POSTGRES_USER":     "admin",
-			"POSTGRES_PASSWORD": "admin",
-			"POSTGRES_DB":       "blog",
+			"POSTGRES_USER":     dbUser,
+			"POSTGRES_PASSWORD": dbPass,
+			"POSTGRES_DB":       dbName,
 		},
 		WaitingFor: wait.ForSQL("5432/tcp", "postgres",
 			func(host string, port nat.Port) string {
-				return fmt.Sprintf("host=%s port=%s user=admin"+
-					" password=admin dbname=blog sslmode=disable", host, port.Port())
+				return fmt.Sprintf(
+					"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+					host, port.Port(), dbUser, dbPass, dbName)
 			}).WithStartupTimeout(60 * time.Second),
 	}
 
@@ -51,8 +57,9 @@ func SetupTestDB(t *testing.T) *gorm.DB {
 	host, _ := container.Host(ctx)
 	port, _ := container.MappedPort(ctx, "5432")
 
-	dsn := fmt.Sprintf("host=%s port=%s user=admin password=admin "+
-		"dbname=blog sslmode=disable", host, port.Port())
+	dsn := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		host, port.Port(), dbUser, dbPass, dbName)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	require.NoError(t, err)
 

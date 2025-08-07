@@ -17,16 +17,19 @@ import (
 // @title       Blog API
 // @version     1.0
 // @description This is a simple blog API built with Go and Gin
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name X-API-Key
 
 // @contact.name   Michael Obeng
 // @contact.url    https://github.com/pandahawk
 // @contact.email  michael@example.com
-// @host blog.pandahawk.dev
+
+// @host localhost:8080
 // @BasePath  /api/v1
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	_ = godotenv.Load(".env.local")
 	_ = godotenv.Load()
 
 	db := database.ConnectWithRetry(5, 5*time.Second)

@@ -12,6 +12,30 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Set Swagger host to prod and generate docs
+      run: |
+        sed -i 's|@host .*|@host blog.pandahawk.dev|' main.go
+        swag init
+
+    - name: Create .env file from secrets and variables
+      run: |
+        cat > .env <<EOF
+        # DB and app settings
+        DB_USER=${{ vars.DB_USER }}
+        DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+        DB_NAME=${{ vars.DB_NAME }}
+        DB_PORT=${{ vars.DB_PORT }}
+        PORT=${{ vars.PORT }}
+        
+        # API key
+        API_KEY=${{ secrets.API_KEY }}
+        
+        # Postgres container env
+        POSTGRES_USER=${{ vars.DB_USER }}
+        POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}
+        POSTGRES_DB=${{ vars.DB_NAME }}
+        EOF
+
     - name: Add SSH key for deploy
       uses: webfactory/ssh-agent@v0.8.0
       with:

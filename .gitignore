@@ -38,6 +38,6 @@ coverage.out
 *.orig
 *.swo
 
-
+*.env
 /.run/
-/.env.local
+
