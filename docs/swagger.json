@@ -10,11 +10,16 @@
         },
         "version": "1.0"
     },
-  "host": "blog.pandahawk.dev",
+  "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
       "/posts": {
         "get": {
+          "security": [
+            {
+              "ApiKeyAuth": []
+            }
+          ],
           "description": "Get all posts in the system",
           "produces": [
             "application/json"
@@ -36,6 +41,11 @@
           }
         },
         "post": {
+          "security": [
+            {
+              "ApiKeyAuth": []
+            }
+          ],
           "description": "Creates a new post and returns the created resource",
           "consumes": [
             "application/json"
@@ -82,6 +92,11 @@
       },
       "/posts/{id}": {
         "get": {
+          "security": [
+            {
+              "ApiKeyAuth": []
+            }
+          ],
           "description": "Get the post with the specified ID",
           "produces": [
             "application/json"
@@ -121,6 +136,11 @@
           }
         },
         "delete": {
+          "security": [
+            {
+              "ApiKeyAuth": []
+            }
+          ],
           "description": "Deletes an existing post",
           "consumes": [
             "application/json"
@@ -161,6 +181,11 @@
           }
         },
         "patch": {
+          "security": [
+            {
+              "ApiKeyAuth": []
+            }
+          ],
           "description": "Updates an existing post and returns the updated resource",
           "consumes": [
             "application/json"
@@ -215,6 +240,11 @@
       },
         "/users": {
             "get": {
+              "security": [
+                {
+                  "ApiKeyAuth": []
+                }
+              ],
                 "description": "Get all users in the system",
                 "produces": [
                     "application/json"
@@ -236,6 +266,11 @@
                 }
             },
             "post": {
+              "security": [
+                {
+                  "ApiKeyAuth": []
+                }
+              ],
                 "description": "Creates a new user and returns the created resource",
                 "consumes": [
                     "application/json"
@@ -282,6 +317,11 @@
         },
         "/users/{id}": {
             "get": {
+              "security": [
+                {
+                  "ApiKeyAuth": []
+                }
+              ],
                 "description": "Get the user with the specified ID",
                 "produces": [
                     "application/json"
@@ -321,6 +361,11 @@
                 }
             },
             "delete": {
+              "security": [
+                {
+                  "ApiKeyAuth": []
+                }
+              ],
                 "description": "Deletes an existing user",
                 "consumes": [
                     "application/json"
@@ -361,6 +406,11 @@
                 }
             },
             "patch": {
+              "security": [
+                {
+                  "ApiKeyAuth": []
+                }
+              ],
                 "description": "Updates an existing user and returns the updated resource",
                 "consumes": [
                     "application/json"
@@ -633,5 +683,12 @@
           }
         }
         }
+    },
+  "securityDefinitions": {
+    "ApiKeyAuth": {
+      "type": "apiKey",
+      "name": "X-API-Key",
+      "in": "header"
+    }
     }
 }

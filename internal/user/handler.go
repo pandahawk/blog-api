@@ -69,6 +69,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 // @Produce json
 // @Success 200 {array} Response
 // @Router /users [get]
+// @Security ApiKeyAuth
 func (h *Handler) getUsers(c *gin.Context) {
 	users, err := h.Service.GetUsers()
 	if err != nil {
@@ -92,6 +93,7 @@ func (h *Handler) getUsers(c *gin.Context) {
 // @Failure 404 {object} apperrors.NotFoundError
 // @Failure 400 {object} apperrors.InvalidInputError
 // @Router /users/{id} [get]
+// @Security ApiKeyAuth
 func (h *Handler) getUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -118,6 +120,7 @@ func (h *Handler) getUser(c *gin.Context) {
 // @Failure 400 {object} apperrors.InvalidInputError
 // @Failure 409 {object} apperrors.DuplicateError
 // @Router /users [post]
+// @Security ApiKeyAuth
 func (h *Handler) createUser(c *gin.Context) {
 	var req CreateUserRequest
 	c.Header("Content-Type", "application/json")
@@ -147,6 +150,7 @@ func (h *Handler) createUser(c *gin.Context) {
 // @Failure 404 {object} apperrors.NotFoundError
 // @Failure 400 {object} apperrors.DuplicateError
 // @Router /users/{id} [patch]
+// @Security ApiKeyAuth
 func (h *Handler) updateUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -184,6 +188,7 @@ func (h *Handler) updateUser(c *gin.Context) {
 // @Failure 404 {object} apperrors.NotFoundError
 // @Failure 400 {object} apperrors.InvalidInputError
 // @Router /users/{id} [delete]
+// @Security ApiKeyAuth
 func (h *Handler) deleteUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)

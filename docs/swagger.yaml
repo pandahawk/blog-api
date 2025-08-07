@@ -146,7 +146,7 @@ definitions:
       username:
         type: string
     type: object
-host: blog.pandahawk.dev
+host: localhost:8080
 info:
   contact:
     email: michael@example.com
@@ -168,6 +168,8 @@ paths:
             items:
               $ref: '#/definitions/model.Post'
             type: array
+      security:
+        - ApiKeyAuth: [ ]
       summary: Get all posts
       tags:
         - posts
@@ -197,6 +199,8 @@ paths:
           description: Conflict
           schema:
             $ref: '#/definitions/apperrors.DuplicateError'
+      security:
+        - ApiKeyAuth: [ ]
       summary: Create a new post
       tags:
         - posts
@@ -225,6 +229,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/apperrors.NotFoundError'
+      security:
+        - ApiKeyAuth: [ ]
       summary: Delete post by ID
       tags:
         - posts
@@ -251,6 +257,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/apperrors.NotFoundError'
+      security:
+        - ApiKeyAuth: [ ]
       summary: Get post by ID
       tags:
         - posts
@@ -286,6 +294,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/apperrors.NotFoundError'
+      security:
+        - ApiKeyAuth: [ ]
       summary: Update post by ID
       tags:
         - posts
@@ -301,6 +311,8 @@ paths:
             items:
               $ref: '#/definitions/user.Response'
             type: array
+      security:
+        - ApiKeyAuth: [ ]
       summary: Get all users
       tags:
       - users
@@ -330,6 +342,8 @@ paths:
           description: Conflict
           schema:
             $ref: '#/definitions/apperrors.DuplicateError'
+      security:
+        - ApiKeyAuth: [ ]
       summary: Create a new user
       tags:
       - users
@@ -358,6 +372,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/apperrors.NotFoundError'
+      security:
+        - ApiKeyAuth: [ ]
       summary: Delete user by ID
       tags:
       - users
@@ -384,6 +400,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/apperrors.NotFoundError'
+      security:
+        - ApiKeyAuth: [ ]
       summary: Get user by ID
       tags:
       - users
@@ -419,7 +437,14 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/apperrors.NotFoundError'
+      security:
+        - ApiKeyAuth: [ ]
       summary: Update user by ID
       tags:
       - users
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: X-API-Key
+    type: apiKey
 swagger: "2.0"

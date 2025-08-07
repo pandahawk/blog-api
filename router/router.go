@@ -4,11 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pandahawk/blog-api/internal/post"
 	"github.com/pandahawk/blog-api/internal/user"
+	"github.com/pandahawk/blog-api/middleware"
 	"gorm.io/gorm"
 )
 
-func setupUserRoutes(r *gin.Engine, db *gorm.DB) {
-	v1 := r.Group("/api/v1")
+func setupResourceRoutes(r *gin.Engine, db *gorm.DB) {
+	v1 := r.Group("/api/v1", middleware.ApiKey())
 
 	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
@@ -30,7 +31,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 	if db != nil {
-		setupUserRoutes(r, db)
+		setupResourceRoutes(r, db)
 	}
 
 }
