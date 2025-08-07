@@ -146,6 +146,7 @@ definitions:
       username:
         type: string
     type: object
+host: blog.pandahawk.dev
 info:
   contact:
     email: michael@example.com

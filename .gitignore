@@ -40,3 +40,4 @@ coverage.out
 
 
 /.run/
+/.env.local

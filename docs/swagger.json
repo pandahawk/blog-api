@@ -10,6 +10,7 @@
         },
         "version": "1.0"
     },
+  "host": "blog.pandahawk.dev",
     "basePath": "/api/v1",
     "paths": {
       "/posts": {
