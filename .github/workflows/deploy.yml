@@ -25,9 +25,13 @@ jobs:
     - name: Set Swagger host to prod and generate docs
       run: |
         sed -i 's|@host .*|@host blog.pandahawk.dev|' main.go
-        grep '@host' main.go   # This prints the result in CI logs
         swag init
 
+    - name: Download Swagger UI static files
+      run: |
+        curl -L https://github.com/swagger-api/swagger-ui/archive/refs/tags/v5.12.2.tar.gz | tar xz
+        cp -r swagger-ui-5.12.2/dist/* docs/
+        
       # load env vars
     - name: Create .env file from secrets and variables
       run: |
