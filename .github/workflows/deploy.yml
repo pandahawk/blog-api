@@ -15,7 +15,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-      #change host to match prod url
     - name: Install swag CLI
       run: go install github.com/swaggo/swag/cmd/swag@latest
 
@@ -31,8 +30,11 @@ jobs:
       run: |
         curl -L https://github.com/swagger-api/swagger-ui/archive/refs/tags/v5.12.2.tar.gz | tar xz
         cp -r swagger-ui-5.12.2/dist/* docs/
-        
-      # load env vars
+
+    - name: Patch Swagger UI index.html to load your API docs
+      run: |
+        sed -i 's|https://petstore.swagger.io/v2/swagger.json|swagger.json|g' docs/index.html
+
     - name: Create .env file from secrets and variables
       run: |
         cat > .env <<EOF
@@ -43,10 +45,8 @@ jobs:
         DB_PORT=${{ vars.DB_PORT }}
         DB_HOST=${{ vars.DB_HOST }}
         PORT=${{ vars.PORT }}
-        
         # API key
         API_KEY=${{ secrets.API_KEY }}
-        
         # Postgres container env
         POSTGRES_USER=${{ vars.DB_USER }}
         POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}
@@ -58,7 +58,6 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
 
-      # docker compose
     - name: Copy compose and env files to server
       run: |
         rsync -avz -e 'ssh -o StrictHostKeyChecking=no' docker-compose.yml .env root@${{ secrets.HETZNER_HOST }}:/root/app/
