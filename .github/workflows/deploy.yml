@@ -1,27 +1,26 @@
 name: Deploy to Hetzner
 
 on:
-  push:
-    branches: [ main ]  # Or your desired branch
+  workflow_run:
+    workflows: [ "Go" ]
+    types: [ completed ]
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' }}
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Install swag CLI
-      run: go install github.com/swaggo/swag/cmd/swag@latest
-
-    - name: Add Go bin to PATH
-      run: echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
-
-    - name: Set Swagger host to prod and generate docs
-      run: |
-        sed -i 's|@host .*|@host blog.pandahawk.dev|' main.go
-        swag init
+      # Download the docs artifact from the build job
+    - name: Download Swagger docs
+      uses: actions/download-artifact@v4
+      with:
+        name: swagger-docs
+        path: docs
 
     - name: Create .env file from secrets and variables
       run: |
@@ -48,9 +47,9 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
 
-    - name: Copy files to server
+    - name: Copy compose and env files to server
       run: |
-        rsync -avz --exclude='.git*' -e 'ssh -o StrictHostKeyChecking=no' ./ root@${{ secrets.HETZNER_HOST }}:/root/app/
+        rsync -avz -e 'ssh -o StrictHostKeyChecking=no' docker-compose.yml .env root@${{ secrets.HETZNER_HOST }}:/root/app/
 
     - name: Deploy with Docker Compose
       run: |
