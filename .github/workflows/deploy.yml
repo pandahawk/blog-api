@@ -31,7 +31,7 @@ jobs:
       run: |
         curl -L https://github.com/swagger-api/swagger-ui/archive/refs/tags/v5.12.2.tar.gz | tar xz
         cp -r swagger-ui-5.12.2/dist/* docs/
-
+        
       # load env vars
     - name: Create .env file from secrets and variables
       run: |
@@ -61,8 +61,13 @@ jobs:
       # docker compose
     - name: Copy compose and env files to server
       run: |
-        rsync -avz -e 'ssh -o StrictHostKeyChecking=no' docker-compose.yml .env root@${{ secrets.HETZNER_HOST }}:/root/app/
-
+        rsync -avz -e 'ssh -o StrictHostKeyChecking=no' docker-compose.yml .env docs root@${{ secrets.HETZNER_HOST }}:/root/app/
+   
+    - name: Docker login on server
+      run: |
+        ssh -o StrictHostKeyChecking=no root@${{ secrets.HETZNER_HOST }} \
+          "echo '${{ secrets.DOCKERHUB_TOKEN }}' | docker login -u '${{ secrets.DOCKERHUB_USERNAME }}' --password-stdin"
+   
     - name: Deploy with Docker Compose
       run: |
         ssh -o StrictHostKeyChecking=no root@${{ secrets.HETZNER_HOST }} '
