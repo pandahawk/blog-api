@@ -25,6 +25,7 @@ jobs:
     - name: Set Swagger host to prod and generate docs
       run: |
         sed -i 's|@host .*|@host blog.pandahawk.dev|' main.go
+        grep '@host' main.go   # This prints the result in CI logs
         swag init
 
       # load env vars
