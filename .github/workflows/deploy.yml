@@ -57,7 +57,7 @@ jobs:
       # docker compose
     - name: Copy compose and env files to server
       run: |
-        rsync -avz -e 'ssh -o StrictHostKeyChecking=no' docker-compose.yml .env root@${{ secrets.HETZNER_HOST }}:/root/app/
+        rsync -avz -e 'ssh -o StrictHostKeyChecking=no' docker-compose.yml .env docs root@${{ secrets.HETZNER_HOST }}:/root/app/
    
     - name: Docker login on server
       run: |
