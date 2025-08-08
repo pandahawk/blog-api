@@ -27,25 +27,6 @@ jobs:
     - name: Test
       run: go test -v ./...
 
-      #change host to match prod url
-    - name: Install swag CLI
-      run: go install github.com/swaggo/swag/cmd/swag@latest
-
-    - name: Add Go bin to PATH
-      run: echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
-
-    - name: Set Swagger host to prod and generate docs
-      run: |
-        sed -i 's|@host .*|@host blog.pandahawk.dev|' main.go
-        swag init
-
-      # Upload the docs folder as an artifact for the deploy job
-    - name: Upload Swagger docs
-      uses: actions/upload-artifact@v4
-      with:
-        name: swagger-docs
-        path: docs/
-
       # ---- Only build/push Docker image for main branch ----
     - name: Log in to Docker Hub
       if: github.ref == 'refs/heads/main'
