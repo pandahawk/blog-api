@@ -17,7 +17,7 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   api:
-    build: .
+    image: pandahawk251/myapps:blog-api-latest
     container_name: blog-api
     ports:
       - "${PORT}:${PORT}"
