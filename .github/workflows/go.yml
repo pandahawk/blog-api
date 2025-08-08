@@ -27,6 +27,11 @@ jobs:
     - name: Test
       run: go test -v ./...
 
+    - name: Set Swagger host to prod and generate docs
+      run: |
+        sed -i 's|@host .*|@host blog.pandahawk.dev|' main.go
+        swag init
+
       # ---- Only build/push Docker image for main branch ----
     - name: Log in to Docker Hub
       if: github.ref == 'refs/heads/main'
