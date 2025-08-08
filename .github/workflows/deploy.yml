@@ -15,26 +15,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install swag CLI
-      run: go install github.com/swaggo/swag/cmd/swag@latest
-
-    - name: Add Go bin to PATH
-      run: echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
-
-    - name: Set Swagger host to prod and generate docs
-      run: |
-        sed -i 's|@host .*|@host blog.pandahawk.dev|' main.go
-        swag init
-
-    - name: Download Swagger UI static files
-      run: |
-        curl -L https://github.com/swagger-api/swagger-ui/archive/refs/tags/v5.12.2.tar.gz | tar xz
-        cp -r swagger-ui-5.12.2/dist/* docs/
-
-    - name: Patch Swagger UI index.html to load your API docs
-      run: |
-        sed -i 's|https://petstore.swagger.io/v2/swagger.json|swagger.json|g' docs/index.html
-
     - name: Create .env file from secrets and variables
       run: |
         cat > .env <<EOF
@@ -61,10 +41,6 @@ jobs:
     - name: Copy compose and env files to server
       run: |
         rsync -avz -e 'ssh -o StrictHostKeyChecking=no' docker-compose.yml .env root@${{ secrets.HETZNER_HOST }}:/root/app/
-
-    - name: Copy docs to Caddy static directory
-      run: |
-        rsync -avz -e 'ssh -o StrictHostKeyChecking=no' docs/ root@${{ secrets.HETZNER_HOST }}:/srv/app/docs/
 
     - name: Docker login on server
       run: |
